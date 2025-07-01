@@ -38,13 +38,13 @@ func HandlerPlansGetForOwner(cfg *ApiConfig) {
 	respondWithJSON(cfg.Resp, http.StatusCreated, plans)
 }
 
-func HandlerPlanCreate(cfg *ApiConfig) {
-	type parameters struct {
+type CreatePlanParams struct {
 		Name string `json:"name"`
-	}
+}
 
+func HandlerPlanCreate(cfg *ApiConfig) {
 	decoder := json.NewDecoder(cfg.Req.Body)
-	params := parameters{}
+	params := CreatePlanParams{}
 	err := decoder.Decode(&params)
 	if err != nil {
 		respondWithError(cfg.Resp, http.StatusInternalServerError, "Couldn't decode parameters", err)

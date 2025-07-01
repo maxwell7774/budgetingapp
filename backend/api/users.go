@@ -40,15 +40,16 @@ func HandlerUsersGet(cfg *ApiConfig) {
 	respondWithJSON(cfg.Resp, http.StatusOK, users)
 }
 
+type CreateUserParams struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+}
+
 func HandlerUserCreate(cfg *ApiConfig) {
-	type parameters struct {
-		FirstName string `json:"first_name"`
-		LastName  string `json:"last_name"`
-		Email     string `json:"email"`
-	}
 
 	decoder := json.NewDecoder(cfg.Req.Body)
-	params := parameters{}
+	params := CreateUserParams{}
 	err := decoder.Decode(&params)
 	if err != nil {
 		respondWithError(cfg.Resp, http.StatusInternalServerError, "Couldn't decode parameters", err)

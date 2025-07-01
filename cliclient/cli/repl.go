@@ -5,9 +5,18 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
+
+	"github.com/maxwell7774/budgetingapp/internal/apiclient"
 )
 
-func StartRepl(s *State) {
+func StartRepl() {
+	client := apiclient.NewClient(5 * time.Second)
+
+	cfg := &config{
+		apiClient: client,
+	}
+
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for true {
@@ -19,6 +28,8 @@ func StartRepl(s *State) {
 			continue
 		}
 
+		fmt.Println()
+
 		commandName := words[0]
 		args := words[1:]
 
@@ -28,10 +39,12 @@ func StartRepl(s *State) {
 			continue
 		}
 
-		err := command.callback(s, args...)
+		err := command.callback(cfg, args...)
 		if err != nil {
 			fmt.Println(err)
 		}
+
+		fmt.Println()
 	}
 }
 

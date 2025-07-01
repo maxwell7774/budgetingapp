@@ -47,16 +47,17 @@ func HandlerPlanCategoriesGet(cfg *ApiConfig) {
 	respondWithJSON(cfg.Resp, http.StatusOK, planCats)
 }
 
+type CreatePlanCategoryParams struct {
+	PlanID    uuid.UUID `json:"plan_id"`
+	Name      string    `json:"name"`
+	Deposit   int32     `json:"deposit"`
+	Withdrawl int32     `json:"withdrawl"`
+}
+
 func HandlerPlanCategoryCreate(cfg *ApiConfig) {
-	type parameters struct {
-		PlanID    uuid.UUID `json:"plan_id"`
-		Name      string    `json:"name"`
-		Deposit   int32     `json:"deposit"`
-		Withdrawl int32     `json:"withdrawl"`
-	}
 
 	decoder := json.NewDecoder(cfg.Req.Body)
-	params := parameters{}
+	params := CreatePlanCategoryParams{}
 	err := decoder.Decode(&params)
 	if err != nil {
 		respondWithError(cfg.Resp, http.StatusInternalServerError, "Couldn't decode parameters", err)
