@@ -31,6 +31,22 @@ func StartRepl() {
 		userID:    nil,
 		terminal: terminal,
 		isRunning: true,
+		commandMode: true,
+	}
+
+	commandsArr := getCommandsAsArray()
+
+	terminal.AutoCompleteCallback = func(line string, pos int, key rune) (string, int, bool) {
+		if key != '\t' || !cfg.commandMode{
+			return line, pos, false
+		}
+
+		for _, command := range commandsArr {
+			if len(command.name) >= pos && strings.HasPrefix(line, command.name[:pos]) {
+				return command.name, len(command.name), true
+			}
+		}
+		return line, pos, false
 	}
 
 	for cfg.isRunning {
@@ -56,10 +72,13 @@ func StartRepl() {
 			continue
 		}
 
+		cfg.commandMode = false
 		err = command.callback(cfg, args...)
 		if err != nil {
 			terminal.Write([]byte(err.Error()))
 		}
+		cfg.commandMode = true
+
 		terminal.Write([]byte("\n"))
 	}
 }

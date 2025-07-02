@@ -7,8 +7,9 @@ import (
 )
 
 type config struct {
-	apiClient apiclient.Client
-	userID    *uuid.UUID
-	terminal *term.Terminal
-	isRunning bool
+	apiClient   apiclient.Client
+	userID      *uuid.UUID
+	terminal    *term.Terminal
+	isRunning   bool
+	commandMode bool
 }

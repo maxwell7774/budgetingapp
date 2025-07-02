@@ -1,5 +1,10 @@
 package cli
 
+import (
+	"slices"
+	"strings"
+)
+
 type cliCommand struct {
 	name        string
 	description string
@@ -54,4 +59,16 @@ func getCommands() map[string]cliCommand {
 			callback:    commandExit,
 		},
 	}
+}
+
+func getCommandsAsArray() []cliCommand {
+	commands := []cliCommand{}
+	for _, command := range getCommands() {
+		commands = append(commands, command)
+	}
+
+	slices.SortFunc(commands, func(a cliCommand, b cliCommand) int {
+		return strings.Compare(a.name, b.name)
+	})
+	return commands
 }
