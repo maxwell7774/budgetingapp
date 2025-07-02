@@ -1,17 +1,10 @@
 package cli
 
-import (
-	"fmt"
-	"os"
-)
-
 func commandExit(cfg *config, args ...string) error {
-	defer os.Exit(0)
+	cfg.isRunning = false
 
-	fmt.Println()
-	fmt.Println("Exiting...")
-	fmt.Println("Thank you for Budgeting!")
-	fmt.Println()
+	Writeln(cfg.terminal, "Thank you for Budgeting!")
+	Writeln(cfg.terminal, "Exiting...")
 
 	return nil
 }

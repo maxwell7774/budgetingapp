@@ -1,6 +1,8 @@
 package main
 
-import "github.com/maxwell7774/budgetingapp/cliclient/cli"
+import (
+	"github.com/maxwell7774/budgetingapp/cliclient/cli"
+)
 
 func main() {
 	/*
@@ -9,6 +11,5 @@ func main() {
 			log.Fatal("Error loading .env file")
 		}
 	*/
-
 	cli.StartRepl()
 }

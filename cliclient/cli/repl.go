@@ -1,50 +1,66 @@
 package cli
 
 import (
-	"bufio"
-	"fmt"
+	"log"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/maxwell7774/budgetingapp/internal/apiclient"
+	"golang.org/x/term"
+)
+
+const (
+	mainPrompt = "Budgeting > "
 )
 
 func StartRepl() {
 	client := apiclient.NewClient(5 * time.Second)
 
+	fd := int(os.Stdin.Fd())
+	originalTermState, err := term.MakeRaw(fd)
+	if err != nil {
+		log.Fatalf("Couldn't set terminal to raw mode: %v", err)
+	}
+	defer term.Restore(fd, originalTermState)
+
+	terminal := term.NewTerminal(os.Stdin, mainPrompt)
+
 	cfg := &config{
 		apiClient: client,
+		userID:    nil,
+		terminal: terminal,
+		isRunning: true,
 	}
 
-	scanner := bufio.NewScanner(os.Stdin)
+	for cfg.isRunning {
+		line, err := terminal.ReadLine()
+		if err != nil {
+			terminal.Write([]byte("\nExiting program...\n"))
+			break
+		}
+		terminal.Write([]byte("\n"))
 
-	for true {
-		fmt.Print("Budgeting > ")
-		scanner.Scan()
-		words := cleanInput(scanner.Text())
+		words := cleanInput(line)
 
 		if len(words) == 0 {
 			continue
 		}
-
-		fmt.Println()
 
 		commandName := words[0]
 		args := words[1:]
 
 		command, exists := getCommands()[commandName]
 		if !exists {
-			fmt.Println("Unknown command")
+			terminal.Write([]byte("Unknown command"))
 			continue
 		}
 
-		err := command.callback(cfg, args...)
+		err = command.callback(cfg, args...)
 		if err != nil {
-			fmt.Println(err)
+			terminal.Write([]byte(err.Error()))
 		}
-
-		fmt.Println()
+		terminal.Write([]byte("\n"))
 	}
 }
 

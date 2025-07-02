@@ -1,14 +1,17 @@
 package cli
 
 import (
-	"bufio"
 	"context"
 	"fmt"
-	"os"
 	"strconv"
+	"strings"
+
+	"github.com/maxwell7774/budgetingapp/backend/api"
 )
 
 func commandListPlanCategories(cfg *config, args ...string) error {
+	defer cfg.terminal.SetPrompt(mainPrompt)
+
 	plans, err := cfg.apiClient.GetPlans(context.Background())
 	if err != nil {
 		return fmt.Errorf("Couldn't retrieve plans: %w", err)
@@ -18,16 +21,18 @@ func commandListPlanCategories(cfg *config, args ...string) error {
 		return fmt.Errorf("No plans found...")
 	}
 
-	scanner := bufio.NewScanner(os.Stdin)
-
-	fmt.Println("----------PLANS----------")
+	Writeln(cfg.terminal, "----------PLANS----------")
 	for i, p := range plans {
-		fmt.Printf("%d. %s\n", i+1, p.Name)
+		Writef(cfg.terminal, "%d. %s\n", i+1, p.Name)
 	}
 
-	fmt.Printf("Please select a plan: ")
-	scanner.Scan()
-	planIndex, err := strconv.Atoi(scanner.Text())
+	cfg.terminal.SetPrompt("Please select a plan: ")
+	line, err := cfg.terminal.ReadLine()
+	if err != nil {
+		return err
+	}
+
+	planIndex, err := strconv.Atoi(line)
 	if err != nil {
 		return fmt.Errorf("Please enter a valid selection.")
 	}
@@ -47,11 +52,106 @@ func commandListPlanCategories(cfg *config, args ...string) error {
 		return fmt.Errorf("No categories found...")
 	}
 
-	fmt.Println()
-	fmt.Printf("----------%s Categories----------\n", plan.Name)
+	Writef(cfg.terminal, "\n----------%s Categories----------\n", plan.Name)
+
 	for _, c := range categories {
-		fmt.Printf("* Name: %s, Deposit: %d, Withdrawl: %d\n", c.Name, c.Deposit, c.Withdrawl)
+		Writef(cfg.terminal, "* Name: %s, Deposit: %d, Withdrawl: %d\n", c.Name, c.Deposit, c.Withdrawl)
 	}
+
+	return nil
+}
+
+func commandCreatePlanCategory(cfg *config, args ...string) error {
+	defer cfg.terminal.SetPrompt(mainPrompt)
+
+	plans, err := cfg.apiClient.GetPlans(context.Background())
+	if err != nil {
+		return fmt.Errorf("Couldn't retrieve plans: %w", err)
+	}
+
+	if len(plans) == 0 {
+		return fmt.Errorf("No plans found...")
+	}
+
+	params := api.CreatePlanCategoryParams{}
+
+	Writeln(cfg.terminal, "----------PLANS----------")
+	for i, p := range plans {
+		Writef(cfg.terminal, "%d. %s\n", i+1, p.Name)
+	}
+
+	cfg.terminal.SetPrompt("Plan selection: ")
+	line, err := cfg.terminal.ReadLine()
+	if err != nil {
+		return err
+	}
+	planIndex, err := strconv.Atoi(line)
+	if err != nil {
+		return fmt.Errorf("Please enter a valid plan selection.")
+	}
+	planIndex -= 1
+	if planIndex < 0 || planIndex >= len(plans) {
+		return fmt.Errorf("Please enter a valid plan selection.")
+	}
+	params.PlanID = plans[planIndex].ID
+
+	cfg.terminal.SetPrompt("Category Name: ")
+	params.Name, err = cfg.terminal.ReadLine()
+	if err != nil {
+		return err
+	}
+
+	cfg.terminal.SetPrompt("Withdrawl or Deposit (enter w or d): ")
+	line, err = cfg.terminal.ReadLine()
+	if err != nil {
+		return err
+	}
+	typeOfCategory := strings.ToLower(line)
+
+	switch typeOfCategory {
+	case "w":
+		cfg.terminal.SetPrompt("Withdrawl Goal: ")
+		line, err = cfg.terminal.ReadLine()
+		if err != nil {
+			return err
+		}
+
+		withdrawl, err := strconv.Atoi(line)
+		if err != nil {
+			return fmt.Errorf("Not a valid deposit amount: %w", err)
+		}
+
+		params.Withdrawl = int32(withdrawl)
+		params.Deposit = 0
+	case "d":
+		cfg.terminal.SetPrompt("Deposit Goal: ")
+		line, err = cfg.terminal.ReadLine()
+		if err != nil {
+			return err
+		}
+
+		deposit, err := strconv.Atoi(line)
+		if err != nil {
+			return fmt.Errorf("Not a valid deposit amount: %w", err)
+		}
+
+		params.Deposit = int32(deposit)
+		params.Withdrawl = 0
+	default:
+		return fmt.Errorf("You didn't select withdrawl or deposit...")
+	}
+
+	category, err := cfg.apiClient.CreatePlanCategory(context.Background(), params)
+	if err != nil {
+		return fmt.Errorf("Couldn't create plan category: %w", err)
+	}
+
+	Writeln(cfg.terminal, "----------NEW CATEGORY----------")
+	Writef(cfg.terminal, "* ID: %s\n", category.ID)
+	Writef(cfg.terminal,"* Name: %s\n", category.Name)
+	Writef(cfg.terminal,"* Deposit: %d\n", category.Deposit)
+	Writef(cfg.terminal, "* Withdrawl: %d\n", category.Withdrawl)
+	Writef(cfg.terminal, "* Created At: %s\n", category.CreatedAt.String())
 
 	return nil
 }

@@ -1,29 +1,34 @@
 package cli
 
 import (
-	"bufio"
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/maxwell7774/budgetingapp/backend/api"
 )
 
 
 func commandRegister(cfg *config, args ...string) error {
-	scanner := bufio.NewScanner(os.Stdin)
+	defer cfg.terminal.SetPrompt(mainPrompt)
 
-	fmt.Printf("First Name: ")
-	scanner.Scan()
-	firstName := scanner.Text()
+	cfg.terminal.SetPrompt("First Name: ")
+	firstName, err := cfg.terminal.ReadLine()
+	if err != nil {
+		return err
+	}
 
-	fmt.Printf("Last Name: ")
-	scanner.Scan()
-	lastName := scanner.Text()
+	cfg.terminal.SetPrompt("Last Name: ")
+	lastName, err := cfg.terminal.ReadLine()
+	if err != nil {
+		return err
+	}
 
-	fmt.Printf("Email: ")
-	scanner.Scan()
-	email := scanner.Text()
+	cfg.terminal.SetPrompt("Email: ")
+	email, err := cfg.terminal.ReadLine()
+	if err != nil {
+		return err
+	}
+
 
 	user, err := cfg.apiClient.CreateUser(context.Background(), api.CreateUserParams{
 		FirstName: firstName,
@@ -34,11 +39,11 @@ func commandRegister(cfg *config, args ...string) error {
 		return fmt.Errorf("Couldn't create user: %w", err)
 	}
 	
-	fmt.Println("User registered!")
-	fmt.Printf("* ID: %s\n", user.ID.String())
-	fmt.Printf("* Name: %s %s\n", user.FirstName, user.LastName)
-	fmt.Printf("* Email: %s\n", user.Email)
-	fmt.Printf("* Created At: %s\n", user.CreatedAt.String())
+	Writeln(cfg.terminal, "User registered!")
+	Writef(cfg.terminal, "* ID: %s\n", user.ID.String())
+	Writef(cfg.terminal, "* Name: %s %s\n", user.FirstName, user.LastName)
+	Writef(cfg.terminal, "* Email: %s\n", user.Email)
+	Writef(cfg.terminal, "* Created At: %s\n", user.CreatedAt.String())
 
 	return nil
 }
@@ -49,9 +54,9 @@ func commandListUsers(cfg *config, args ...string) error {
 		return fmt.Errorf("Couldn't retrieve users: %w", err)
 	}
 
-	fmt.Println("----------USERS----------")
+	Writeln(cfg.terminal, "----------USERS----------")
 	for _, u := range users {
-		fmt.Printf("* %s %s\n", u.FirstName, u.LastName)
+		Writef(cfg.terminal, "* %s %s\n", u.FirstName, u.LastName)
 	}
 
 	return nil

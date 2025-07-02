@@ -1,15 +1,13 @@
 package cli
 
 import (
-	"fmt"
 	"slices"
 	"strings"
 )
 
 func commandHelp(cfg *config, args ...string) error {
-	fmt.Println("Welcome to budgeting!")
-	fmt.Println("Usage:")
-	fmt.Println()
+	Writeln(cfg.terminal, "Welcome to budgeting!")
+	Writeln(cfg.terminal, "Usage:")
 
 	commands := []cliCommand{}
 	for _, command := range getCommands() {
@@ -21,7 +19,7 @@ func commandHelp(cfg *config, args ...string) error {
 	})
 
 	for _, command := range commands {
-		fmt.Printf("%s: %s\n", command.name, command.description)
+		Writef(cfg.terminal, "* %s: %s\n", command.name, command.description)
 	}
 	return nil
 }

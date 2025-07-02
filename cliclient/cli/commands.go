@@ -18,25 +18,35 @@ func getCommands() map[string]cliCommand {
 			description: "Registers a new user",
 			callback:    commandRegister,
 		},
+		"login": {
+			name:        "login",
+			description: "Logs a user in",
+			callback:    commandLogin,
+		},
 		"users": {
-			name: "users",
+			name:        "users",
 			description: "Lists all users",
-			callback: commandListUsers,
+			callback:    commandListUsers,
 		},
 		"plans": {
-			name: "plans",
+			name:        "plans",
 			description: "Lists all plans",
-			callback: commandListPlans,
+			callback:    commandListPlans,
 		},
 		"new-plan": {
-			name: "new-plan",
+			name:        "new-plan",
 			description: "Create a new plan",
-			callback: commandCreatePlan,
+			callback:    commandCreatePlan,
 		},
 		"plan-categories": {
-			name: "plan-categories",
+			name:        "plan-categories",
 			description: "List a plan's categories",
-			callback: commandListPlanCategories,
+			callback:    commandListPlanCategories,
+		},
+		"new-plan-category": {
+			name:        "new-plan-category",
+			description: "Create a new plan category",
+			callback:    commandCreatePlanCategory,
 		},
 		"exit": {
 			name:        "exit",
@@ -45,5 +55,3 @@ func getCommands() map[string]cliCommand {
 		},
 	}
 }
-
-

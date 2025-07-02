@@ -1,10 +1,8 @@
 package cli
 
 import (
-	"bufio"
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/maxwell7774/budgetingapp/backend/api"
 )
@@ -15,20 +13,22 @@ func commandListPlans(cfg *config, args ...string) error {
 		return fmt.Errorf("Couldn't retrieve plans: %w", err)
 	}
 
-	fmt.Println("----------PLANS----------")
+	Writeln(cfg.terminal, "----------PLANS----------")
 	for _, p := range plans {
-		fmt.Printf("* %s\n", p.Name)
+		Writef(cfg.terminal, "* %s\n", p.Name)
 	}
 
 	return nil
 }
 
 func commandCreatePlan(cfg *config, args ...string) error {
-	scanner := bufio.NewScanner(os.Stdin)
+	defer cfg.terminal.SetPrompt(mainPrompt)
 
-	fmt.Printf("Plan Name: ")
-	scanner.Scan()
-	name := scanner.Text()
+	cfg.terminal.SetPrompt("Plan Name: ")
+	name, err := cfg.terminal.ReadLine()
+	if err != nil {
+		return err
+	}
 
 	plan, err := cfg.apiClient.CreatePlan(context.Background(), api.CreatePlanParams{
 		Name: name,
@@ -37,12 +37,10 @@ func commandCreatePlan(cfg *config, args ...string) error {
 		return fmt.Errorf("Couldn't create plan: %w", err)
 	}
 
-	fmt.Println()
-	fmt.Println("Plan created!")
-	fmt.Printf("ID: %s\n", plan.ID.String())
-	fmt.Printf("Name: %s\n", plan.Name)
-	fmt.Printf("Created At: %s\n", plan.CreatedAt.String())
+	Writeln(cfg.terminal, "Plan created!")
+	Writef(cfg.terminal, "ID: %s\n", plan.ID.String())
+	Writef(cfg.terminal, "Name: %s\n", plan.Name)
+	Writef(cfg.terminal, "Created At: %s\n", plan.CreatedAt.String())
 
 	return nil
 }
-
