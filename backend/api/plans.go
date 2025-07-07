@@ -17,10 +17,16 @@ type Plan struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func HandlerPlansGetForOwner(cfg *ApiConfig) {
-	plansDB, err := cfg.DB.GetPlansForOwner(cfg.Req.Context(), cfg.User.ID)
+func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Request) {
+	user, ok := r.Context().Value(userCtxKey).(*database.User)
+	if !ok {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from context", nil)
+		return
+	}
+
+	plansDB, err := cfg.DB.GetPlansForOwner(r.Context(), user.ID)
 	if err != nil {
-		respondWithError(cfg.Resp, http.StatusInternalServerError, "Couldn't retrieve plans", err)
+		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve plans", err)
 		return
 	}
 
@@ -35,32 +41,38 @@ func HandlerPlansGetForOwner(cfg *ApiConfig) {
 		})
 	}
 
-	respondWithJSON(cfg.Resp, http.StatusCreated, plans)
+	respondWithJSON(w, http.StatusCreated, plans)
 }
 
 type CreatePlanParams struct {
 		Name string `json:"name"`
 }
 
-func HandlerPlanCreate(cfg *ApiConfig) {
-	decoder := json.NewDecoder(cfg.Req.Body)
+func (cfg *ApiConfig) HandlerPlanCreate(w http.ResponseWriter, r *http.Request) {
+	user, ok := r.Context().Value(userCtxKey).(*database.User)
+	if !ok {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from context", nil)
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
 	params := CreatePlanParams{}
 	err := decoder.Decode(&params)
 	if err != nil {
-		respondWithError(cfg.Resp, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
 		return
 	}
 
-	plan, err := cfg.DB.CreatePlan(cfg.Req.Context(), database.CreatePlanParams{
-		OwnerID: cfg.User.ID,
+	plan, err := cfg.DB.CreatePlan(r.Context(), database.CreatePlanParams{
+		OwnerID: user.ID,
 		Name:    params.Name,
 	})
 	if err != nil {
-		respondWithError(cfg.Resp, http.StatusInternalServerError, "Couldn't create plan", err)
+		respondWithError(w, http.StatusInternalServerError, "Couldn't create plan", err)
 		return
 	}
 
-	respondWithJSON(cfg.Resp, http.StatusCreated, Plan{
+	respondWithJSON(w, http.StatusCreated, Plan{
 		ID:        plan.ID,
 		OwnerID:   plan.OwnerID,
 		Name:      plan.Name,

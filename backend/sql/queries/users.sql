@@ -19,6 +19,7 @@ INSERT INTO users(
     first_name,
     last_name,
     email,
+    hashed_password,
     created_at,
     updated_at
 )
@@ -27,6 +28,7 @@ VALUES (
     $1,
     $2,
     $3,
+    $4,
     NOW(),
     NOW()
 )

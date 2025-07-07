@@ -20,16 +20,16 @@ type LineItem struct {
 	UpdatedAt      time.Time `json:"updated_at"`
 }
 
-func HandlerLineItemsGet(cfg *ApiConfig) {
-	planID, err := uuid.Parse(cfg.Req.PathValue("id"))
+func (cfg *ApiConfig) HandlerLineItemsGet(w http.ResponseWriter, r *http.Request) {
+	planID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		respondWithError(cfg.Resp, http.StatusNotFound, "Not a valid id", err)
+		respondWithError(w, http.StatusNotFound, "Not a valid id", err)
 		return
 	}
 
-	lineItemsDB, err := cfg.DB.GetLineItems(cfg.Req.Context(), planID)
+	lineItemsDB, err := cfg.DB.GetLineItems(r.Context(), planID)
 	if err != nil {
-		respondWithError(cfg.Resp, http.StatusInternalServerError, "Couldn't retrieve line items", err)
+		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve line items", err)
 		return
 	}
 	lineItems := []LineItem{}
@@ -46,10 +46,10 @@ func HandlerLineItemsGet(cfg *ApiConfig) {
 		})
 	}
 
-	respondWithJSON(cfg.Resp, http.StatusOK, lineItems)
+	respondWithJSON(w, http.StatusOK, lineItems)
 }
 
-func HandlerLineItemDeposit(cfg *ApiConfig) {
+func (cfg *ApiConfig) HandlerLineItemDeposit(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		PlanID         uuid.UUID `json:"plan_id"`
 		PlanCategoryID uuid.UUID `json:"plan_category_id"`
@@ -57,15 +57,15 @@ func HandlerLineItemDeposit(cfg *ApiConfig) {
 		Amount         int32     `json:"amount"`
 	}
 
-	decoder := json.NewDecoder(cfg.Req.Body)
+	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
 	err := decoder.Decode(&params)
 	if err != nil {
-		respondWithError(cfg.Resp, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
 		return
 	}
 
-	lineItem, err := cfg.DB.CreateLineItem(cfg.Req.Context(), database.CreateLineItemParams{
+	lineItem, err := cfg.DB.CreateLineItem(r.Context(), database.CreateLineItemParams{
 		PlanID:         params.PlanID,
 		PlanCategoryID: params.PlanCategoryID,
 		Description:    params.Description,
@@ -73,11 +73,11 @@ func HandlerLineItemDeposit(cfg *ApiConfig) {
 		Withdrawl:      0,
 	})
 	if err != nil {
-		respondWithError(cfg.Resp, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
 		return
 	}
 
-	respondWithJSON(cfg.Resp, http.StatusCreated, LineItem{
+	respondWithJSON(w, http.StatusCreated, LineItem{
 		ID:             lineItem.ID,
 		PlanID:         lineItem.PlanID,
 		PlanCategoryID: lineItem.PlanCategoryID,
@@ -90,7 +90,7 @@ func HandlerLineItemDeposit(cfg *ApiConfig) {
 
 }
 
-func HandlerLineItemWithdrawl(cfg *ApiConfig) {
+func (cfg *ApiConfig) HandlerLineItemWithdrawl(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		PlanID         uuid.UUID `json:"plan_id"`
 		PlanCategoryID uuid.UUID `json:"plan_category_id"`
@@ -98,15 +98,15 @@ func HandlerLineItemWithdrawl(cfg *ApiConfig) {
 		Amount         int32     `json:"amount"`
 	}
 
-	decoder := json.NewDecoder(cfg.Req.Body)
+	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
 	err := decoder.Decode(&params)
 	if err != nil {
-		respondWithError(cfg.Resp, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
 		return
 	}
 
-	lineItem, err := cfg.DB.CreateLineItem(cfg.Req.Context(), database.CreateLineItemParams{
+	lineItem, err := cfg.DB.CreateLineItem(r.Context(), database.CreateLineItemParams{
 		PlanID:         params.PlanID,
 		PlanCategoryID: params.PlanCategoryID,
 		Description:    params.Description,
@@ -114,11 +114,11 @@ func HandlerLineItemWithdrawl(cfg *ApiConfig) {
 		Withdrawl:      params.Amount,
 	})
 	if err != nil {
-		respondWithError(cfg.Resp, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
 		return
 	}
 
-	respondWithJSON(cfg.Resp, http.StatusCreated, LineItem{
+	respondWithJSON(w, http.StatusCreated, LineItem{
 		ID:             lineItem.ID,
 		PlanID:         lineItem.PlanID,
 		PlanCategoryID: lineItem.PlanCategoryID,
@@ -128,5 +128,4 @@ func HandlerLineItemWithdrawl(cfg *ApiConfig) {
 		CreatedAt:      lineItem.CreatedAt,
 		UpdatedAt:      lineItem.UpdatedAt,
 	})
-
 }

@@ -3,12 +3,13 @@ package main
 import (
 	"database/sql"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	"github.com/maxwell7774/budgetingapp/backend/app"
 	"github.com/maxwell7774/budgetingapp/backend/internal/database"
+	"github.com/maxwell7774/budgetingapp/backend/internal/routes"
 )
 
 func main() {
@@ -39,10 +40,10 @@ func main() {
 
 	dbQueries := database.New(db)
 
-	app := app.NewApp(
-		port,
+	router := routes.NewRouter(
 		dbQueries,
 	)
 
-	app.Start()
+	log.Printf("Listening on: http://localhost%s", port)
+	log.Fatal(http.ListenAndServe(port, router))
 }
