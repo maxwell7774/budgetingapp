@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/maxwell7774/budgetingapp/backend/internal/auth"
 	"github.com/maxwell7774/budgetingapp/backend/internal/database"
-	"github.com/pingcap/tidb/pkg/parser/auth"
 )
 
 type User struct {
@@ -16,12 +15,13 @@ type User struct {
 	FirstName string    `json:"first_name"`
 	LastName  string    `json:"last_name"`
 	Email     string    `json:"email"`
+	Password  string    `json:"-"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func (cfg *ApiConfig) HandlerUsersGet(w http.ResponseWriter, r *http.Request) {
-	usersFromDB, err := cfg.DB.GetUsers(r.Context())
+	usersFromDB, err := cfg.db.GetUsers(r.Context())
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve users", err)
 		return
@@ -64,7 +64,7 @@ func (cfg *ApiConfig) HandlerUserCreate(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	user, err := cfg.DB.CreateUser(r.Context(), database.CreateUserParams{
+	user, err := cfg.db.CreateUser(r.Context(), database.CreateUserParams{
 		FirstName:      params.FirstName,
 		LastName:       params.LastName,
 		Email:          params.Email,

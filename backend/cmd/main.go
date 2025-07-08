@@ -28,20 +28,21 @@ func main() {
 		log.Fatal("DB_URL must be set")
 	}
 
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		log.Fatal("JWT_SECRET must be set")
+	}
+
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatalf("Error opening database connection: %v", err)
-	}
-
-	currentUserEmail := os.Getenv("CURRENT_USER")
-	if currentUserEmail == "" {
-		log.Fatal("CURRENT_USER must be set")
 	}
 
 	dbQueries := database.New(db)
 
 	router := routes.NewRouter(
 		dbQueries,
+		jwtSecret,
 	)
 
 	log.Printf("Listening on: http://localhost%s", port)

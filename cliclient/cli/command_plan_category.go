@@ -10,8 +10,6 @@ import (
 )
 
 func commandListPlanCategories(cfg *config, args ...string) error {
-	defer cfg.terminal.SetPrompt(mainPrompt)
-
 	plans, err := cfg.apiClient.GetPlans(context.Background())
 	if err != nil {
 		return fmt.Errorf("Couldn't retrieve plans: %w", err)
@@ -62,8 +60,6 @@ func commandListPlanCategories(cfg *config, args ...string) error {
 }
 
 func commandCreatePlanCategory(cfg *config, args ...string) error {
-	defer cfg.terminal.SetPrompt(mainPrompt)
-
 	plans, err := cfg.apiClient.GetPlans(context.Background())
 	if err != nil {
 		return fmt.Errorf("Couldn't retrieve plans: %w", err)

@@ -7,15 +7,15 @@ import (
 	"github.com/maxwell7774/budgetingapp/backend/internal/database"
 )
 
-func NewRouter(db *database.Queries) *http.ServeMux {
+func NewRouter(db *database.Queries, jwtSecret string) *http.ServeMux {
 	mux := http.NewServeMux()
 
-	apiConfig := api.ApiConfig{
-		DB: db,
-	}
+	apiConfig := api.NewApiConfig(db, jwtSecret)
 
 	mux.HandleFunc("GET /api/v1/users", apiConfig.HandlerUsersGet)
 	mux.HandleFunc("POST /api/v1/users", apiConfig.HandlerUserCreate)
+
+	mux.HandleFunc("POST /api/v1/login", apiConfig.HandlerLogin)
 
 	mux.HandleFunc("GET /api/v1/plans", apiConfig.HandlerPlansGetForOwner)
 	mux.HandleFunc("POST /api/v1/plans", apiConfig.HandlerPlanCreate)

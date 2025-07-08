@@ -27,7 +27,7 @@ func (cfg *ApiConfig) HandlerLineItemsGet(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	lineItemsDB, err := cfg.DB.GetLineItems(r.Context(), planID)
+	lineItemsDB, err := cfg.db.GetLineItems(r.Context(), planID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve line items", err)
 		return
@@ -65,7 +65,7 @@ func (cfg *ApiConfig) HandlerLineItemDeposit(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	lineItem, err := cfg.DB.CreateLineItem(r.Context(), database.CreateLineItemParams{
+	lineItem, err := cfg.db.CreateLineItem(r.Context(), database.CreateLineItemParams{
 		PlanID:         params.PlanID,
 		PlanCategoryID: params.PlanCategoryID,
 		Description:    params.Description,
@@ -106,7 +106,7 @@ func (cfg *ApiConfig) HandlerLineItemWithdrawl(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	lineItem, err := cfg.DB.CreateLineItem(r.Context(), database.CreateLineItemParams{
+	lineItem, err := cfg.db.CreateLineItem(r.Context(), database.CreateLineItemParams{
 		PlanID:         params.PlanID,
 		PlanCategoryID: params.PlanCategoryID,
 		Description:    params.Description,

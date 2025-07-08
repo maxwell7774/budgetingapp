@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -32,6 +33,16 @@ func (c *Client) CreatePlan(ctx context.Context, params api.CreatePlanParams) (a
 	dat, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return api.Plan{}, err
+	}
+
+	if resp.StatusCode != http.StatusCreated {
+		msg := api.ErrorResponse{}
+		err = json.Unmarshal(dat, &msg)
+		if err != nil {
+			return api.Plan{}, err
+		}
+
+		return api.Plan{}, fmt.Errorf("%s: %s", resp.Status, msg.Error)
 	}
 
 	plan := api.Plan{}

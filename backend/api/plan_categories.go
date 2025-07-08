@@ -26,7 +26,7 @@ func (cfg *ApiConfig) HandlerPlanCategoriesGet(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	planCategoriesDB, err := cfg.DB.GetPlanCategories(r.Context(), planID)
+	planCategoriesDB, err := cfg.db.GetPlanCategories(r.Context(), planID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve plan categories", err)
 		return
@@ -64,7 +64,7 @@ func (cfg *ApiConfig) HandlerPlanCategoryCreate(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	plan_category, err := cfg.DB.CreatePlanCategory(r.Context(), database.CreatePlanCategoryParams{
+	plan_category, err := cfg.db.CreatePlanCategory(r.Context(), database.CreatePlanCategoryParams{
 		PlanID:    params.PlanID,
 		Name:      params.Name,
 		Deposit:   params.Deposit,

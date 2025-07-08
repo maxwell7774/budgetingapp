@@ -22,8 +22,6 @@ func commandListPlans(cfg *config, args ...string) error {
 }
 
 func commandCreatePlan(cfg *config, args ...string) error {
-	defer cfg.terminal.SetPrompt(mainPrompt)
-
 	cfg.terminal.SetPrompt("Plan Name: ")
 	name, err := cfg.terminal.ReadLine()
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/maxwell7774/budgetingapp/backend/internal/auth"
 	"github.com/maxwell7774/budgetingapp/backend/internal/database"
 )
 
@@ -18,13 +19,19 @@ type Plan struct {
 }
 
 func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Request) {
-	user, ok := r.Context().Value(userCtxKey).(*database.User)
-	if !ok {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from context", nil)
+	accessToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
 		return
 	}
 
-	plansDB, err := cfg.DB.GetPlansForOwner(r.Context(), user.ID)
+	userID, err := auth.ValidateJWT(accessToken, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		return
+	}
+
+	plansDB, err := cfg.db.GetPlansForOwner(r.Context(), userID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve plans", err)
 		return
@@ -49,22 +56,28 @@ type CreatePlanParams struct {
 }
 
 func (cfg *ApiConfig) HandlerPlanCreate(w http.ResponseWriter, r *http.Request) {
-	user, ok := r.Context().Value(userCtxKey).(*database.User)
-	if !ok {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from context", nil)
+	accessToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
+		return
+	}
+
+	userID, err := auth.ValidateJWT(accessToken, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
 		return
 	}
 
 	decoder := json.NewDecoder(r.Body)
 	params := CreatePlanParams{}
-	err := decoder.Decode(&params)
+	err = decoder.Decode(&params)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
 		return
 	}
 
-	plan, err := cfg.DB.CreatePlan(r.Context(), database.CreatePlanParams{
-		OwnerID: user.ID,
+	plan, err := cfg.db.CreatePlan(r.Context(), database.CreatePlanParams{
+		OwnerID: userID,
 		Name:    params.Name,
 	})
 	if err != nil {

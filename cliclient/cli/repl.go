@@ -28,7 +28,7 @@ func StartRepl() {
 
 	cfg := &config{
 		apiClient: client,
-		userID:    nil,
+		user:    nil,
 		terminal: terminal,
 		isRunning: true,
 		commandMode: true,
@@ -50,6 +50,7 @@ func StartRepl() {
 	}
 
 	for cfg.isRunning {
+		terminal.SetPrompt(mainPrompt)
 		line, err := terminal.ReadLine()
 		if err != nil {
 			terminal.Write([]byte("\nExiting program...\n"))

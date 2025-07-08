@@ -3,33 +3,34 @@ package cli
 import (
 	"context"
 	"fmt"
-	"strings"
 
+	"github.com/maxwell7774/budgetingapp/backend/api"
 )
 
 func commandLogin(cfg *config, args ...string) error {
-	if len(args) == 0 {
-		return fmt.Errorf("A user email must be provided")
-	}
-	userEmail := strings.ToLower(args[0])
-
-	users, err := cfg.apiClient.GetUsers(context.Background())
+	cfg.terminal.SetPrompt("Email: ")
+	email, err := cfg.terminal.ReadLine()
 	if err != nil {
-		return fmt.Errorf("Couldn't retrieve users")
+		return err
 	}
 
-	for _, u := range users{
-		if strings.ToLower(u.Email) == userEmail {
-			line := fmt.Sprintf("Hello %s!\n", u.FirstName)
-			cfg.terminal.Write([]byte(line))
-			cfg.userID = &u.ID
-			break
-		}
+	password, err := cfg.terminal.ReadPassword("Password: ")
+	if err != nil {
+		return err
 	}
 
-	if cfg.userID == nil {
-		return fmt.Errorf("Please register user before logging in.")
+	loginResponse, err := cfg.apiClient.LoginUser(context.Background(), api.LoginParams{
+		Email:    email,
+		Password: password,
+	})
+	if err != nil {
+		return fmt.Errorf("Couldn't log user in: %w", err)
 	}
+
+	cfg.apiClient.SetAccessToken(loginResponse.Token)
+	cfg.user = &loginResponse.User
+
+	Writef(cfg.terminal, "LoginResponse: %v", loginResponse)
 
 	return nil
 }
