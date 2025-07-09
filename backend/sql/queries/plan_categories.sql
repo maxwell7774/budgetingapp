@@ -3,6 +3,11 @@ SELECT *
 FROM plan_categories
 WHERE plan_id = $1;
 
+-- name: GetPlanCategoryByID :one
+SELECT *
+FROM plan_categories
+WHERE id = $1;
+
 -- name: CreatePlanCategory :one
 INSERT INTO plan_categories(
     id,

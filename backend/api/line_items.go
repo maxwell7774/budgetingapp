@@ -6,11 +6,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/maxwell7774/budgetingapp/backend/internal/auth"
 	"github.com/maxwell7774/budgetingapp/backend/internal/database"
 )
 
 type LineItem struct {
 	ID             uuid.UUID `json:"id"`
+	UserID         uuid.UUID `json:"user_id"`
 	PlanID         uuid.UUID `json:"plan_id"`
 	PlanCategoryID uuid.UUID `json:"plan_category_id"`
 	Description    string    `json:"description"`
@@ -21,6 +23,18 @@ type LineItem struct {
 }
 
 func (cfg *ApiConfig) HandlerLineItemsGet(w http.ResponseWriter, r *http.Request) {
+	accessToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
+		return
+	}
+
+	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		return
+	}
+
 	planID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, "Not a valid id", err)
@@ -36,6 +50,7 @@ func (cfg *ApiConfig) HandlerLineItemsGet(w http.ResponseWriter, r *http.Request
 	for _, p := range lineItemsDB {
 		lineItems = append(lineItems, LineItem{
 			ID:             p.ID,
+			UserID:         p.UserID,
 			PlanID:         p.PlanID,
 			PlanCategoryID: p.PlanCategoryID,
 			Description:    p.Description,
@@ -49,69 +64,56 @@ func (cfg *ApiConfig) HandlerLineItemsGet(w http.ResponseWriter, r *http.Request
 	respondWithJSON(w, http.StatusOK, lineItems)
 }
 
-func (cfg *ApiConfig) HandlerLineItemDeposit(w http.ResponseWriter, r *http.Request) {
-	type parameters struct {
-		PlanID         uuid.UUID `json:"plan_id"`
-		PlanCategoryID uuid.UUID `json:"plan_category_id"`
-		Description    string    `json:"description"`
-		Amount         int32     `json:"amount"`
-	}
-
-	decoder := json.NewDecoder(r.Body)
-	params := parameters{}
-	err := decoder.Decode(&params)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
-		return
-	}
-
-	lineItem, err := cfg.db.CreateLineItem(r.Context(), database.CreateLineItemParams{
-		PlanID:         params.PlanID,
-		PlanCategoryID: params.PlanCategoryID,
-		Description:    params.Description,
-		Deposit:        params.Amount,
-		Withdrawl:      0,
-	})
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
-		return
-	}
-
-	respondWithJSON(w, http.StatusCreated, LineItem{
-		ID:             lineItem.ID,
-		PlanID:         lineItem.PlanID,
-		PlanCategoryID: lineItem.PlanCategoryID,
-		Description:    lineItem.Description,
-		Deposit:        lineItem.Deposit,
-		Withdrawl:      lineItem.Withdrawl,
-		CreatedAt:      lineItem.CreatedAt,
-		UpdatedAt:      lineItem.UpdatedAt,
-	})
-
+type CreateLineItemParams struct {
+	PlanID         uuid.UUID `json:"plan_id"`
+	PlanCategoryID uuid.UUID `json:"plan_category_id"`
+	Description    string    `json:"description"`
+	Amount         int32     `json:"amount"`
 }
 
-func (cfg *ApiConfig) HandlerLineItemWithdrawl(w http.ResponseWriter, r *http.Request) {
-	type parameters struct {
-		PlanID         uuid.UUID `json:"plan_id"`
-		PlanCategoryID uuid.UUID `json:"plan_category_id"`
-		Description    string    `json:"description"`
-		Amount         int32     `json:"amount"`
+func (cfg *ApiConfig) HandlerLineItemCreate(w http.ResponseWriter, r *http.Request) {
+	accessToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
+		return
+	}
+
+	userID, err := auth.ValidateJWT(accessToken, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		return
 	}
 
 	decoder := json.NewDecoder(r.Body)
-	params := parameters{}
-	err := decoder.Decode(&params)
+	params := CreateLineItemParams{}
+	err = decoder.Decode(&params)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
 		return
 	}
 
+	planCategory, err := cfg.db.GetPlanCategoryByID(r.Context(), params.PlanCategoryID)
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, "Plan category couldn't be retrieved", err)
+		return
+	}
+
+	deposit := int32(0)
+	withdrawl := int32(0)
+	
+	if planCategory.Withdrawl > 0 {
+		withdrawl = params.Amount
+	} else {
+		deposit = params.Amount
+	}
+
 	lineItem, err := cfg.db.CreateLineItem(r.Context(), database.CreateLineItemParams{
+		UserID:         userID,
 		PlanID:         params.PlanID,
 		PlanCategoryID: params.PlanCategoryID,
 		Description:    params.Description,
-		Deposit:        0,
-		Withdrawl:      params.Amount,
+		Deposit:        deposit,
+		Withdrawl:      withdrawl,
 	})
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
@@ -120,6 +122,7 @@ func (cfg *ApiConfig) HandlerLineItemWithdrawl(w http.ResponseWriter, r *http.Re
 
 	respondWithJSON(w, http.StatusCreated, LineItem{
 		ID:             lineItem.ID,
+		UserID:         lineItem.UserID,
 		PlanID:         lineItem.PlanID,
 		PlanCategoryID: lineItem.PlanCategoryID,
 		Description:    lineItem.Description,
@@ -128,4 +131,5 @@ func (cfg *ApiConfig) HandlerLineItemWithdrawl(w http.ResponseWriter, r *http.Re
 		CreatedAt:      lineItem.CreatedAt,
 		UpdatedAt:      lineItem.UpdatedAt,
 	})
+
 }

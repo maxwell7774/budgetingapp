@@ -24,8 +24,7 @@ func NewRouter(db *database.Queries, jwtSecret string) *http.ServeMux {
 
 	mux.HandleFunc("POST /api/v1/plan-categories", apiConfig.HandlerPlanCategoryCreate)
 
-	mux.HandleFunc("POST /api/v1/plan-withdrawl", apiConfig.HandlerLineItemWithdrawl)
-	mux.HandleFunc("POST /api/v1/plan-deposit", apiConfig.HandlerLineItemDeposit)
+	mux.HandleFunc("POST /api/v1/line-items", apiConfig.HandlerLineItemCreate)
 
 	return mux
 }

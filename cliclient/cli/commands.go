@@ -53,6 +53,16 @@ func getCommands() map[string]cliCommand {
 			description: "Create a new plan category",
 			callback:    commandCreatePlanCategory,
 		},
+		"line-items": {
+			name: "line-items",
+			description: "List line items for plans",
+			callback: commandListLineItemsForPlan,
+		},
+		"new-line-item": {
+			name: "new-line-item",
+			description: "Creates a new line item",
+			callback: commandCreateLineItem,
+		},
 		"exit": {
 			name:        "exit",
 			description: "Exits the program",

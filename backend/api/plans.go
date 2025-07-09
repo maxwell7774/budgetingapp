@@ -48,7 +48,7 @@ func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Req
 		})
 	}
 
-	respondWithJSON(w, http.StatusCreated, plans)
+	respondWithJSON(w, http.StatusOK, plans)
 }
 
 type CreatePlanParams struct {

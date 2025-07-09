@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -18,7 +19,7 @@ func (c *Client) CreateUser(ctx context.Context, u api.CreateUserParams) (api.Us
 		return api.User{}, err
 	}
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(rDat))
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(rDat))
 	if err != nil {
 		return api.User{}, err
 	}
@@ -32,6 +33,16 @@ func (c *Client) CreateUser(ctx context.Context, u api.CreateUserParams) (api.Us
 	dat, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return api.User{}, err
+	}
+
+	if resp.StatusCode != http.StatusCreated {
+		msg := api.ErrorResponse{}
+		err = json.Unmarshal(dat, &msg)
+		if err != nil {
+			return api.User{}, err
+		}
+
+		return api.User{}, fmt.Errorf("%s: %s", resp.Status, msg.Error)
 	}
 
 	user := api.User{}
@@ -46,7 +57,7 @@ func (c *Client) CreateUser(ctx context.Context, u api.CreateUserParams) (api.Us
 func (c *Client) GetUsers(ctx context.Context) ([]api.User, error) {
 	url := baseURL + "/users"
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -60,6 +71,16 @@ func (c *Client) GetUsers(ctx context.Context) ([]api.User, error) {
 	dat, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		msg := api.ErrorResponse{}
+		err = json.Unmarshal(dat, &msg)
+		if err != nil {
+			return nil, err
+		}
+
+		return nil, fmt.Errorf("%s: %s", resp.Status, msg.Error)
 	}
 
 	users := []api.User{}

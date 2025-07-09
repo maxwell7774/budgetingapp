@@ -12,6 +12,7 @@ import (
 
 type LineItem struct {
 	ID             uuid.UUID
+	UserID         uuid.UUID
 	PlanID         uuid.UUID
 	PlanCategoryID uuid.UUID
 	Description    string

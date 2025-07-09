@@ -30,7 +30,7 @@ func commandLogin(cfg *config, args ...string) error {
 	cfg.apiClient.SetAccessToken(loginResponse.Token)
 	cfg.user = &loginResponse.User
 
-	Writef(cfg.terminal, "LoginResponse: %v", loginResponse)
+	Writef(cfg.terminal, "LoginResponse: %v\ntoken: %s", loginResponse, loginResponse.Token)
 
 	return nil
 }

@@ -12,8 +12,8 @@ import (
 	"github.com/maxwell7774/budgetingapp/backend/api"
 )
 
-func (c *Client) GetPlanCategories(ctx context.Context, planID uuid.UUID) ([]api.PlanCategory, error) {
-	url := baseURL + "/plans/" + planID.String() + "/categories"
+func (c *Client) GetPlanLineItems(ctx context.Context, planID uuid.UUID) ([]api.LineItem, error) {
+	url := baseURL + "/plans/" + planID.String() + "/line-items"
 
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
@@ -41,54 +41,54 @@ func (c *Client) GetPlanCategories(ctx context.Context, planID uuid.UUID) ([]api
 		return nil, fmt.Errorf("%s: %s", resp.Status, msg.Error)
 	}
 
-	planCategories := []api.PlanCategory{}
-	err = json.Unmarshal(dat, &planCategories)
+	lineItems := []api.LineItem{}
+	err = json.Unmarshal(dat, &lineItems)
 	if err != nil {
 		return nil, err
 	}
 
-	return planCategories, nil
+	return lineItems, nil
 }
 
-func (c *Client) CreatePlanCategory(ctx context.Context, params api.CreatePlanCategoryParams) (api.PlanCategory, error) {
-	url := baseURL + "/plan-categories"
+func (c *Client) CreateLineItem(ctx context.Context, params api.CreateLineItemParams) (api.LineItem, error) {
+	url := baseURL + "/line-items"
 
 	rDat, err := json.Marshal(params)
 	if err != nil {
-		return api.PlanCategory{}, err
+		return api.LineItem{}, err
 	}
 
 	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(rDat))
 	if err != nil {
-		return api.PlanCategory{}, err
+		return api.LineItem{}, err
 	}
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return api.PlanCategory{}, err
+		return api.LineItem{}, err
 	}
 	defer resp.Body.Close()
 
 	dat, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return api.PlanCategory{}, err
+		return api.LineItem{}, err
 	}
 
 	if resp.StatusCode != http.StatusCreated {
 		msg := api.ErrorResponse{}
 		err = json.Unmarshal(dat, &msg)
 		if err != nil {
-			return api.PlanCategory{}, err
+			return api.LineItem{}, err
 		}
 
-		return api.PlanCategory{}, fmt.Errorf("%s: %s", resp.Status, msg.Error)
+		return api.LineItem{}, fmt.Errorf("%s: %s", resp.Status, msg.Error)
 	}
 
-	planCategory := api.PlanCategory{}
-	err = json.Unmarshal(dat, &planCategory)
+	lineItem := api.LineItem{}
+	err = json.Unmarshal(dat, &lineItem)
 	if err != nil {
-		return api.PlanCategory{}, err
+		return api.LineItem{}, err
 	}
 
-	return planCategory, nil
+	return lineItem, nil
 }

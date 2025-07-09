@@ -6,6 +6,7 @@ WHERE plan_id = $1;
 -- name: CreateLineItem :one
 INSERT INTO line_items(
     id,
+    user_id,
     plan_id,
     plan_category_id,
     description,
@@ -21,6 +22,7 @@ VALUES(
     $3,
     $4,
     $5,
+    $6,
     NOW(),
     NOW()
 )

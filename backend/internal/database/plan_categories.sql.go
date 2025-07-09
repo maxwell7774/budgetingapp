@@ -96,3 +96,24 @@ func (q *Queries) GetPlanCategories(ctx context.Context, planID uuid.UUID) ([]Pl
 	}
 	return items, nil
 }
+
+const getPlanCategoryByID = `-- name: GetPlanCategoryByID :one
+SELECT id, plan_id, name, deposit, withdrawl, created_at, updated_at
+FROM plan_categories
+WHERE id = $1
+`
+
+func (q *Queries) GetPlanCategoryByID(ctx context.Context, id uuid.UUID) (PlanCategory, error) {
+	row := q.db.QueryRowContext(ctx, getPlanCategoryByID, id)
+	var i PlanCategory
+	err := row.Scan(
+		&i.ID,
+		&i.PlanID,
+		&i.Name,
+		&i.Deposit,
+		&i.Withdrawl,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

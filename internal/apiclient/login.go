@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -18,7 +19,7 @@ func (c *Client) LoginUser(ctx context.Context, l api.LoginParams) (api.LoginRes
 		return api.LoginResponse{}, err
 	}
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(rDat))
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(rDat))
 	if err != nil {
 		return api.LoginResponse{}, err
 	}
@@ -32,6 +33,16 @@ func (c *Client) LoginUser(ctx context.Context, l api.LoginParams) (api.LoginRes
 	dat, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return api.LoginResponse{}, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		msg := api.ErrorResponse{}
+		err = json.Unmarshal(dat, &msg)
+		if err != nil {
+			return api.LoginResponse{}, err
+		}
+
+		return api.LoginResponse{}, fmt.Errorf("%s: %s", resp.Status, msg.Error)
 	}
 
 	loginResponse := api.LoginResponse{}
