@@ -1,10 +1,16 @@
-import "./App.css";
+import Navbar from "./components/Navbar.tsx";
 
 function App() {
   return (
-    <div className="bg">
-      Hello
-    </div>
+    <>
+      <header>
+        <Navbar />
+      </header>
+      <main className="flex-1">
+        Hello
+      </main>
+      <footer className="border-t h-20"></footer>
+    </>
   );
 }
 
