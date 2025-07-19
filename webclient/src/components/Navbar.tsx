@@ -1,13 +1,23 @@
-import { useState } from "react";
-
 function Navbar() {
   return (
-    <nav className="border-b bg-amber-950 p-8">
+    <nav className="p-8">
       <div className="max-w-7xl mx-auto flex items-center">
-        <ul className="ms-auto flex gap-8 h-full items-center">
-          <li>Test1</li>
-          <li>Test2</li>
-          <li>Test3</li>
+        <div>
+          <a className="text-2xl font-bold flex items-center" href="/">
+            <img className="w-10" src="/logo.svg" />
+            26volts
+          </a>
+        </div>
+        <ul className="ms-auto flex gap-8 h-full items-center font-semibold">
+          <li>
+            <a href="/">Home</a>
+          </li>
+          <li>
+            <a href="/about">About</a>
+          </li>
+          <li>
+            <a href="/login">Login</a>
+          </li>
         </ul>
       </div>
     </nav>
