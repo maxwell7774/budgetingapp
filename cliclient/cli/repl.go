@@ -27,17 +27,17 @@ func StartRepl() {
 	terminal := term.NewTerminal(os.Stdin, mainPrompt)
 
 	cfg := &config{
-		apiClient: client,
-		userID:    nil,
-		terminal: terminal,
-		isRunning: true,
+		apiClient:   client,
+		userID:      nil,
+		terminal:    terminal,
+		isRunning:   true,
 		commandMode: true,
 	}
 
 	commandsArr := getCommandsAsArray()
 
 	terminal.AutoCompleteCallback = func(line string, pos int, key rune) (string, int, bool) {
-		if key != '\t' || !cfg.commandMode{
+		if key != '\t' || !cfg.commandMode || pos == 0 {
 			return line, pos, false
 		}
 
