@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -18,7 +19,7 @@ func (c *Client) CreatePlan(ctx context.Context, params api.CreatePlanParams) (a
 		return api.Plan{}, err
 	}
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(rDat))
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(rDat))
 	if err != nil {
 		return api.Plan{}, err
 	}
@@ -32,6 +33,16 @@ func (c *Client) CreatePlan(ctx context.Context, params api.CreatePlanParams) (a
 	dat, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return api.Plan{}, err
+	}
+
+	if resp.StatusCode != http.StatusCreated {
+		msg := api.ErrorResponse{}
+		err = json.Unmarshal(dat, &msg)
+		if err != nil {
+			return api.Plan{}, err
+		}
+
+		return api.Plan{}, fmt.Errorf("%s: %s", resp.Status, msg.Error)
 	}
 
 	plan := api.Plan{}
@@ -46,7 +57,7 @@ func (c *Client) CreatePlan(ctx context.Context, params api.CreatePlanParams) (a
 func (c *Client) GetPlans(ctx context.Context) ([]api.Plan, error) {
 	url := baseURL + "/plans"
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -60,6 +71,16 @@ func (c *Client) GetPlans(ctx context.Context) ([]api.Plan, error) {
 	dat, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		msg := api.ErrorResponse{}
+		err = json.Unmarshal(dat, &msg)
+		if err != nil {
+			return nil, err
+		}
+
+		return nil, fmt.Errorf("%s: %s", resp.Status, msg.Error)
 	}
 
 	plans := []api.Plan{}

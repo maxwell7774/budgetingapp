@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -14,7 +15,7 @@ import (
 func (c *Client) GetPlanCategories(ctx context.Context, planID uuid.UUID) ([]api.PlanCategory, error) {
 	url := baseURL + "/plans/" + planID.String() + "/categories"
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -28,6 +29,16 @@ func (c *Client) GetPlanCategories(ctx context.Context, planID uuid.UUID) ([]api
 	dat, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		msg := api.ErrorResponse{}
+		err = json.Unmarshal(dat, &msg)
+		if err != nil {
+			return nil, err
+		}
+
+		return nil, fmt.Errorf("%s: %s", resp.Status, msg.Error)
 	}
 
 	planCategories := []api.PlanCategory{}
@@ -47,7 +58,7 @@ func (c *Client) CreatePlanCategory(ctx context.Context, params api.CreatePlanCa
 		return api.PlanCategory{}, err
 	}
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(rDat))
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(rDat))
 	if err != nil {
 		return api.PlanCategory{}, err
 	}
@@ -61,6 +72,16 @@ func (c *Client) CreatePlanCategory(ctx context.Context, params api.CreatePlanCa
 	dat, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return api.PlanCategory{}, err
+	}
+
+	if resp.StatusCode != http.StatusCreated {
+		msg := api.ErrorResponse{}
+		err = json.Unmarshal(dat, &msg)
+		if err != nil {
+			return api.PlanCategory{}, err
+		}
+
+		return api.PlanCategory{}, fmt.Errorf("%s: %s", resp.Status, msg.Error)
 	}
 
 	planCategory := api.PlanCategory{}

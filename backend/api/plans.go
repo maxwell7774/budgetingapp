@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/maxwell7774/budgetingapp/backend/internal/auth"
 	"github.com/maxwell7774/budgetingapp/backend/internal/database"
 )
 
@@ -17,10 +18,22 @@ type Plan struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func HandlerPlansGetForOwner(cfg *ApiConfig) {
-	plansDB, err := cfg.DB.GetPlansForOwner(cfg.Req.Context(), cfg.User.ID)
+func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Request) {
+	accessToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
-		respondWithError(cfg.Resp, http.StatusInternalServerError, "Couldn't retrieve plans", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
+		return
+	}
+
+	userID, err := auth.ValidateJWT(accessToken, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		return
+	}
+
+	plansDB, err := cfg.db.GetPlansForOwner(r.Context(), userID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve plans", err)
 		return
 	}
 
@@ -35,32 +48,44 @@ func HandlerPlansGetForOwner(cfg *ApiConfig) {
 		})
 	}
 
-	respondWithJSON(cfg.Resp, http.StatusCreated, plans)
+	respondWithJSON(w, http.StatusOK, plans)
 }
 
 type CreatePlanParams struct {
 		Name string `json:"name"`
 }
 
-func HandlerPlanCreate(cfg *ApiConfig) {
-	decoder := json.NewDecoder(cfg.Req.Body)
-	params := CreatePlanParams{}
-	err := decoder.Decode(&params)
+func (cfg *ApiConfig) HandlerPlanCreate(w http.ResponseWriter, r *http.Request) {
+	accessToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
-		respondWithError(cfg.Resp, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
 		return
 	}
 
-	plan, err := cfg.DB.CreatePlan(cfg.Req.Context(), database.CreatePlanParams{
-		OwnerID: cfg.User.ID,
+	userID, err := auth.ValidateJWT(accessToken, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	params := CreatePlanParams{}
+	err = decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		return
+	}
+
+	plan, err := cfg.db.CreatePlan(r.Context(), database.CreatePlanParams{
+		OwnerID: userID,
 		Name:    params.Name,
 	})
 	if err != nil {
-		respondWithError(cfg.Resp, http.StatusInternalServerError, "Couldn't create plan", err)
+		respondWithError(w, http.StatusInternalServerError, "Couldn't create plan", err)
 		return
 	}
 
-	respondWithJSON(cfg.Resp, http.StatusCreated, Plan{
+	respondWithJSON(w, http.StatusCreated, Plan{
 		ID:        plan.ID,
 		OwnerID:   plan.OwnerID,
 		Name:      plan.Name,

@@ -9,8 +9,6 @@ import (
 
 
 func commandRegister(cfg *config, args ...string) error {
-	defer cfg.terminal.SetPrompt(mainPrompt)
-
 	cfg.terminal.SetPrompt("First Name: ")
 	firstName, err := cfg.terminal.ReadLine()
 	if err != nil {
@@ -29,11 +27,16 @@ func commandRegister(cfg *config, args ...string) error {
 		return err
 	}
 
+	password, err := cfg.terminal.ReadPassword("Password: ")
+	if err != nil {
+		return err
+	}
 
 	user, err := cfg.apiClient.CreateUser(context.Background(), api.CreateUserParams{
 		FirstName: firstName,
 		LastName: lastName,
 		Email: email,
+		Password: password,
 	})
 	if err != nil {
 		return fmt.Errorf("Couldn't create user: %w", err)

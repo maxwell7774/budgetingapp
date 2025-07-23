@@ -3,12 +3,13 @@ package main
 import (
 	"database/sql"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	"github.com/maxwell7774/budgetingapp/backend/app"
 	"github.com/maxwell7774/budgetingapp/backend/internal/database"
+	"github.com/maxwell7774/budgetingapp/backend/internal/routes"
 )
 
 func main() {
@@ -27,22 +28,23 @@ func main() {
 		log.Fatal("DB_URL must be set")
 	}
 
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		log.Fatal("JWT_SECRET must be set")
+	}
+
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatalf("Error opening database connection: %v", err)
 	}
 
-	currentUserEmail := os.Getenv("CURRENT_USER")
-	if currentUserEmail == "" {
-		log.Fatal("CURRENT_USER must be set")
-	}
-
 	dbQueries := database.New(db)
 
-	app := app.NewApp(
-		port,
+	router := routes.NewRouter(
 		dbQueries,
+		jwtSecret,
 	)
 
-	app.Start()
+	log.Printf("Listening on: http://localhost%s", port)
+	log.Fatal(http.ListenAndServe(port, router))
 }

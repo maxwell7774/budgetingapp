@@ -28,7 +28,6 @@ func StartRepl() {
 
 	cfg := &config{
 		apiClient:   client,
-		userID:      nil,
 		terminal:    terminal,
 		isRunning:   true,
 		commandMode: true,

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/maxwell7774/budgetingapp/backend/internal/auth"
 	"github.com/maxwell7774/budgetingapp/backend/internal/database"
 )
 
@@ -19,16 +20,28 @@ type PlanCategory struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func HandlerPlanCategoriesGet(cfg *ApiConfig) {
-	planID, err := uuid.Parse(cfg.Req.PathValue("id"))
+func (cfg *ApiConfig) HandlerPlanCategoriesGet(w http.ResponseWriter, r *http.Request) {
+	accessToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
-		respondWithError(cfg.Resp, http.StatusNotFound, "Not a valid id", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
 		return
 	}
 
-	planCategoriesDB, err := cfg.DB.GetPlanCategories(cfg.Req.Context(), planID)
+	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
 	if err != nil {
-		respondWithError(cfg.Resp, http.StatusInternalServerError, "Couldn't retrieve plan categories", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		return
+	}
+
+	planID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, "Not a valid id", err)
+		return
+	}
+
+	planCategoriesDB, err := cfg.db.GetPlanCategories(r.Context(), planID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve plan categories", err)
 		return
 	}
 	planCats := []PlanCategory{}
@@ -44,7 +57,7 @@ func HandlerPlanCategoriesGet(cfg *ApiConfig) {
 		})
 	}
 
-	respondWithJSON(cfg.Resp, http.StatusOK, planCats)
+	respondWithJSON(w, http.StatusOK, planCats)
 }
 
 type CreatePlanCategoryParams struct {
@@ -54,28 +67,39 @@ type CreatePlanCategoryParams struct {
 	Withdrawl int32     `json:"withdrawl"`
 }
 
-func HandlerPlanCategoryCreate(cfg *ApiConfig) {
-
-	decoder := json.NewDecoder(cfg.Req.Body)
-	params := CreatePlanCategoryParams{}
-	err := decoder.Decode(&params)
+func (cfg *ApiConfig) HandlerPlanCategoryCreate(w http.ResponseWriter, r *http.Request) {
+	accessToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
-		respondWithError(cfg.Resp, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
 		return
 	}
 
-	plan_category, err := cfg.DB.CreatePlanCategory(cfg.Req.Context(), database.CreatePlanCategoryParams{
+	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	params := CreatePlanCategoryParams{}
+	err = decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		return
+	}
+
+	plan_category, err := cfg.db.CreatePlanCategory(r.Context(), database.CreatePlanCategoryParams{
 		PlanID:    params.PlanID,
 		Name:      params.Name,
 		Deposit:   params.Deposit,
 		Withdrawl: params.Withdrawl,
 	})
 	if err != nil {
-		respondWithError(cfg.Resp, http.StatusInternalServerError, "Couldn't create category", err)
+		respondWithError(w, http.StatusInternalServerError, "Couldn't create category", err)
 		return
 	}
 
-	respondWithJSON(cfg.Resp, http.StatusCreated, PlanCategory{
+	respondWithJSON(w, http.StatusCreated, PlanCategory{
 		ID:        plan_category.ID,
 		PlanID:    plan_category.PlanID,
 		Name:      plan_category.Name,
