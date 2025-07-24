@@ -27,17 +27,16 @@ func StartRepl() {
 	terminal := term.NewTerminal(os.Stdin, mainPrompt)
 
 	cfg := &config{
-		apiClient: client,
-		user:    nil,
-		terminal: terminal,
-		isRunning: true,
+		apiClient:   client,
+		terminal:    terminal,
+		isRunning:   true,
 		commandMode: true,
 	}
 
 	commandsArr := getCommandsAsArray()
 
 	terminal.AutoCompleteCallback = func(line string, pos int, key rune) (string, int, bool) {
-		if key != '\t' || !cfg.commandMode{
+		if key != '\t' || !cfg.commandMode || pos == 0 {
 			return line, pos, false
 		}
 
@@ -50,7 +49,6 @@ func StartRepl() {
 	}
 
 	for cfg.isRunning {
-		terminal.SetPrompt(mainPrompt)
 		line, err := terminal.ReadLine()
 		if err != nil {
 			terminal.Write([]byte("\nExiting program...\n"))
