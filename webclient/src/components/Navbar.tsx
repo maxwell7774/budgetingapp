@@ -24,14 +24,14 @@ function Navbar() {
       <div className="max-w-7xl mx-auto flex items-center">
         <div>
           <Link
-            className="text-2xl font-bold flex items-center bg-white dark:bg-slate-800 py-4 px-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+            className="text-xl font-bold flex items-center bg-white dark:bg-slate-800 py-4 px-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
             to="/"
           >
-            <img className="w-10 me-4" src="/fish.svg" />
+            <img className="w-8 me-4" src="/fish.svg" />
             Guppy Goals
           </Link>
         </div>
-        <ul className="ms-auto flex h-full items-center font-semibold p-2 bg-white dark:bg-slate-800 rounded-full">
+        <ul className="ms-auto flex h-full items-center font-semibold p-2 gap-0.5 bg-white dark:bg-slate-800 rounded-full">
           <NavItem to="/">
             Home
           </NavItem>

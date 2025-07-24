@@ -3,7 +3,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button: React.FC<ButtonProps> = function (
-  { variant = "primary", children, ...props },
+  { variant = "primary", children, className, ...props },
 ) {
   let variantClasses = "";
   switch (variant) {
@@ -21,8 +21,8 @@ const Button: React.FC<ButtonProps> = function (
 
   return (
     <button
-      className={"w-max font-semibold h-11 px-5 hover:opacity-80 hover:cursor-pointer active:opacity-60 transition-all rounded-full inline-flex items-center justify-center " +
-        variantClasses}
+      className={"text-nowrap font-semibold h-11 px-5 hover:opacity-80 hover:cursor-pointer active:opacity-60 transition-all rounded-full inline-flex items-center justify-center " +
+        variantClasses + " " + className}
       {...props}
     >
       {children}
