@@ -36,12 +36,14 @@ function AppLayout() {
       </main>
       <footer className="h-14 text-center rounded-full">
         <p className="bg-slate-200 dark:bg-slate-800 p-2 px-8 w-max mx-auto rounded-full flex items-center">
-          <span className="me-1">Guppy Goals &bull; a product by</span>
+          <span className="me-1 font-bold">
+            Guppy Goals &bull; a product by
+          </span>
           <span className="-me-0.5">
             <img className="w-4" src="/logo.svg" />
           </span>
-          <span>
-            26volts
+          <span className="font-bold">
+            27actions
           </span>
         </p>
       </footer>

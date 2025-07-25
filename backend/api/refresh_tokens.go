@@ -52,5 +52,11 @@ func (cfg *ApiConfig) HandlerRevokeRefreshToken(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	http.SetCookie(w, &http.Cookie{
+		Name:   "refresh_token",
+		Value:  "",
+		MaxAge: 0,
+	})
+
 	w.WriteHeader(http.StatusNoContent)
 }

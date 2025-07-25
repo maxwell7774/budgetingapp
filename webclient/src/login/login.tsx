@@ -16,7 +16,7 @@ function Login() {
       password: formData.get("password") as string,
     };
     fetch(
-      "http://localhost:8080/api/v1/login",
+      "/api/v1/login",
       {
         headers: {
           "Content-Type": "application/json",
