@@ -24,7 +24,8 @@ function Login() {
         method: "POST",
         body: JSON.stringify(loginData),
       },
-    ).then((res) => console.log(res));
+    ).then((res) => console.log(res))
+      .catch((e) => console.log(e));
   };
 
   return (
