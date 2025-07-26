@@ -1,3 +1,4 @@
+import { useAuth } from "../components/AuthProvider.tsx";
 import Button from "../components/ui/Button.tsx";
 import Input from "../components/ui/Input.tsx";
 
@@ -7,6 +8,9 @@ interface LoginForm {
 }
 
 function Login() {
+  const auth = useAuth();
+  console.log(auth);
+
   const handleSubmit = function (e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);

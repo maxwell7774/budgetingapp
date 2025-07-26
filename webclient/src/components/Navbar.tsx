@@ -8,14 +8,14 @@ function Navbar() {
   const [theme, setTheme] = useState(localStorage.getItem("theme"));
 
   const changeTheme = function () {
-    if (theme == "light") {
-      localStorage.setItem("theme", "dark");
-      setTheme("dark");
-      document.documentElement.classList.add("dark");
-    } else {
+    if (theme == "dark") {
       localStorage.setItem("theme", "light");
       setTheme("light");
       document.documentElement.classList.remove("dark");
+    } else {
+      localStorage.setItem("theme", "dark");
+      setTheme("dark");
+      document.documentElement.classList.add("dark");
     }
   };
 
@@ -42,7 +42,11 @@ function Navbar() {
             Login
           </NavItem>
           <li>
-            <Button variant="ghost" onClick={changeTheme}>
+            <Button
+              variant="ghost"
+              className="hover:bg-slate-100 dark:hover:bg-slate-700"
+              onClick={changeTheme}
+            >
               {theme == "dark"
                 ? <MoonIcon className="size-6" />
                 : <SunIcon className="size-6" />}

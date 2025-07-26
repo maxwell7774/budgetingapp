@@ -36,7 +36,7 @@ function AppLayout() {
       </main>
       <footer className="h-14 text-center rounded-full">
         <p className="bg-slate-200 dark:bg-slate-800 p-2 px-8 w-max mx-auto rounded-full flex items-center">
-          <span className="me-1 font-bold">
+          <span className="me-1">
             Guppy Goals &bull; a product by
           </span>
           <span className="-me-0.5">
