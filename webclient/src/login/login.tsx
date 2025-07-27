@@ -1,35 +1,28 @@
-import { useAuth } from "../components/AuthProvider.tsx";
+import { useAuth, useLogin } from "../components/AuthProvider.tsx";
+import { useNavigate } from "react-router";
 import Button from "../components/ui/Button.tsx";
 import Input from "../components/ui/Input.tsx";
-
-interface LoginForm {
-  email: string;
-  password: string;
-}
+import { useEffect } from "react";
 
 function Login() {
   const auth = useAuth();
-  console.log(auth);
+  const { login } = useLogin();
+  const navigate = useNavigate();
 
-  const handleSubmit = function (e: React.FormEvent<HTMLFormElement>) {
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      navigate("/");
+    }
+  }, [auth.isAuthenticated]);
+
+  const handleSubmit = async function (e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
-    const loginData: LoginForm = {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
-    };
-    fetch(
-      "/api/v1/login",
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify(loginData),
-      },
-    ).then((res) => console.log(res))
-      .catch((e) => console.log(e));
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    await login(email, password);
   };
 
   return (

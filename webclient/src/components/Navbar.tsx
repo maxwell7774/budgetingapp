@@ -3,8 +3,10 @@ import Button from "./ui/Button.tsx";
 import MoonIcon from "./ui/icons/Moon.tsx";
 import { useState } from "react";
 import { Link, NavLink, To } from "react-router";
+import { useAuth } from "./AuthProvider.tsx";
 
 function Navbar() {
+  const { isAuthenticated, user } = useAuth();
   const [theme, setTheme] = useState(localStorage.getItem("theme"));
 
   const changeTheme = function () {
@@ -38,9 +40,22 @@ function Navbar() {
           <NavItem to="/about">
             About
           </NavItem>
-          <NavItem to="/login">
-            Login
-          </NavItem>
+          {isAuthenticated
+            ? (
+              <>
+                <NavItem to="/budgets">
+                  Budgets
+                </NavItem>
+                <NavItem to="/profile">
+                  Profile
+                </NavItem>
+              </>
+            )
+            : (
+              <NavItem to="/login">
+                Login
+              </NavItem>
+            )}
           <li>
             <Button
               variant="ghost"

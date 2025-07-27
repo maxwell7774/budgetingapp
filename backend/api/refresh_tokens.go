@@ -8,14 +8,19 @@ import (
 )
 
 type RefreshResponse struct {
+	User
 	Token string `json:"token"`
 }
 
 func (cfg *ApiConfig) HandlerRefreshAccessToken(w http.ResponseWriter, r *http.Request) {
 	refreshToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Couldn't find token", err)
-		return
+		refreshTokenCookie, err := r.Cookie("refresh_token")
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, "Couldn't find token", err)
+			return
+		}
+		refreshToken = refreshTokenCookie.Value
 	}
 
 	user, err := cfg.db.GetUserFromRefreshToken(r.Context(), refreshToken)
@@ -35,6 +40,14 @@ func (cfg *ApiConfig) HandlerRefreshAccessToken(w http.ResponseWriter, r *http.R
 	}
 
 	respondWithJSON(w, http.StatusOK, RefreshResponse{
+		User: User{
+			ID:        user.ID,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Email:     user.Email,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+		},
 		Token: accessToken,
 	})
 }

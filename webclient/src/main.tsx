@@ -6,7 +6,9 @@ import App from "./home/App.tsx";
 import AppLayout from "./AppLayout.tsx";
 import About from "./about/About.tsx";
 import Login from "./login/login.tsx";
+import Profile from "./profile/Profile.tsx";
 import { AuthProvider } from "./components/AuthProvider.tsx";
+import Budgets from "./budgets/Budgets.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -16,7 +18,9 @@ createRoot(document.getElementById("root")!).render(
           <Route element={<AppLayout />}>
             <Route path="/" element={<App />} />
             <Route path="/about" element={<About />} />
+            <Route path="/budgets" element={<Budgets />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/profile" element={<Profile />} />
           </Route>
         </Routes>
       </BrowserRouter>
