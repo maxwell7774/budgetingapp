@@ -51,8 +51,47 @@ func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Req
 	respondWithJSON(w, http.StatusOK, plans)
 }
 
+func (cfg *ApiConfig) HandlerPlanGetByID(w http.ResponseWriter, r *http.Request) {
+	accessToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
+		return
+	}
+
+	userID, err := auth.ValidateJWT(accessToken, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		return
+	}
+
+	planID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Couldn't parse path value id", err)
+		return
+	}
+
+	plan, err := cfg.db.GetPlanByID(r.Context(), planID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve plan", err)
+		return
+	}
+
+	if userID != plan.OwnerID {
+		respondWithError(w, http.StatusUnauthorized, "User is not the owner of this plan", nil)
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, Plan{
+		ID:        plan.ID,
+		OwnerID:   plan.OwnerID,
+		Name:      plan.Name,
+		CreatedAt: plan.CreatedAt,
+		UpdatedAt: plan.UpdatedAt,
+	})
+}
+
 type CreatePlanParams struct {
-		Name string `json:"name"`
+	Name string `json:"name"`
 }
 
 func (cfg *ApiConfig) HandlerPlanCreate(w http.ResponseWriter, r *http.Request) {

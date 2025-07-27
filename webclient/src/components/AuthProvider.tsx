@@ -6,10 +6,8 @@ import {
   useState,
 } from "react";
 
-type UUID = string;
-
 export interface User {
-  id: UUID;
+  id: string;
   firstName: string;
   lastName: string;
   email: string;

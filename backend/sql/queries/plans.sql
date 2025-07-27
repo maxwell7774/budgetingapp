@@ -3,6 +3,11 @@ SELECT *
 FROM plans
 WHERE owner_id = $1;
 
+-- name: GetPlanByID :one
+SELECT *
+FROM plans
+WHERE id = $1;
+
 -- name: CreatePlan :one
 INSERT INTO plans(
     id,

@@ -47,6 +47,25 @@ func (q *Queries) CreatePlan(ctx context.Context, arg CreatePlanParams) (Plan, e
 	return i, err
 }
 
+const getPlanByID = `-- name: GetPlanByID :one
+SELECT id, owner_id, name, created_at, updated_at
+FROM plans
+WHERE id = $1
+`
+
+func (q *Queries) GetPlanByID(ctx context.Context, id uuid.UUID) (Plan, error) {
+	row := q.db.QueryRowContext(ctx, getPlanByID, id)
+	var i Plan
+	err := row.Scan(
+		&i.ID,
+		&i.OwnerID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getPlansForOwner = `-- name: GetPlansForOwner :many
 SELECT id, owner_id, name, created_at, updated_at
 FROM plans

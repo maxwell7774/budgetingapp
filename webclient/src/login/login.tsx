@@ -26,54 +26,58 @@ function Login() {
   };
 
   return (
-    <form
-      className="bg-white dark:bg-slate-800 shadow-md mx-auto max-w-xl p-10 rounded-3xl space-y-8 mt-32"
-      onSubmit={handleSubmit}
-    >
-      <h1 className="text-xl font-bold text-center">
-        Sign in to start budgeting!
-      </h1>
-      <div>
-        <label className="block mb-1 font-bold text-slate-800 dark:text-slate-200">
-          Username/Email
-        </label>
-        <Input
-          name="email"
-          type="text"
-          className="dark:bg-slate-900"
-          placeholder="type here..."
-        />
+    <>
+      <div className="absolute top-0 left-0 right-0 h-[32rem] bg-indigo-500 dark:bg-indigo-800 -z-10 isolate">
       </div>
-      <div>
-        <label className="block mb-1 font-bold text-slate-800 dark:text-slate-200">
-          Password
-        </label>
-        <Input
-          name="password"
-          type="password"
-          className="text-xs placeholder:text-base dark:bg-slate-900"
-          placeholder="type here..."
-        />
-      </div>
-      <div className="space-y-3">
-        <Button className="w-full" type="submit">Login</Button>
-        <div className="flex items-center justify-center gap-3">
-          <div className="border-b border-slate-300 dark:border-slate-600 flex-1">
-          </div>
-          <p className="text-xs text-slate-400 dark:text-slate-600">OR</p>
-          <div className="border-b border-slate-300 dark:border-slate-600 flex-1">
-          </div>
+      <form
+        className="bg-white dark:bg-slate-800 shadow-md mx-auto max-w-xl p-10 rounded-3xl space-y-8 mt-32"
+        onSubmit={handleSubmit}
+      >
+        <h1 className="text-xl font-bold text-center">
+          Sign in to start budgeting!
+        </h1>
+        <div>
+          <label className="block mb-1 font-bold text-slate-800 dark:text-slate-200">
+            Username/Email
+          </label>
+          <Input
+            name="email"
+            type="text"
+            className="dark:bg-slate-900"
+            placeholder="type here..."
+          />
         </div>
-        <Button
-          className="w-full"
-          type="button"
-          variant="outline"
-          onClick={() => navigate("/register")}
-        >
-          Create Account
-        </Button>
-      </div>
-    </form>
+        <div>
+          <label className="block mb-1 font-bold text-slate-800 dark:text-slate-200">
+            Password
+          </label>
+          <Input
+            name="password"
+            type="password"
+            className="text-xs placeholder:text-base dark:bg-slate-900"
+            placeholder="type here..."
+          />
+        </div>
+        <div className="space-y-3">
+          <Button className="w-full" type="submit">Login</Button>
+          <div className="flex items-center justify-center gap-3">
+            <div className="border-b border-slate-300 dark:border-slate-600 flex-1">
+            </div>
+            <p className="text-xs text-slate-400 dark:text-slate-600">OR</p>
+            <div className="border-b border-slate-300 dark:border-slate-600 flex-1">
+            </div>
+          </div>
+          <Button
+            className="w-full"
+            type="button"
+            variant="outline"
+            onClick={() => navigate("/register")}
+          >
+            Create Account
+          </Button>
+        </div>
+      </form>
+    </>
   );
 }
 
