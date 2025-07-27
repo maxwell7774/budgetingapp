@@ -5,7 +5,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import { useNavigate } from "react-router";
 
 type UUID = string;
 
@@ -50,6 +49,7 @@ interface AuthProviderProps {
 
 function AuthProvider({ children }: AuthProviderProps) {
   const [auth, setAuth] = useState<Auth>(defaultAuthValue);
+  const [isMounted, setIsMounted] = useState<boolean>(false);
 
   useEffect(() => {
     fetch("/api/v1/auth/refresh")
@@ -74,8 +74,11 @@ function AuthProvider({ children }: AuthProviderProps) {
           accessToken: dat.token,
         });
       })
-      .catch((e) => console.log(e));
+      .catch((e) => console.log(e))
+      .finally(() => setIsMounted(true));
   }, []);
+
+  if (!isMounted) return;
 
   return (
     <AuthContext.Provider value={{ auth, setAuth }}>
