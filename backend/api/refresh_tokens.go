@@ -55,20 +55,28 @@ func (cfg *ApiConfig) HandlerRefreshAccessToken(w http.ResponseWriter, r *http.R
 func (cfg *ApiConfig) HandlerRevokeRefreshToken(w http.ResponseWriter, r *http.Request) {
 	refreshToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Couldn't find token", err)
-		return
+		refreshTokenCookie, err := r.Cookie("refresh_token")
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, "Couldn't find token", err)
+			return
+		}
+		refreshToken = refreshTokenCookie.Value
 	}
 
 	_, err = cfg.db.RevokeRefreshToken(r.Context(), refreshToken)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't revod session", err)
+		respondWithError(w, http.StatusInternalServerError, "Couldn't revoke session", err)
 		return
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:   "refresh_token",
-		Value:  "",
-		MaxAge: 0,
+		Name:     "refresh_token",
+		Value:    refreshToken,
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteStrictMode,
+		MaxAge:   -1,
+		Path:     "/",
 	})
 
 	w.WriteHeader(http.StatusNoContent)

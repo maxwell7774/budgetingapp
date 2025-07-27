@@ -6,7 +6,7 @@ import { useEffect } from "react";
 
 function Login() {
   const auth = useAuth();
-  const { login } = useLogin();
+  const login = useLogin();
   const navigate = useNavigate();
 
   useEffect(() => {

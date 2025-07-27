@@ -5,6 +5,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useNavigate } from "react-router";
 
 type UUID = string;
 
@@ -23,6 +24,19 @@ interface Auth {
   accessToken: string;
 }
 
+const defaultAuthValue: Auth = {
+  isAuthenticated: false,
+  user: {
+    id: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  accessToken: "",
+};
+
 interface AuthContextProps {
   auth: Auth;
   setAuth: (auth: Auth) => void;
@@ -35,22 +49,17 @@ interface AuthProviderProps {
 }
 
 function AuthProvider({ children }: AuthProviderProps) {
-  const [auth, setAuth] = useState<Auth>({
-    isAuthenticated: false,
-    user: {
-      id: "",
-      firstName: "",
-      lastName: "",
-      email: "",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    accessToken: "",
-  });
+  const [auth, setAuth] = useState<Auth>(defaultAuthValue);
 
   useEffect(() => {
     fetch("/api/v1/auth/refresh")
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (res.ok) {
+          return res.json();
+        }
+        const dat = await res.json();
+        throw new Error(dat.error);
+      })
       .then((dat) => {
         setAuth({
           isAuthenticated: true,
@@ -117,7 +126,7 @@ function useLogin() {
     );
 
     if (res.status !== 200) {
-      throw new Error("Couldn't not authenticate user");
+      throw new Error("Couldn't authenticate user");
     }
 
     const body: LoginResponse = await res.json();
@@ -136,7 +145,32 @@ function useLogin() {
     });
   };
 
-  return { login };
+  return login;
 }
 
-export { AuthProvider, useAuth, useLogin };
+function useLogout() {
+  const authContext = useContext(AuthContext);
+
+  if (!authContext) {
+    throw new Error("useLogout must be used in AuthProvider");
+  }
+
+  const logout = async function () {
+    const res = await fetch(
+      "/api/v1/auth/revoke",
+      {
+        method: "POST",
+      },
+    );
+
+    if (res.status !== 204) {
+      throw new Error("Couldn't logout user");
+    }
+
+    authContext.setAuth(defaultAuthValue);
+  };
+
+  return logout;
+}
+
+export { AuthProvider, useAuth, useLogin, useLogout };

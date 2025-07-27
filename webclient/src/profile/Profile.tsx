@@ -1,7 +1,9 @@
-import { useAuth } from "../components/AuthProvider.tsx";
+import { useAuth, useLogout } from "../components/AuthProvider.tsx";
+import Button from "../components/ui/Button.tsx";
 
 function Profile() {
   const { user } = useAuth();
+  const logout = useLogout();
 
   return (
     <div>
@@ -11,6 +13,11 @@ function Profile() {
       <p>{user.email}</p>
       <p>{user.createdAt.toUTCString()}</p>
       <p>{user.updatedAt.toUTCString()}</p>
+      <div>
+        <Button onClick={logout}>
+          Logout
+        </Button>
+      </div>
     </div>
   );
 }
