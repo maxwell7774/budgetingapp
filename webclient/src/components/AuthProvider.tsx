@@ -8,7 +8,7 @@ import {
 
 type UUID = string;
 
-interface User {
+export interface User {
   id: UUID;
   firstName: string;
   lastName: string;

@@ -1,5 +1,5 @@
 import { useAuth, useLogin } from "../components/AuthProvider.tsx";
-import { NavLink, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import Button from "../components/ui/Button.tsx";
 import Input from "../components/ui/Input.tsx";
 import { useEffect } from "react";
@@ -64,7 +64,12 @@ function Login() {
           <div className="border-b border-slate-300 dark:border-slate-600 flex-1">
           </div>
         </div>
-        <Button className="w-full" type="button" variant="outline">
+        <Button
+          className="w-full"
+          type="button"
+          variant="outline"
+          onClick={() => navigate("/register")}
+        >
           Create Account
         </Button>
       </div>
