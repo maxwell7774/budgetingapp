@@ -1,5 +1,5 @@
 import { useAuth, useLogin } from "../components/AuthProvider.tsx";
-import { useNavigate } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import Button from "../components/ui/Button.tsx";
 import Input from "../components/ui/Input.tsx";
 import { useEffect } from "react";
@@ -55,8 +55,18 @@ function Login() {
           placeholder="type here..."
         />
       </div>
-      <div className="w-48 ms-auto">
+      <div className="space-y-3">
         <Button className="w-full" type="submit">Login</Button>
+        <div className="flex items-center justify-center gap-3">
+          <div className="border-b border-slate-300 dark:border-slate-600 flex-1">
+          </div>
+          <p className="text-xs text-slate-400 dark:text-slate-600">OR</p>
+          <div className="border-b border-slate-300 dark:border-slate-600 flex-1">
+          </div>
+        </div>
+        <Button className="w-full" type="button" variant="outline">
+          Create Account
+        </Button>
       </div>
     </form>
   );
