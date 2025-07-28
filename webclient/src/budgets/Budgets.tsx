@@ -2,6 +2,7 @@ import { Plan, useCreatePlan, usePlans } from "../components/api/plans.ts";
 import { NavLink } from "react-router";
 import Button from "../components/ui/Button.tsx";
 import Input from "../components/ui/Input.tsx";
+import SearchIcon from "../components/ui/icons/Search.tsx";
 
 function Budgets() {
   const plans = usePlans();
@@ -20,7 +21,20 @@ function Budgets() {
 
   return (
     <div>
-      <p>Budgets</p>
+      <div className="flex justify-between border-b text-slate-500 dark:text-slate-300 items-end">
+        <h1 className="text-2xl font-bold mb-2">
+          Budget Plans
+        </h1>
+        <div className="relative max-w-96 w-full mb-3">
+          <div className="absolute left-3 w-5 h-full grid place-content-center">
+            <SearchIcon className="w-full" />
+          </div>
+          <Input className="ps-10" placeholder="Search plan name..." />
+        </div>
+      </div>
+      <div className="ms-auto my-8 w-max">
+        <Button>New Plan</Button>
+      </div>
       <div className="grid grid-cols-3 gap-8 mb-8">
         {plans.map((plan) => <PlanCard key={plan.id} plan={plan} />)}
       </div>
@@ -53,7 +67,7 @@ function PlanCard({ plan }: PlanCardProps) {
     <div className="p-8 bg-white dark:bg-slate-800 shadow-md rounded-3xl">
       <NavLink
         to={`/budgets/${plan.id}`}
-        className="text-indigo-500 text-lg font-bold mb-2 hover:opacity-80 active:opacity-60 transition-opacity"
+        className="text-indigo-500 text-lg font-bold mb-8 hover:opacity-80 active:opacity-60 transition-opacity flex gap-2 items-center"
       >
         {plan.name}
       </NavLink>
