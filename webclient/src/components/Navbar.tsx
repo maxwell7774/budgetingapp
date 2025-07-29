@@ -4,9 +4,10 @@ import MoonIcon from "./ui/icons/Moon.tsx";
 import { useState } from "react";
 import { Link, NavLink, To } from "react-router";
 import { useAuth } from "./AuthProvider.tsx";
+import EllipsisIcon from "./ui/icons/Ellipsis.tsx";
 
 function Navbar() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [theme, setTheme] = useState(localStorage.getItem("theme"));
 
   const changeTheme = function () {
@@ -22,18 +23,26 @@ function Navbar() {
   };
 
   return (
-    <nav className="p-8">
-      <div className="max-w-7xl mx-auto flex items-center">
-        <div>
+    <nav>
+      <div className="max-w-7xl min-w-max mx-auto flex items-center h-16 bg-white dark:bg-slate-800 md:bg-transparent md:dark:bg-transparent rounded-full">
+        <div className="p-2 h-full bg-slate-100 dark:bg-slate-800 rounded-full">
           <Link
-            className="text-xl font-bold flex items-center bg-white dark:bg-slate-800 py-4 px-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+            className="h-full px-4 sm:px-8 text-xl font-bold flex items-center min-w-max rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
             to="/"
           >
             <img className="w-8 me-4" src="/fish.svg" />
             Guppy Goals
           </Link>
         </div>
-        <ul className="ms-auto flex h-full items-center font-semibold p-2 gap-0.5 bg-white dark:bg-slate-800 rounded-full">
+        <div className="ms-auto h-full p-2">
+          <Button
+            variant="ghost"
+            className="h-full hover:bg-slate-200 dark:hover:bg-slate-700 md:hidden hover:opacity-100 active:opacity-100"
+          >
+            <EllipsisIcon className="size-6 min-w-6 min-h-6" />
+          </Button>
+        </div>
+        <ul className="ms-auto h-full hidden md:flex items-center font-semibold p-2 gap-0.5 bg-slate-100 dark:bg-slate-800 rounded-full">
           <NavItem to="/">
             Home
           </NavItem>
@@ -56,10 +65,10 @@ function Navbar() {
                 Login
               </NavItem>
             )}
-          <li>
+          <li className="h-full">
             <Button
               variant="ghost"
-              className="hover:bg-slate-100 dark:hover:bg-slate-700"
+              className="h-full hover:bg-slate-200 dark:hover:bg-slate-700 hover:opacity-100 active:opacity-100"
               onClick={changeTheme}
             >
               {theme == "dark"
@@ -80,14 +89,14 @@ interface NavItemProps {
 
 function NavItem({ to, children }: NavItemProps) {
   const base: string =
-    "flex items-center justify-center rounded-full h-11 px-5 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all";
+    "flex items-center justify-center rounded-full h-full px-5 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all";
 
   return (
-    <li>
+    <li className="h-full">
       <NavLink
         to={to}
         className={({ isActive }) =>
-          isActive ? base + " bg-slate-100 dark:bg-slate-700" : base}
+          isActive ? base + " bg-slate-200 dark:bg-slate-700" : base}
       >
         {children}
       </NavLink>
