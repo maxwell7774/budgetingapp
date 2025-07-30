@@ -9,7 +9,7 @@
     "types": [
       "react",
       "react-dom",
-      "@types/react"
+      "react-router"
     ],
     "lib": [
       "dom",

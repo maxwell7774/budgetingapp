@@ -1,6 +1,7 @@
-import IconProps from "./IconProps.ts";
+import React from "react";
+import IconProps from "./icon-props.ts";
 
-const ChevronRight: React.FC<IconProps> = (
+const EllipsisIcon: React.FC<IconProps> = (
   props,
 ) => {
   return (
@@ -15,10 +16,10 @@ const ChevronRight: React.FC<IconProps> = (
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
-        d="m8.25 4.5 7.5 7.5-7.5 7.5"
+        d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
       />
     </svg>
   );
 };
 
-export default ChevronRight;
+export default EllipsisIcon;

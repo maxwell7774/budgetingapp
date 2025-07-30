@@ -1,4 +1,4 @@
-import { User } from "../AuthProvider.tsx";
+import { User } from "../auth-provider.tsx";
 import { ErrorResponse } from "./error.ts";
 
 interface CreateUserParams {

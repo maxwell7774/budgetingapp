@@ -1,10 +1,7 @@
-import SunIcon from "./ui/icons/Sun.tsx";
-import Button from "./ui/Button.tsx";
-import MoonIcon from "./ui/icons/Moon.tsx";
+import SunIcon from "./ui/icons/sun.tsx";
 import { useState } from "react";
 import { Link, NavLink, To } from "react-router";
-import { useAuth } from "./AuthProvider.tsx";
-import EllipsisIcon from "./ui/icons/Ellipsis.tsx";
+import { useAuth } from "./auth-provider.tsx";
 
 function Navbar() {
   const { isAuthenticated } = useAuth();
@@ -24,7 +21,7 @@ function Navbar() {
 
   return (
     <nav>
-      <div className="max-w-7xl min-w-max mx-auto flex items-center h-16 bg-white dark:bg-slate-800 md:bg-transparent md:dark:bg-transparent rounded-full">
+      <div className="max-w-7xl min-w-max mx-auto flex items-center h-16 bg-slate-100 dark:bg-slate-800 md:bg-transparent md:dark:bg-transparent rounded-full">
         <div className="p-2 h-full bg-slate-100 dark:bg-slate-800 rounded-full">
           <Link
             className="h-full px-4 sm:px-8 text-xl font-bold flex items-center min-w-max rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"

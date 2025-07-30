@@ -2,16 +2,16 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 import { BrowserRouter, Route, Routes } from "react-router";
-import App from "./home/App.tsx";
-import AppLayout from "./AppLayout.tsx";
-import About from "./about/About.tsx";
+import AppLayout from "./app-layout.tsx";
+import About from "./about/about.tsx";
 import Login from "./login/login.tsx";
-import Profile from "./profile/Profile.tsx";
-import { AuthProvider } from "./components/AuthProvider.tsx";
-import Budgets from "./budgets/Budgets.tsx";
-import { APIClientProvider } from "./components/api/APIClientProvider.tsx";
-import Register from "./register/Register.tsx";
-import BudgetDetails from "./budgets/id/BudgetDetails.tsx";
+import Profile from "./profile/profile.tsx";
+import { AuthProvider } from "./components/auth-provider.tsx";
+import Budgets from "./budgets/budgets.tsx";
+import { APIClientProvider } from "./components/api/api-client-provider.tsx";
+import Register from "./register/register.tsx";
+import BudgetDetails from "./budgets/id/budget-details.tsx";
+import Home from "./home/home.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -20,7 +20,7 @@ createRoot(document.getElementById("root")!).render(
         <BrowserRouter>
           <Routes>
             <Route element={<AppLayout />}>
-              <Route path="/" element={<App />} />
+              <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/budgets" element={<Budgets />} />
               <Route path="/budgets/:id" element={<BudgetDetails />} />

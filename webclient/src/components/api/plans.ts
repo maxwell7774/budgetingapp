@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../AuthProvider.tsx";
+import { useAuth } from "../auth-provider.tsx";
 import { ErrorResponse } from "./error.ts";
 
 export interface Plan {

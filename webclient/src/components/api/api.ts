@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../AuthProvider.tsx";
+import { useAuth } from "../auth-provider.tsx";
 
 function useAPI<T>(
   method: "GET" | "PUT" | "POST" | "DELETE",

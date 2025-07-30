@@ -1,6 +1,6 @@
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
-const Input: React.FC<InputProps> = function (
+export const Input: React.FC<InputProps> = function (
   { className, ...props },
 ) {
   return (
