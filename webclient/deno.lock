@@ -1050,6 +1050,7 @@
       "npm:@types/react@^19.1.8",
       "npm:@vitejs/plugin-react@^4.6.0",
       "npm:react-dom@^19.1.0",
+      "npm:react-router@^7.7.0",
       "npm:react@^19.1.0",
       "npm:tailwindcss@^4.1.11",
       "npm:vite@^7.0.4"
@@ -1057,7 +1058,6 @@
     "packageJson": {
       "dependencies": [
         "npm:@tailwindcss/vite@^4.1.11",
-        "npm:react-router@^7.7.0",
         "npm:tailwindcss@^4.1.11"
       ]
     }
