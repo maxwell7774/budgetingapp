@@ -1,7 +1,8 @@
-import SunIcon from "./ui/icons/sun.tsx";
 import { useState } from "react";
 import { Link, NavLink, To } from "react-router";
 import { useAuth } from "./auth-provider.tsx";
+import { Button } from "./ui/index.ts";
+import { EllipsisIcon, MoonIcon, SunIcon } from "./ui/icons/index.ts";
 
 function Navbar() {
   const { isAuthenticated } = useAuth();

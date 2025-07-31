@@ -1,8 +1,7 @@
 import useUsers from "../components/api/users.ts";
-import { useLogin } from "../components/AuthProvider.tsx";
-import Button from "../components/ui/Button.tsx";
-import Input from "../components/ui/Input.tsx";
+import { useLogin } from "../components/auth-provider.tsx";
 import { useNavigate } from "react-router";
+import { Button, Input } from "../components/ui/index.ts";
 
 function Register() {
   const navigate = useNavigate();

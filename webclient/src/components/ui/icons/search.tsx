@@ -1,6 +1,6 @@
 import IconProps from "./icon-props.ts";
 
-const SearchIcon: React.FC<IconProps> = (
+export const SearchIcon: React.FC<IconProps> = (
   props,
 ) => {
   return (
@@ -21,5 +21,3 @@ const SearchIcon: React.FC<IconProps> = (
     </svg>
   );
 };
-
-export default SearchIcon;

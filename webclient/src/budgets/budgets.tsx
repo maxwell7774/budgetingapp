@@ -1,8 +1,7 @@
 import { Plan, useCreatePlan, usePlans } from "../components/api/plans.ts";
 import { NavLink } from "react-router";
-import Button from "../components/ui/Button.tsx";
-import Input from "../components/ui/Input.tsx";
-import SearchIcon from "../components/ui/icons/Search.tsx";
+import { SearchIcon } from "../components/ui/icons/index.ts";
+import { Button, Input } from "../components/ui/index.ts";
 
 function Budgets() {
   const plans = usePlans();

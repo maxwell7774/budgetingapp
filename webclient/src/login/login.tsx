@@ -1,8 +1,7 @@
-import { useAuth, useLogin } from "../components/AuthProvider.tsx";
+import { useAuth, useLogin } from "../components/auth-provider.tsx";
 import { useNavigate } from "react-router";
-import Button from "../components/ui/Button.tsx";
-import Input from "../components/ui/Input.tsx";
 import { useEffect } from "react";
+import { Button, Input } from "../components/ui/index.ts";
 
 function Login() {
   const auth = useAuth();

@@ -2,7 +2,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "outline" | "ghost";
 }
 
-const Button: React.FC<ButtonProps> = function (
+export const Button: React.FC<ButtonProps> = function (
   { variant = "primary", children, className, ...props },
 ) {
   let variantClasses = "";
@@ -29,5 +29,3 @@ const Button: React.FC<ButtonProps> = function (
     </button>
   );
 };
-
-export default Button;

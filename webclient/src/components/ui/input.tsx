@@ -11,5 +11,3 @@ export const Input: React.FC<InputProps> = function (
     />
   );
 };
-
-export default Input;

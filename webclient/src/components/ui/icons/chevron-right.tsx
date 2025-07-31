@@ -1,6 +1,6 @@
 import IconProps from "./icon-props.ts";
 
-const ChevronRight: React.FC<IconProps> = (
+export const ChevronRight: React.FC<IconProps> = (
   props,
 ) => {
   return (
@@ -20,5 +20,3 @@ const ChevronRight: React.FC<IconProps> = (
     </svg>
   );
 };
-
-export default ChevronRight;

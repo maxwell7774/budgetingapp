@@ -1,7 +1,7 @@
 import React from "react";
 import IconProps from "./icon-props.ts";
 
-const SunIcon: React.FC<IconProps> = (
+export const SunIcon: React.FC<IconProps> = (
   props,
 ) => {
   return (
@@ -21,5 +21,3 @@ const SunIcon: React.FC<IconProps> = (
     </svg>
   );
 };
-
-export default SunIcon;

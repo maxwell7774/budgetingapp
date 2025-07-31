@@ -1,5 +1,5 @@
-import { useAuth, useLogout } from "../components/AuthProvider.tsx";
-import Button from "../components/ui/Button.tsx";
+import { useAuth, useLogout } from "../components/auth-provider.tsx";
+import { Button } from "../components/ui/index.ts";
 
 function Profile() {
   const { user } = useAuth();

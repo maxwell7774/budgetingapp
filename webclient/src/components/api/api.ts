@@ -1,3 +1,4 @@
+/*
 import { useEffect, useState } from "react";
 import { useAuth } from "../auth-provider.tsx";
 
@@ -22,3 +23,4 @@ function useAPI<T>(
       .catch((e) => setData(initialValue));
   }, [endpoint]);
 }
+*/

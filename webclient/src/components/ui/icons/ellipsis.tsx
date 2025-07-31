@@ -1,7 +1,7 @@
 import React from "react";
 import IconProps from "./icon-props.ts";
 
-const EllipsisIcon: React.FC<IconProps> = (
+export const EllipsisIcon: React.FC<IconProps> = (
   props,
 ) => {
   return (
@@ -21,5 +21,3 @@ const EllipsisIcon: React.FC<IconProps> = (
     </svg>
   );
 };
-
-export default EllipsisIcon;
