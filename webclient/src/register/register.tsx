@@ -34,76 +34,72 @@ function Register() {
   };
 
   return (
-    <>
-      <div className="absolute top-0 left-0 right-0 h-[32rem] bg-indigo-500 dark:bg-indigo-800 -z-10 isolate">
+    <form
+      className="bg-white dark:bg-slate-800 shadow-md mx-auto max-w-xl p-10 rounded-3xl space-y-8"
+      onSubmit={handleSubmit}
+    >
+      <h1 className="text-xl font-bold text-center">
+        Sign in to start budgeting!
+      </h1>
+      <div>
+        <label className="block mb-1 font-bold text-slate-800 dark:text-slate-200">
+          First Name
+        </label>
+        <Input
+          name="first_name"
+          type="text"
+          className="dark:bg-slate-900"
+          placeholder="type here..."
+        />
       </div>
-      <form
-        className="bg-white dark:bg-slate-800 shadow-md mx-auto max-w-xl p-10 rounded-3xl space-y-8 mt-32"
-        onSubmit={handleSubmit}
-      >
-        <h1 className="text-xl font-bold text-center">
-          Sign in to start budgeting!
-        </h1>
-        <div>
-          <label className="block mb-1 font-bold text-slate-800 dark:text-slate-200">
-            First Name
-          </label>
-          <Input
-            name="first_name"
-            type="text"
-            className="dark:bg-slate-900"
-            placeholder="type here..."
-          />
-        </div>
-        <div>
-          <label className="block mb-1 font-bold text-slate-800 dark:text-slate-200">
-            Last Name
-          </label>
-          <Input
-            name="last_name"
-            type="text"
-            className="dark:bg-slate-900"
-            placeholder="type here..."
-          />
-        </div>
-        <div>
-          <label className="block mb-1 font-bold text-slate-800 dark:text-slate-200">
-            Email
-          </label>
-          <Input
-            name="email"
-            type="text"
-            className="dark:bg-slate-900"
-            placeholder="type here..."
-          />
-        </div>
-        <div>
-          <label className="block mb-1 font-bold text-slate-800 dark:text-slate-200">
-            Password
-          </label>
-          <Input
-            name="password"
-            type="password"
-            className="text-xs placeholder:text-base dark:bg-slate-900"
-            placeholder="type here..."
-          />
-        </div>
-        <div>
-          <label className="block mb-1 font-bold text-slate-800 dark:text-slate-200">
-            Confirm Password
-          </label>
-          <Input
-            name="confirm_password"
-            type="password"
-            className="text-xs placeholder:text-base dark:bg-slate-900"
-            placeholder="type here..."
-          />
-        </div>
-        <div>
-          <Button className="w-full" type="submit">Register</Button>
-        </div>
-      </form>
-    </>
+      <div>
+        <label className="block mb-1 font-bold text-slate-800 dark:text-slate-200">
+          Last Name
+        </label>
+        <Input
+          name="last_name"
+          type="text"
+          className="dark:bg-slate-900"
+          placeholder="type here..."
+        />
+      </div>
+      <div>
+        <label className="block mb-1 font-bold text-slate-800 dark:text-slate-200">
+          Email
+        </label>
+        <Input
+          name="email"
+          type="text"
+          className="dark:bg-slate-900"
+          placeholder="type here..."
+        />
+      </div>
+      <div>
+        <label className="block mb-1 font-bold text-slate-800 dark:text-slate-200">
+          Password
+        </label>
+        <Input
+          name="password"
+          type="password"
+          className="text-xs placeholder:text-base dark:bg-slate-900"
+          placeholder="type here..."
+        />
+      </div>
+      <div>
+        <label className="block mb-1 font-bold text-slate-800 dark:text-slate-200">
+          Confirm Password
+        </label>
+        <Input
+          name="confirm_password"
+          type="password"
+          className="text-xs placeholder:text-base dark:bg-slate-900"
+          placeholder="type here..."
+        />
+      </div>
+      <div>
+        <Button className="w-full" type="submit">Register</Button>
+      </div>
+    </form>
   );
 }
 

@@ -29,7 +29,7 @@ function Login() {
       <div className="absolute top-0 left-0 right-0 h-[32rem] bg-indigo-500 dark:bg-indigo-800 -z-10 isolate">
       </div>
       <form
-        className="bg-white dark:bg-slate-800 shadow-md mx-auto max-w-xl p-10 rounded-3xl space-y-8 mt-32"
+        className="bg-white dark:bg-slate-800 shadow-md mx-auto max-w-xl p-10 rounded-3xl space-y-8"
         onSubmit={handleSubmit}
       >
         <h1 className="text-xl font-bold text-center">
@@ -53,13 +53,13 @@ function Login() {
           <Input
             name="password"
             type="password"
-            className="text-xs placeholder:text-base dark:bg-slate-900"
+            className="dark:bg-slate-900"
             placeholder="type here..."
           />
         </div>
-        <div className="space-y-3">
+        <div className="space-y-4">
           <Button className="w-full" type="submit">Login</Button>
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex items-center justify-center gap-4">
             <div className="border-b border-slate-300 dark:border-slate-600 flex-1">
             </div>
             <p className="text-xs text-slate-400 dark:text-slate-600">OR</p>
