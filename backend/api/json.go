@@ -6,6 +6,29 @@ import (
 	"net/http"
 )
 
+type Link struct {
+	Href      string `json:"href"`
+	Method    string `json:"method,omitempty"`
+	Title     string `json:"title,omitempty"`
+	Templated bool   `json:"templated,omitempty"`
+}
+
+type Item interface {
+	GenerateLinks()
+}
+
+type Embedded struct {
+	Items []Item `json:"items"`
+}
+
+type Collection struct {
+	TotalItems int             `json:"total_items"`
+	Page       int             `json:"page"`
+	PageSize   int             `json:"page_size"`
+	Links      map[string]Link `json:"_links"`
+	Embedded   Embedded        `json:"_embedded"`
+}
+
 type ErrorResponse struct {
 	Error string `json:"error"`
 }

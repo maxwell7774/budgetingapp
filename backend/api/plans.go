@@ -11,11 +11,29 @@ import (
 )
 
 type Plan struct {
-	ID        uuid.UUID `json:"id"`
-	OwnerID   uuid.UUID `json:"owner_id"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uuid.UUID       `json:"id"`
+	OwnerID   uuid.UUID       `json:"owner_id"`
+	Name      string          `json:"name"`
+	CreatedAt time.Time       `json:"created_at"`
+	UpdatedAt time.Time       `json:"updated_at"`
+	Links     map[string]Link `json:"_links"`
+}
+
+func (p *Plan) GenerateLinks() {
+	self := PlansURL + "/" + p.ID.String()
+	p.Links = map[string]Link{
+		"self": {
+			Href: self,
+		},
+		"update": {
+			Href:   self,
+			Method: "PUT",
+		},
+		"delete": {
+			Href:   self,
+			Method: "DELETE",
+		},
+	}
 }
 
 func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Request) {
@@ -39,16 +57,26 @@ func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Req
 
 	plans := []Plan{}
 	for _, p := range plansDB {
-		plans = append(plans, Plan{
+		plan := Plan{
 			ID:        p.ID,
 			OwnerID:   p.OwnerID,
 			Name:      p.Name,
 			CreatedAt: p.CreatedAt,
 			UpdatedAt: p.UpdatedAt,
-		})
+		}
+		plan.GenerateLinks()
+
+		plans = append(plans, plan)
 	}
 
-	respondWithJSON(w, http.StatusOK, plans)
+	respondWithJSON(w, http.StatusOK, Collection{
+		TotalItems: 13,
+		Page:       1,
+		PageSize:   10,
+		Embedded: Embedded{
+			Items: plans,
+		},
+	})
 }
 
 func (cfg *ApiConfig) HandlerPlanGetByID(w http.ResponseWriter, r *http.Request) {
@@ -87,6 +115,11 @@ func (cfg *ApiConfig) HandlerPlanGetByID(w http.ResponseWriter, r *http.Request)
 		Name:      plan.Name,
 		CreatedAt: plan.CreatedAt,
 		UpdatedAt: plan.UpdatedAt,
+		Links: map[string]Link{
+			"self": {
+				Href: PlansURL + "/" + plan.ID.String(),
+			},
+		},
 	})
 }
 
