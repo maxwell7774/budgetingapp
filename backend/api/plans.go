@@ -49,12 +49,12 @@ func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	page, pageSize := getPaginationFromQuery(r.URL.Query())
-	plansCount, err := cfg.db.CountPlansForOwner(r.Context(), userID)
+	totalPlans, err := cfg.db.CountPlansForOwner(r.Context(), userID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve plans count", err)
 		return
 	}
+	pagination := getPaginationFromQuery(r.URL.Query(), totalPlans)
 
 	plansDB, err := cfg.db.GetPlansForOwner(r.Context(), userID)
 	if err != nil {
@@ -74,9 +74,8 @@ func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Req
 	}
 
 	respondWithCollection(w, http.StatusOK, Collection{
-		TotalItems: plansCount,
-		Page:       page,
-		PageSize:   pageSize,
+		Self:       r.URL,
+		Pagination: pagination,
 		Embedded: Embedded{
 			Items: plans,
 		},
