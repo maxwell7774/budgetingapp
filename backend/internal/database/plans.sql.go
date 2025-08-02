@@ -11,6 +11,19 @@ import (
 	"github.com/google/uuid"
 )
 
+const countPlansForOwner = `-- name: CountPlansForOwner :one
+SELECT COUNT(*)
+FROM plans
+WHERE owner_id = $1
+`
+
+func (q *Queries) CountPlansForOwner(ctx context.Context, ownerID uuid.UUID) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countPlansForOwner, ownerID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createPlan = `-- name: CreatePlan :one
 INSERT INTO plans(
     id,

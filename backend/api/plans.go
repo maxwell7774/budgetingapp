@@ -49,30 +49,34 @@ func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	page, pageSize := getPaginationFromQuery(r.URL.Query())
+	plansCount, err := cfg.db.CountPlansForOwner(r.Context(), userID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve plans count", err)
+		return
+	}
+
 	plansDB, err := cfg.db.GetPlansForOwner(r.Context(), userID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve plans", err)
 		return
 	}
 
-	plans := []Plan{}
-	for _, p := range plansDB {
-		plan := Plan{
+	plans := make([]Item, len(plansDB))
+	for i, p := range plansDB {
+		plans[i] = &Plan{
 			ID:        p.ID,
 			OwnerID:   p.OwnerID,
 			Name:      p.Name,
 			CreatedAt: p.CreatedAt,
 			UpdatedAt: p.UpdatedAt,
 		}
-		plan.GenerateLinks()
-
-		plans = append(plans, plan)
 	}
 
-	respondWithJSON(w, http.StatusOK, Collection{
-		TotalItems: 13,
-		Page:       1,
-		PageSize:   10,
+	respondWithCollection(w, http.StatusOK, Collection{
+		TotalItems: plansCount,
+		Page:       page,
+		PageSize:   pageSize,
 		Embedded: Embedded{
 			Items: plans,
 		},

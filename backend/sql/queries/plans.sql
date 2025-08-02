@@ -3,6 +3,11 @@ SELECT *
 FROM plans
 WHERE owner_id = $1;
 
+-- name: CountPlansForOwner :one
+SELECT COUNT(*)
+FROM plans
+WHERE owner_id = $1;
+
 -- name: GetPlanByID :one
 SELECT *
 FROM plans
