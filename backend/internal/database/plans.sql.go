@@ -83,10 +83,17 @@ const getPlansForOwner = `-- name: GetPlansForOwner :many
 SELECT id, owner_id, name, created_at, updated_at
 FROM plans
 WHERE owner_id = $1
+LIMIT $2 OFFSET $3
 `
 
-func (q *Queries) GetPlansForOwner(ctx context.Context, ownerID uuid.UUID) ([]Plan, error) {
-	rows, err := q.db.QueryContext(ctx, getPlansForOwner, ownerID)
+type GetPlansForOwnerParams struct {
+	OwnerID uuid.UUID
+	Limit   int32
+	Offset  int32
+}
+
+func (q *Queries) GetPlansForOwner(ctx context.Context, arg GetPlansForOwnerParams) ([]Plan, error) {
+	rows, err := q.db.QueryContext(ctx, getPlansForOwner, arg.OwnerID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

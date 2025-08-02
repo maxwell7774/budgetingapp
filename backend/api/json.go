@@ -80,67 +80,38 @@ func getPaginationFromQuery(query url.Values, totalItems int64) (pagination Pagi
 	}
 }
 
-func (c *Collection) GeneratePaginationLinks() {
+func (c *Collection) GenerateLinks() {
 	if c.PageSize <= 0 {
 		return
 	}
 
-	self := *c.Self
-	query := self.Query()
-	query.Set("page", fmt.Sprintf("%d", c.Page))
-	query.Set("page_size", fmt.Sprintf("%d", c.PageSize))
-	self.RawQuery = query.Encode()
-	c.Links["self"] = Link{
-		Href: self.String(),
+	addPaginationLink := func(name string, page int64, link Link) {
+		newURL := *c.Self
+		query := newURL.Query()
+		query.Set("page", fmt.Sprintf("%d", page))
+		query.Set("page_size", fmt.Sprintf("%d", c.PageSize))
+		newURL.RawQuery = query.Encode()
+		link.Href = newURL.String()
+		c.Links[name] = link
 	}
 
-	if len(self.Query()) > 2 &&
-		self.Query().Has("page") &&
-		self.Query().Has("page_size") {
-		all := *c.Self
-		query = url.Values{}
-		query.Add("page", "1")
-		query.Add("page_size", fmt.Sprintf("%d", c.PageSize))
-		all.RawQuery = query.Encode()
-		c.Links["all"] = Link{
-			Href: all.String(),
-		}
+	addPaginationLink("self", c.Page, Link{})
+
+	if len(c.Self.Query()) > 2 && c.Self.Query().Has("page") && c.Self.Query().Has("page_size") {
+		oldQuery := c.Self.Query().Encode()
+		c.Self.RawQuery = ""
+		addPaginationLink("all", 1, Link{})
+		c.Self.RawQuery = oldQuery
 	}
 
 	if c.Page > 1 {
-		first := *c.Self
-		query := first.Query()
-		query.Set("page", "1")
-		first.RawQuery = query.Encode()
-		c.Links["first"] = Link{
-			Href: first.String(),
-		}
-
-		prev := *c.Self
-		query = prev.Query()
-		query.Set("page", fmt.Sprintf("%d", c.Page-1))
-		prev.RawQuery = query.Encode()
-		c.Links["prev"] = Link{
-			Href: prev.String(),
-		}
+		addPaginationLink("first", 1, Link{})
+		addPaginationLink("prev", c.Page-1, Link{})
 	}
 
 	if c.Page < c.TotalPages {
-		next := *c.Self
-		query := next.Query()
-		query.Set("page", fmt.Sprintf("%d", c.Page+1))
-		next.RawQuery = query.Encode()
-		c.Links["next"] = Link{
-			Href: next.String(),
-		}
-
-		last := *c.Self
-		query = next.Query()
-		query.Set("page", fmt.Sprintf("%d", c.Page+1))
-		last.RawQuery = query.Encode()
-		c.Links["last"] = Link{
-			Href: last.String(),
-		}
+		addPaginationLink("next", c.Page+1, Link{})
+		addPaginationLink("last", c.TotalPages, Link{})
 	}
 
 }
@@ -173,7 +144,7 @@ func respondWithCollection(w http.ResponseWriter, code int, collection Collectio
 		collection.Links = make(map[string]Link)
 	}
 
-	collection.GeneratePaginationLinks()
+	collection.GenerateLinks()
 	for _, i := range collection.Embedded.Items {
 		i.GenerateLinks()
 	}

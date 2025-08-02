@@ -56,7 +56,11 @@ func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Req
 	}
 	pagination := getPaginationFromQuery(r.URL.Query(), totalPlans)
 
-	plansDB, err := cfg.db.GetPlansForOwner(r.Context(), userID)
+	plansDB, err := cfg.db.GetPlansForOwner(r.Context(), database.GetPlansForOwnerParams{
+		OwnerID: userID,
+		Limit:   int32(pagination.PageSize),
+		Offset:  int32((pagination.Page - 1) * pagination.PageSize),
+	})
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve plans", err)
 		return

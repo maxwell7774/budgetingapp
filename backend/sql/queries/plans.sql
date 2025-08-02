@@ -1,7 +1,8 @@
 -- name: GetPlansForOwner :many
 SELECT *
 FROM plans
-WHERE owner_id = $1;
+WHERE owner_id = $1
+LIMIT $2 OFFSET $3;
 
 -- name: CountPlansForOwner :one
 SELECT COUNT(*)
