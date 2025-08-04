@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -49,7 +50,10 @@ func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	totalPlans, err := cfg.db.CountPlansForOwner(r.Context(), userID)
+	totalPlans, err := cfg.db.CountPlansForOwner(r.Context(), database.CountPlansForOwnerParams{
+		OwnerID: userID,
+		Keyword: sql.NullString{Valid: true, String: r.URL.Query().Get("search")},
+	})
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve plans count", err)
 		return
@@ -58,8 +62,9 @@ func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Req
 
 	plansDB, err := cfg.db.GetPlansForOwner(r.Context(), database.GetPlansForOwnerParams{
 		OwnerID: userID,
-		Limit:   int32(pagination.PageSize),
-		Offset:  int32((pagination.Page - 1) * pagination.PageSize),
+		Limit:   pagination.Limit(),
+		Offset:  pagination.Offset(),
+		Keyword: sql.NullString{Valid: true, String: r.URL.Query().Get("search")},
 	})
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve plans", err)

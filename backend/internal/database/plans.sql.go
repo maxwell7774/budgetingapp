@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 )
@@ -15,10 +16,16 @@ const countPlansForOwner = `-- name: CountPlansForOwner :one
 SELECT COUNT(*)
 FROM plans
 WHERE owner_id = $1
+AND name ILIKE '%' || $2 || '%'
 `
 
-func (q *Queries) CountPlansForOwner(ctx context.Context, ownerID uuid.UUID) (int64, error) {
-	row := q.db.QueryRowContext(ctx, countPlansForOwner, ownerID)
+type CountPlansForOwnerParams struct {
+	OwnerID uuid.UUID
+	Keyword sql.NullString
+}
+
+func (q *Queries) CountPlansForOwner(ctx context.Context, arg CountPlansForOwnerParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countPlansForOwner, arg.OwnerID, arg.Keyword)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -83,6 +90,7 @@ const getPlansForOwner = `-- name: GetPlansForOwner :many
 SELECT id, owner_id, name, created_at, updated_at
 FROM plans
 WHERE owner_id = $1
+AND name ILIKE '%' || $4 || '%'
 LIMIT $2 OFFSET $3
 `
 
@@ -90,10 +98,16 @@ type GetPlansForOwnerParams struct {
 	OwnerID uuid.UUID
 	Limit   int32
 	Offset  int32
+	Keyword sql.NullString
 }
 
 func (q *Queries) GetPlansForOwner(ctx context.Context, arg GetPlansForOwnerParams) ([]Plan, error) {
-	rows, err := q.db.QueryContext(ctx, getPlansForOwner, arg.OwnerID, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, getPlansForOwner,
+		arg.OwnerID,
+		arg.Limit,
+		arg.Offset,
+		arg.Keyword,
+	)
 	if err != nil {
 		return nil, err
 	}

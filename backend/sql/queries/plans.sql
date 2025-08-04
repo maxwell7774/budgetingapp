@@ -2,12 +2,14 @@
 SELECT *
 FROM plans
 WHERE owner_id = $1
+AND name ILIKE '%' || sqlc.arg(keyword) || '%'
 LIMIT $2 OFFSET $3;
 
 -- name: CountPlansForOwner :one
 SELECT COUNT(*)
 FROM plans
-WHERE owner_id = $1;
+WHERE owner_id = $1
+AND name ILIKE '%' || sqlc.arg(keyword) || '%';
 
 -- name: GetPlanByID :one
 SELECT *

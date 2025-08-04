@@ -32,11 +32,12 @@ type Pagination struct {
 	TotalPages int64 `json:"total_pages"`
 }
 
-type Collection struct {
-	Pagination
-	Self     *url.URL        `json:"-"`
-	Links    map[string]Link `json:"_links"`
-	Embedded Embedded        `json:"_embedded"`
+func (p *Pagination) Offset() int32 {
+	return int32((p.Page - 1) * p.PageSize)
+}
+
+func (p *Pagination) Limit() int32 {
+	return int32(p.PageSize)
 }
 
 func getPaginationFromQuery(query url.Values, totalItems int64) (pagination Pagination) {
@@ -80,12 +81,23 @@ func getPaginationFromQuery(query url.Values, totalItems int64) (pagination Pagi
 	}
 }
 
+type Collection struct {
+	Pagination
+	Self     *url.URL        `json:"-"`
+	Links    map[string]Link `json:"_links"`
+	Embedded Embedded        `json:"_embedded"`
+}
+
+func getLinkHref(u *url.URL, templates ...string) string {
+	newURL := *u
+}
+
 func (c *Collection) GenerateLinks() {
 	if c.PageSize <= 0 {
 		return
 	}
 
-	addPaginationLink := func(name string, page int64, link Link) {
+	addLink := func(name string, page int64, link Link) {
 		newURL := *c.Self
 		query := newURL.Query()
 		query.Set("page", fmt.Sprintf("%d", page))
@@ -95,25 +107,28 @@ func (c *Collection) GenerateLinks() {
 		c.Links[name] = link
 	}
 
-	addPaginationLink("self", c.Page, Link{})
+	addLink("self", c.Page, Link{})
 
 	if len(c.Self.Query()) > 2 && c.Self.Query().Has("page") && c.Self.Query().Has("page_size") {
 		oldQuery := c.Self.Query().Encode()
 		c.Self.RawQuery = ""
-		addPaginationLink("all", 1, Link{})
+		addLink("all", 1, Link{})
 		c.Self.RawQuery = oldQuery
 	}
 
 	if c.Page > 1 {
-		addPaginationLink("first", 1, Link{})
-		addPaginationLink("prev", c.Page-1, Link{})
+		addLink("first", 1, Link{})
+		addLink("prev", c.Page-1, Link{})
 	}
 
 	if c.Page < c.TotalPages {
-		addPaginationLink("next", c.Page+1, Link{})
-		addPaginationLink("last", c.TotalPages, Link{})
+		addLink("next", c.Page+1, Link{})
+		addLink("last", c.TotalPages, Link{})
 	}
 
+	for key, val := range c.Links {
+		addLink(key, c.Page, val)
+	}
 }
 
 type ErrorResponse struct {
