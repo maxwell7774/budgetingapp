@@ -67,6 +67,16 @@ func (q *Queries) CreatePlan(ctx context.Context, arg CreatePlanParams) (Plan, e
 	return i, err
 }
 
+const deletePlan = `-- name: DeletePlan :exec
+DELETE FROM plans
+WHERE id = $1
+`
+
+func (q *Queries) DeletePlan(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deletePlan, id)
+	return err
+}
+
 const getPlanByID = `-- name: GetPlanByID :one
 SELECT id, owner_id, name, created_at, updated_at
 FROM plans
@@ -137,7 +147,9 @@ func (q *Queries) GetPlansForOwner(ctx context.Context, arg GetPlansForOwnerPara
 
 const updatePlanName = `-- name: UpdatePlanName :one
 UPDATE plans
-SET name = $1
+SET
+    name = $1,
+    updated_at = NOW()
 WHERE id = $2
 RETURNING id, owner_id, name, created_at, updated_at
 `

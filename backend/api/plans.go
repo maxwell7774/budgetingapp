@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -21,7 +22,7 @@ type Plan struct {
 }
 
 func (p *Plan) GenerateLinks() {
-	self := PlansURL + "/" + p.ID.String()
+	self := "/" + p.ID.String()
 	p.Links = map[string]Link{
 		"self": {
 			Href: self,
@@ -88,6 +89,16 @@ func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Req
 		Embedded: Embedded{
 			Items: plans,
 		},
+		Links: map[string]Link{
+			"filter": {
+				Href:      r.URL.Path + "{?name,sort_col,sort_dir}",
+				Templated: true,
+			},
+			"create": {
+				Href:   r.URL.Path,
+				Method: "POST",
+			},
+		},
 	})
 }
 
@@ -121,17 +132,12 @@ func (cfg *ApiConfig) HandlerPlanGetByID(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, Plan{
+	respondWithItem(w, http.StatusOK, &Plan{
 		ID:        plan.ID,
 		OwnerID:   plan.OwnerID,
 		Name:      plan.Name,
 		CreatedAt: plan.CreatedAt,
 		UpdatedAt: plan.UpdatedAt,
-		Links: map[string]Link{
-			"self": {
-				Href: PlansURL + "/" + plan.ID.String(),
-			},
-		},
 	})
 }
 
@@ -169,11 +175,93 @@ func (cfg *ApiConfig) HandlerPlanCreate(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, Plan{
+	respondWithItem(w, http.StatusCreated, &Plan{
 		ID:        plan.ID,
 		OwnerID:   plan.OwnerID,
 		Name:      plan.Name,
 		CreatedAt: plan.CreatedAt,
 		UpdatedAt: plan.UpdatedAt,
 	})
+}
+
+type UpdatePlanParams struct {
+	Name string `json:"name"`
+}
+
+func (cfg *ApiConfig) HandlerPlanUpdateName(w http.ResponseWriter, r *http.Request) {
+	accessToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
+		return
+	}
+
+	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		return
+	}
+
+	planID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't parse provided ID", err)
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	params := UpdatePlanParams{}
+	err = decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		return
+	}
+
+	if params.Name == "" {
+		respondWithError(w, http.StatusBadRequest, "Name was not provided", err)
+		return
+	}
+
+	plan, err := cfg.db.UpdatePlanName(r.Context(), database.UpdatePlanNameParams{
+		ID:   planID,
+		Name: params.Name,
+	})
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't update plan", err)
+		return
+	}
+
+	respondWithItem(w, http.StatusCreated, &Plan{
+		ID:        plan.ID,
+		OwnerID:   plan.OwnerID,
+		Name:      plan.Name,
+		CreatedAt: plan.CreatedAt,
+		UpdatedAt: plan.UpdatedAt,
+	})
+}
+
+func (cfg *ApiConfig) HandlerPlanDelete(w http.ResponseWriter, r *http.Request) {
+	accessToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
+		return
+	}
+
+	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		return
+	}
+
+	planID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't parse provided ID", err)
+		return
+	}
+
+	err = cfg.db.DeletePlan(r.Context(), planID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't update plan", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

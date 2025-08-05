@@ -15,6 +15,7 @@ type Link struct {
 	Method    string `json:"method,omitempty"`
 	Title     string `json:"title,omitempty"`
 	Templated bool   `json:"templated,omitempty"`
+	Name      string `json:"name,omitempty"`
 }
 
 type Item interface {
@@ -88,10 +89,6 @@ type Collection struct {
 	Embedded Embedded        `json:"_embedded"`
 }
 
-func getLinkHref(u *url.URL, templates ...string) string {
-	newURL := *u
-}
-
 func (c *Collection) GenerateLinks() {
 	if c.PageSize <= 0 {
 		return
@@ -126,9 +123,11 @@ func (c *Collection) GenerateLinks() {
 		addLink("last", c.TotalPages, Link{})
 	}
 
-	for key, val := range c.Links {
-		addLink(key, c.Page, val)
-	}
+	/*
+		for key, val := range c.Links {
+			addLink(key, c.Page, val)
+		}
+	*/
 }
 
 type ErrorResponse struct {

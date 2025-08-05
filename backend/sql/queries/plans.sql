@@ -35,6 +35,12 @@ RETURNING *;
 
 -- name: UpdatePlanName :one
 UPDATE plans
-SET name = $1
+SET
+    name = $1,
+    updated_at = NOW()
 WHERE id = $2
 RETURNING *;
+
+-- name: DeletePlan :exec
+DELETE FROM plans
+WHERE id = $1;
