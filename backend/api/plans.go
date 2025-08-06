@@ -3,7 +3,6 @@ package api
 import (
 	"database/sql"
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 
@@ -91,7 +90,7 @@ func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Req
 		},
 		Links: map[string]Link{
 			"filter": {
-				Href:      r.URL.Path + "{?name,sort_col,sort_dir}",
+				Href:      r.URL.Path + "{?search,sort_col,sort_dir}",
 				Templated: true,
 			},
 			"create": {

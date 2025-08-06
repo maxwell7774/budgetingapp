@@ -21,7 +21,7 @@ export const Button: React.FC<ButtonProps> = function (
 
   return (
     <button
-      className={"text-nowrap font-semibold h-11 px-5 hover:opacity-80 hover:cursor-pointer active:opacity-60 transition-all rounded-full inline-flex items-center justify-center " +
+      className={"text-nowrap font-semibold h-11 px-5 hover:opacity-80 hover:cursor-pointer active:opacity-60 transition-all rounded-full inline-flex items-center justify-center disabled:opacity-50 " +
         variantClasses + " " + className}
       {...props}
     >

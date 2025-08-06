@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../auth-provider.tsx";
 import { ErrorResponse } from "./error.ts";
+import { Collection, Resource } from "./links.ts";
+import { useAPICollection, useAPIResource } from "./api.ts";
 
-export interface Plan {
+export interface Plan extends Resource {
   id: string;
   owner_id: string;
   name: string;
@@ -39,6 +41,7 @@ function useCreatePlan() {
   return createPlan;
 }
 
+/*
 function usePlans() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const auth = useAuth();
@@ -52,10 +55,20 @@ function usePlans() {
         "Authorization": `Bearer ${auth.accessToken}`,
       },
     }).then((res) => res.json())
-      .then((dat: Plan[]) => setPlans(dat));
+      .then((dat: Collection) => {
+        printLinks(dat);
+        setPlans(dat._embedded.items as Plan[]);
+      });
   }, []);
 
   return plans;
+}
+*/
+
+function usePlans() {
+  return useAPICollection<Collection<Plan>>({
+    href: "/api/v1/plans?page_size=2",
+  });
 }
 
 function usePlan(id: string) {

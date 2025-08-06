@@ -27,7 +27,6 @@ export function useAPIResource<T extends Resource>(
     fetch(link.href, {
       headers: {
         "Authorization": `Bearer ${auth.accessToken}`,
-        "Content-Type": "application/json",
       },
     })
       .then((res) => res.json())
@@ -49,11 +48,10 @@ export function useAPIResource<T extends Resource>(
   };
 }
 
-export function useAPICollection<Collection>(
-  initialLink: Link,
+export function useAPICollection<T extends Collection>(
+  link: Link,
 ) {
-  const [link, setLink] = useState<Link>(initialLink);
-  const [data, setData] = useState<Collection | undefined>(undefined);
+  const [data, setData] = useState<T | undefined>(undefined);
   const [fetching, setFetching] = useState<boolean>(false);
   const [errored, setErrored] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -65,11 +63,10 @@ export function useAPICollection<Collection>(
     fetch(link.href, {
       headers: {
         "Authorization": `Bearer ${auth.accessToken}`,
-        "Content-Type": "application/json",
       },
     })
       .then((res) => res.json())
-      .then((dat: Collection) => setData(dat))
+      .then((dat: T) => setData(dat))
       .catch((e) => {
         console.log(e);
         setErrored(true);
@@ -80,9 +77,7 @@ export function useAPICollection<Collection>(
   }, [link]);
 
   return {
-    collection: data,
-    link: link,
-    setLink: setLink,
+    resource: data,
     fetching: fetching,
     errored: errored,
     errorMessage: errorMessage,
@@ -95,31 +90,24 @@ export function useAPIMutation<T extends Resource>(link: Link) {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const auth = useAuth();
 
-  const mutate = async function (updatedDat: Partial<T>): Promise<T> {
+  const mutate = async function Partial<T>(updatedDat: T) {
     setErrored(false);
     setMutating(true);
 
-    try {
-      const res = await fetch(link.href, {
-        method: link.method,
-        headers: {
-          "Authorization": `Bearer ${auth.accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedDat),
-      });
+    const res = await fetch(link.href, {
+      method: link.method,
+      headers: { "Authorization": `Bearer ${auth.accessToken}` },
+      body: JSON.stringify(updatedDat),
+    });
 
-      if (!res.ok) {
-        const e: ErrorResponse = await res.json();
-        setErrorMessage(e.error);
-        throw Error(e.error);
-      }
-
-      const dat: T = await res.json();
-      return dat;
-    } finally {
-      setMutating(false);
+    if (!res.ok) {
+      const e: ErrorResponse = await res.json();
+      setErrorMessage(e.error);
+      throw Error(e.error);
     }
+
+    const dat: T = await res.json();
+    return dat;
   };
 
   return {

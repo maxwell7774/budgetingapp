@@ -1,6 +1,6 @@
 import IconProps from "./icon-props.ts";
 
-export const ChevronRightIcon: React.FC<IconProps> = (
+export const ChevronLeftIcon: React.FC<IconProps> = (
   props,
 ) => {
   return (
@@ -15,7 +15,7 @@ export const ChevronRightIcon: React.FC<IconProps> = (
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
-        d="m8.25 4.5 7.5 7.5-7.5 7.5"
+        d="M15.75 19.5 8.25 12l7.5-7.5"
       />
     </svg>
   );
