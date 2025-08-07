@@ -25,12 +25,14 @@ function Navbar() {
     <header className="sticky top-4 md:top-8 left-0 right-0 z-100 isolate">
       <nav>
         <div
-          className={"max-w-7xl min-w-max mx-auto flex items-center h-16 bg-slate-100 dark:bg-slate-800 md:bg-transparent md:dark:bg-transparent " +
-            (open ? "rounded-t-4xl" : "rounded-full")}
+          data-open={open}
+          className="max-w-7xl min-w-max mx-auto flex items-center h-16 bg-slate-100 dark:bg-slate-800 md:bg-transparent
+                    md:dark:bg-transparent data-[open=true]:rounded-t-4xl data-[open=false]:rounded-full data-[open=false]:delay-150"
         >
           <div className="p-2 h-full bg-slate-100 dark:bg-slate-800 rounded-full">
             <Link
-              className="h-full px-4 sm:px-8 text-xl font-bold flex items-center min-w-max rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+              data-open={open}
+              className="h-full px-4 sm:px-8 text-xl font-bold flex items-center min-w-max rounded-full hover:bg-slate-200 dark:hover:bg-slate-700"
               to="/"
             >
               <img className="w-8 me-4" src="/fish.svg" />
@@ -46,45 +48,51 @@ function Navbar() {
               <EllipsisIcon className="size-6 min-w-6 min-h-6" />
             </Button>
           </div>
-          <ul
+          <div
             data-open={open}
-            className="md:ms-auto md:static md:h-full data-[open=false]:hidden md:!flex items-center font-semibold p-2 gap-0.5 bg-slate-100 dark:bg-slate-800 rounded-b-4xl md:rounded-full
-                        absolute top-full left-0 right-0 starting:max-h-0 data-[open=false]:max-h-0 data-[open=true]:max-h-96 transition-all overflow-hidden"
+            className="ms-auto md:h-full md:!max-h-fit md:!flex items-center font-semibold gap-0.5 bg-slate-100 dark:bg-slate-800 md:rounded-full
+                        absolute top-full left-0 right-0 md:static data-[open=true]:shadow-lg rounded-b-4xl
+                        data-[open=true]:starting:max-h-0 data-[open=true]:max-h-96 data-[open=true]:block max-h-0 transition-all hidden overflow-hidden transition-discrete"
           >
-            <NavItem to="/">
-              Home
-            </NavItem>
-            <NavItem to="/about">
-              About
-            </NavItem>
-            {isAuthenticated
-              ? (
-                <>
-                  <NavItem to="/budgets">
-                    Budgets
+            <ul
+              data-open={open}
+              className="block md:flex items-center p-2 gap-0.5 h-full"
+            >
+              <NavItem to="/">
+                Home
+              </NavItem>
+              <NavItem to="/about">
+                About
+              </NavItem>
+              {isAuthenticated
+                ? (
+                  <>
+                    <NavItem to="/budgets">
+                      Budgets
+                    </NavItem>
+                    <NavItem to="/profile">
+                      Profile
+                    </NavItem>
+                  </>
+                )
+                : (
+                  <NavItem to="/login">
+                    Login
                   </NavItem>
-                  <NavItem to="/profile">
-                    Profile
-                  </NavItem>
-                </>
-              )
-              : (
-                <NavItem to="/login">
-                  Login
-                </NavItem>
-              )}
-            <li className="h-full">
-              <Button
-                variant="ghost"
-                className="h-11 md:h-full hover:bg-slate-200 dark:hover:bg-slate-700 hover:opacity-100 active:opacity-100 w-full md:w-max"
-                onClick={changeTheme}
-              >
-                {theme == "dark"
-                  ? <MoonIcon className="size-6" />
-                  : <SunIcon className="size-6" />}
-              </Button>
-            </li>
-          </ul>
+                )}
+              <li className="h-full">
+                <Button
+                  variant="ghost"
+                  className="h-11 md:h-full hover:bg-slate-200 dark:hover:bg-slate-700 hover:opacity-100 active:opacity-100 w-full md:w-max"
+                  onClick={changeTheme}
+                >
+                  {theme == "dark"
+                    ? <MoonIcon className="size-6" />
+                    : <SunIcon className="size-6" />}
+                </Button>
+              </li>
+            </ul>
+          </div>
         </div>
       </nav>
     </header>
