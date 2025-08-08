@@ -18,6 +18,22 @@ type Link struct {
 	Name      string `json:"name,omitempty"`
 }
 
+func DefaultLinks(self string) map[string]Link {
+	return map[string]Link{
+		"self": {
+			Href: self,
+		},
+		"update": {
+			Href:   self,
+			Method: http.MethodPut,
+		},
+		"delete": {
+			Href:   self,
+			Method: http.MethodDelete,
+		},
+	}
+}
+
 type Item interface {
 	GenerateLinks()
 }

@@ -13,5 +13,3 @@ func NewApiConfig(db *database.Queries, jwtSecret string) ApiConfig {
 		jwtSecret: jwtSecret,
 	}
 }
-
-const userCtxKey = "user"

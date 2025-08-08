@@ -11,6 +11,19 @@ import (
 	"github.com/google/uuid"
 )
 
+const countPlanCategoriesForPlan = `-- name: CountPlanCategoriesForPlan :one
+SELECT COUNT(*)
+FROM plan_categories
+WHERE plan_id = $1
+`
+
+func (q *Queries) CountPlanCategoriesForPlan(ctx context.Context, planID uuid.UUID) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countPlanCategoriesForPlan, planID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createPlanCategory = `-- name: CreatePlanCategory :one
 INSERT INTO plan_categories(
     id,
@@ -60,14 +73,31 @@ func (q *Queries) CreatePlanCategory(ctx context.Context, arg CreatePlanCategory
 	return i, err
 }
 
+const deletePlanCategory = `-- name: DeletePlanCategory :exec
+DELETE FROM plan_categories
+WHERE id = $1
+`
+
+func (q *Queries) DeletePlanCategory(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deletePlanCategory, id)
+	return err
+}
+
 const getPlanCategories = `-- name: GetPlanCategories :many
 SELECT id, plan_id, name, deposit, withdrawl, created_at, updated_at
 FROM plan_categories
 WHERE plan_id = $1
+LIMIT $2 OFFSET $3
 `
 
-func (q *Queries) GetPlanCategories(ctx context.Context, planID uuid.UUID) ([]PlanCategory, error) {
-	rows, err := q.db.QueryContext(ctx, getPlanCategories, planID)
+type GetPlanCategoriesParams struct {
+	PlanID uuid.UUID
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) GetPlanCategories(ctx context.Context, arg GetPlanCategoriesParams) ([]PlanCategory, error) {
+	rows, err := q.db.QueryContext(ctx, getPlanCategories, arg.PlanID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -105,6 +135,35 @@ WHERE id = $1
 
 func (q *Queries) GetPlanCategoryByID(ctx context.Context, id uuid.UUID) (PlanCategory, error) {
 	row := q.db.QueryRowContext(ctx, getPlanCategoryByID, id)
+	var i PlanCategory
+	err := row.Scan(
+		&i.ID,
+		&i.PlanID,
+		&i.Name,
+		&i.Deposit,
+		&i.Withdrawl,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updatePlanCategoryName = `-- name: UpdatePlanCategoryName :one
+UPDATE plan_categories
+SET
+    name = $1,
+    updated_at = NOW()
+WHERE id = $2
+RETURNING id, plan_id, name, deposit, withdrawl, created_at, updated_at
+`
+
+type UpdatePlanCategoryNameParams struct {
+	Name string
+	ID   uuid.UUID
+}
+
+func (q *Queries) UpdatePlanCategoryName(ctx context.Context, arg UpdatePlanCategoryNameParams) (PlanCategory, error) {
+	row := q.db.QueryRowContext(ctx, updatePlanCategoryName, arg.Name, arg.ID)
 	var i PlanCategory
 	err := row.Scan(
 		&i.ID,

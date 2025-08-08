@@ -11,13 +11,19 @@ import (
 )
 
 type PlanCategory struct {
-	ID        uuid.UUID `json:"id"`
-	PlanID    uuid.UUID `json:"plan_id"`
-	Name      string    `json:"name"`
-	Deposit   int32     `json:"deposit"`
-	Withdrawl int32     `json:"withdrawl"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uuid.UUID       `json:"id"`
+	PlanID    uuid.UUID       `json:"plan_id"`
+	Name      string          `json:"name"`
+	Deposit   int32           `json:"deposit"`
+	Withdrawl int32           `json:"withdrawl"`
+	CreatedAt time.Time       `json:"created_at"`
+	UpdatedAt time.Time       `json:"updated_at"`
+	Links     map[string]Link `json:"_links"`
+}
+
+func (p *PlanCategory) GenerateLinks() {
+	self := "/api/v1/plan-categories/" + p.ID.String()
+	p.Links = DefaultLinks(self)
 }
 
 func (cfg *ApiConfig) HandlerPlanCategoriesGet(w http.ResponseWriter, r *http.Request) {
@@ -33,20 +39,33 @@ func (cfg *ApiConfig) HandlerPlanCategoriesGet(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	planID, err := uuid.Parse(r.PathValue("id"))
+	planID, err := uuid.Parse(r.URL.Query().Get("plan_id"))
 	if err != nil {
-		respondWithError(w, http.StatusNotFound, "Not a valid id", err)
+		respondWithError(w, http.StatusNotFound, "Not a valid id, please include it using ?plan_id={id}", err)
 		return
 	}
 
-	planCategoriesDB, err := cfg.db.GetPlanCategories(r.Context(), planID)
+	totalCategories, err := cfg.db.CountPlanCategoriesForPlan(r.Context(), planID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve plan count", err)
+		return
+	}
+
+	pagination := getPaginationFromQuery(r.URL.Query(), totalCategories)
+
+	planCategoriesDB, err := cfg.db.GetPlanCategories(r.Context(), database.GetPlanCategoriesParams{
+		PlanID: planID,
+		Limit:  pagination.Limit(),
+		Offset: pagination.Offset(),
+	})
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve plan categories", err)
 		return
 	}
-	planCats := []PlanCategory{}
-	for _, p := range planCategoriesDB {
-		planCats = append(planCats, PlanCategory{
+
+	planCats := make([]Item, len(planCategoriesDB))
+	for i, p := range planCategoriesDB {
+		planCats[i] = &PlanCategory{
 			ID:        p.ID,
 			PlanID:    p.PlanID,
 			Name:      p.Name,
@@ -54,10 +73,16 @@ func (cfg *ApiConfig) HandlerPlanCategoriesGet(w http.ResponseWriter, r *http.Re
 			Withdrawl: p.Withdrawl,
 			CreatedAt: p.CreatedAt,
 			UpdatedAt: p.UpdatedAt,
-		})
+		}
 	}
 
-	respondWithJSON(w, http.StatusOK, planCats)
+	respondWithCollection(w, http.StatusOK, Collection{
+		Self:       r.URL,
+		Pagination: pagination,
+		Embedded: Embedded{
+			Items: planCats,
+		},
+	})
 }
 
 type CreatePlanCategoryParams struct {
@@ -99,7 +124,7 @@ func (cfg *ApiConfig) HandlerPlanCategoryCreate(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, PlanCategory{
+	respondWithItem(w, http.StatusCreated, &PlanCategory{
 		ID:        plan_category.ID,
 		PlanID:    plan_category.PlanID,
 		Name:      plan_category.Name,

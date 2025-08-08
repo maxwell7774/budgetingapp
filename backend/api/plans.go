@@ -21,20 +21,8 @@ type Plan struct {
 }
 
 func (p *Plan) GenerateLinks() {
-	self := BasePlansURL + "/" + p.ID.String()
-	p.Links = map[string]Link{
-		"self": {
-			Href: self,
-		},
-		"update": {
-			Href:   self,
-			Method: "PUT",
-		},
-		"delete": {
-			Href:   self,
-			Method: "DELETE",
-		},
-	}
+	self := "/api/v1/plans/" + p.ID.String()
+	p.Links = DefaultLinks(self)
 }
 
 func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Request) {
