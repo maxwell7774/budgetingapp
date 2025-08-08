@@ -6,11 +6,36 @@ interface ErrorResponse {
   error: string;
 }
 
+/* Abort controller fetching maybe?
+useEffect(() => {
+  const controller = new AbortController();
+
+  setFetching(true);
+  setErrored(false);
+
+  fetch(link.href, {
+    signal: controller.signal,
+    headers: {
+      ...
+    },
+  })
+    .then(...)
+    .catch(e => {
+      if (e.name === "AbortError") return; // Ignore cancelled requests
+      ...
+    })
+    .finally(...);
+
+  return () => controller.abort();
+}, [link]);
+*/
 export function useAPIResource<T extends Resource>(
   initialLink: Link,
 ) {
-  const [resource, setResource] = useState<T | undefined>(undefined);
   const [link, setLink] = useState<Link>(initialLink);
+  const [resource, setResource] = useState<T | undefined>(
+    undefined,
+  );
   const [fetching, setFetching] = useState<boolean>(false);
   const [errored, setErrored] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -55,6 +80,12 @@ export function useAPIResource<T extends Resource>(
     setLink(link);
   };
 
+  const refetch = function () {
+    if (!resource) return;
+    if (!resource._links["self"]) return;
+    setLink(resource._links["self"]);
+  };
+
   useEffect(() => {
     setFetching(true);
     setErrored(false);
@@ -69,15 +100,17 @@ export function useAPIResource<T extends Resource>(
       .catch((e) => {
         console.log(e);
         setErrored(true);
-        setErrorMessage(e);
         setResource(undefined);
+        setErrorMessage;
       })
       .finally(() => setFetching(false));
   }, [link]);
 
   return {
     resource: resource,
+    link: link,
     selectLink: selectLink,
+    refetch: refetch,
     fetching: fetching,
     errored: errored,
     errorMessage: errorMessage,
@@ -137,6 +170,7 @@ export function useAPICollection<T extends Resource>(
 
   const refetch = function () {
     if (!collection) return;
+    if (!collection._links["self"]) return;
     setLink(collection._links["self"]);
   };
 
@@ -202,10 +236,16 @@ export function useAPIMutation<T extends Resource>(
       });
 
       if (!res.ok) {
-        const e: ErrorResponse = await res.json();
+        let message = "Unknown error";
+        try {
+          const e: ErrorResponse = await res.json();
+          message = e.error;
+        } catch (_) {
+          message = await res.text();
+        }
         setErrored(true);
-        setErrorMessage(e.error);
-        throw Error(e.error);
+        setErrorMessage(message);
+        throw Error(message);
       }
 
       if (callback) callback();

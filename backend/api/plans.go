@@ -21,7 +21,7 @@ type Plan struct {
 }
 
 func (p *Plan) GenerateLinks() {
-	self := "/api/v1/plans/" + p.ID.String()
+	self := BasePlansURL + "/" + p.ID.String()
 	p.Links = map[string]Link{
 		"self": {
 			Href: self,
@@ -162,6 +162,11 @@ func (cfg *ApiConfig) HandlerPlanCreate(w http.ResponseWriter, r *http.Request) 
 	err = decoder.Decode(&params)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		return
+	}
+
+	if len(params.Name) == 0 {
+		respondWithError(w, http.StatusBadRequest, "Plan name is required", err)
 		return
 	}
 

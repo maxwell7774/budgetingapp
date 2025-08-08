@@ -11,9 +11,8 @@ import { Pagination } from "../components/ui/pagination.tsx";
 import { TrashIcon } from "../components/ui/icons/trash.tsx";
 
 function Budgets() {
-  const { collection, selectLink, refetch, fetching } = usePlans();
+  const { collection, selectLink, refetch } = usePlans();
   const createPlan = useCreatePlan(collection?._links["create"]);
-  console.log(fetching);
 
   if (!collection) {
     return <div className="animate-puse">Loading plans...</div>;
@@ -21,7 +20,8 @@ function Budgets() {
 
   const handleSubmit = async function (e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
 
     const planName = formData.get("plan_name") as string;
 
@@ -33,6 +33,11 @@ function Budgets() {
         callback: refetch,
       },
     );
+
+    if (createPlan.errored) {
+      return;
+    }
+    form.reset();
   };
 
   const handleSearch = function (e: React.FormEvent<HTMLFormElement>) {

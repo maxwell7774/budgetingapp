@@ -7,12 +7,12 @@ function BudgetDetails() {
   if (!id) {
     return null;
   }
-  const plan = usePlan(id);
+  const { resource } = usePlan(id);
   const planCategories = usePlanCategories(id);
 
   return (
     <div>
-      <h1>{plan?.name}</h1>
+      <h1>{resource?.name}</h1>
       <ul>
         {planCategories.map((c) => <li key={c.id}>{c.name}</li>)}
       </ul>

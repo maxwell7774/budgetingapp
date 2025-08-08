@@ -8,9 +8,10 @@ type Link struct {
 }
 */
 
+type HTTPMethod = "GET" | "PUT" | "POST" | "PATCH" | "DELETE";
 export interface Link {
   href: string;
-  method?: string;
+  method?: HTTPMethod;
   title?: string;
   templated?: boolean;
   name?: string;
