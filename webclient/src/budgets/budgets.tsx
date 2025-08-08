@@ -1,12 +1,23 @@
-import { Plan, useCreatePlan, usePlans } from "../components/api/plans.ts";
+import {
+  Plan,
+  useCreatePlan,
+  useDeletePlan,
+  usePlans,
+} from "../components/api/plans.ts";
 import { Link } from "react-router";
 import { SearchIcon } from "../components/ui/icons/index.ts";
 import { Button, Input } from "../components/ui/index.ts";
 import { Pagination } from "../components/ui/pagination.tsx";
+import { TrashIcon } from "../components/ui/icons/trash.tsx";
 
 function Budgets() {
-  const { collection, setLink } = usePlans();
-  const createPlan = useCreatePlan();
+  const { collection, selectLink, refetch, fetching } = usePlans();
+  const createPlan = useCreatePlan(collection?._links["create"]);
+  console.log(fetching);
+
+  if (!collection) {
+    return <div className="animate-puse">Loading plans...</div>;
+  }
 
   const handleSubmit = async function (e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -14,26 +25,27 @@ function Budgets() {
 
     const planName = formData.get("plan_name") as string;
 
-    await createPlan({
-      name: planName,
-    });
+    await createPlan.mutate(
+      {
+        updatedDat: {
+          name: planName,
+        },
+        callback: refetch,
+      },
+    );
   };
 
   const handleSearch = function (e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const name = formData.get("name") as string;
-    setLink({ href: `/api/v1/plans?search=${name}` });
+    selectLink("filter", { "search": [name] });
   };
-
-  if (!collection) {
-    return null;
-  }
 
   return (
     <div>
-      <div className="flex justify-between border-b text-slate-500 dark:text-slate-300 items-end">
-        <h1 className="text-2xl font-bold mb-2">
+      <div className="flex justify-between text-slate-500 dark:text-slate-300 items-end">
+        <h1 className="font-bold mb-2">
           Budget Plans
         </h1>
         <form
@@ -58,9 +70,10 @@ function Budgets() {
       </div>
       <div className="grid grid-cols-3 gap-8 mb-8">
         {collection._embedded.items.map((plan) => (
-          <PlanCard key={plan.id} plan={plan} />
+          <PlanCard key={plan.id} plan={plan} refetchCollection={refetch} />
         ))}
       </div>
+      <Pagination collection={collection} selectLink={selectLink} />
       <form
         onSubmit={handleSubmit}
         className="bg-white dark:bg-slate-800 shadow-md mx-auto max-w-xl p-10 rounded-3xl space-y-8 mt-32"
@@ -77,24 +90,35 @@ function Budgets() {
         />
         <Button type="submit">Add Plan</Button>
       </form>
-      <Pagination collection={collection} setLink={setLink} />
     </div>
   );
 }
 
 interface PlanCardProps {
   plan: Plan;
+  refetchCollection: () => void;
 }
 
-function PlanCard({ plan }: PlanCardProps) {
+function PlanCard({ plan, refetchCollection }: PlanCardProps) {
+  const { mutate } = useDeletePlan(plan._links["delete"]);
+
+  const deletePlan = async function () {
+    await mutate({ callback: refetchCollection });
+  };
+
   return (
     <div className="p-8 bg-white dark:bg-slate-800 shadow-md rounded-3xl">
-      <Link
-        to={`/budgets/${plan.id}`}
-        className="text-indigo-500 text-lg font-bold mb-8 hover:opacity-80 active:opacity-60 transition-opacity flex gap-2 items-center"
-      >
-        {plan.name}
-      </Link>
+      <div className="mb-16 flex items-baseline justify-between gap-3">
+        <Link
+          to={`/budgets/${plan.id}`}
+          className="text-indigo-500 text-lg font-bold hover:opacity-80 active:opacity-60 transition-opacity"
+        >
+          {plan.name}
+        </Link>
+        <Button variant="ghost" onClick={deletePlan}>
+          <TrashIcon className="size-5" />
+        </Button>
+      </div>
       <p className="ms-auto w-fit italic text-sm text-slate-400">
         Updated at {new Date(plan.updated_at).toLocaleString()}
       </p>

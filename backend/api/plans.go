@@ -21,7 +21,7 @@ type Plan struct {
 }
 
 func (p *Plan) GenerateLinks() {
-	self := "/" + p.ID.String()
+	self := "/api/v1/plans/" + p.ID.String()
 	p.Links = map[string]Link{
 		"self": {
 			Href: self,

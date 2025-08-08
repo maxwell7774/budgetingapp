@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../auth-provider.tsx";
-import { ErrorResponse } from "./error.ts";
-import { Collection, Resource } from "./links.ts";
-import { useAPICollection, useAPIResource } from "./api.ts";
+import { useAPICollection, useAPIMutation } from "./api.ts";
+import { Link, Resource } from "./links.ts";
 
 export interface Plan extends Resource {
   id: string;
@@ -12,10 +11,7 @@ export interface Plan extends Resource {
   updated_at: string;
 }
 
-interface CreatePlanParams {
-  name: string;
-}
-
+/*
 function useCreatePlan() {
   const auth = useAuth();
 
@@ -39,6 +35,15 @@ function useCreatePlan() {
   };
 
   return createPlan;
+}
+*/
+
+function useCreatePlan(link?: Link) {
+  return useAPIMutation<Plan>(link);
+}
+
+function useDeletePlan(link?: Link) {
+  return useAPIMutation<Plan>(link);
 }
 
 /*
@@ -66,8 +71,8 @@ function usePlans() {
 */
 
 function usePlans() {
-  return useAPICollection<Collection<Plan>>({
-    href: "/api/v1/plans?page_size=2",
+  return useAPICollection<Plan>({
+    href: "/api/v1/plans",
   });
 }
 
@@ -91,4 +96,4 @@ function usePlan(id: string) {
   return plan;
 }
 
-export { useCreatePlan, usePlan, usePlans };
+export { useCreatePlan, useDeletePlan, usePlan, usePlans };

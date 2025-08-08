@@ -6,10 +6,10 @@ import { Button } from "./index.ts";
 
 interface Props<T extends Resource> {
   collection: Collection<T>;
-  setLink: (newLink: Link) => void;
+  selectLink: (name: string) => void;
 }
 export function Pagination<T extends Resource>(
-  { collection, setLink }: Props<T>,
+  { collection, selectLink }: Props<T>,
 ) {
   return (
     <div className="flex items-center gap-1">
@@ -19,7 +19,7 @@ export function Pagination<T extends Resource>(
             <Button
               variant="outline"
               className="w-11 !px-0"
-              onClick={() => setLink(collection._links["first"])}
+              onClick={() => selectLink("first")}
               disabled={!collection._links["first"]}
             >
               <DoubleChevronLeftIcon className="size-5" />
@@ -27,7 +27,7 @@ export function Pagination<T extends Resource>(
             <Button
               variant="outline"
               className="w-11 !px-0"
-              onClick={() => setLink(collection._links["prev"])}
+              onClick={() => selectLink("prev")}
               disabled={!collection._links["prev"]}
             >
               <ChevronLeftIcon className="size-5" />
@@ -35,7 +35,7 @@ export function Pagination<T extends Resource>(
             <Button
               variant="outline"
               className="w-11 !px-0"
-              onClick={() => setLink(collection._links["next"])}
+              onClick={() => selectLink("next")}
               disabled={!collection._links["next"]}
             >
               <ChevronRightIcon className="size-5" />
@@ -43,7 +43,7 @@ export function Pagination<T extends Resource>(
             <Button
               variant="outline"
               className="w-11 !px-0"
-              onClick={() => setLink(collection._links["last"])}
+              onClick={() => selectLink("last")}
               disabled={!collection._links["last"]}
             >
               <DoubleChevronRightIcon className="size-5" />

@@ -58,25 +58,25 @@ function Navbar() {
               data-open={open}
               className="block md:flex items-center p-2 gap-0.5 h-full"
             >
-              <NavItem to="/">
+              <NavItem to="/" setOpen={setOpen}>
                 Home
               </NavItem>
-              <NavItem to="/about">
+              <NavItem to="/about" setOpen={setOpen}>
                 About
               </NavItem>
               {isAuthenticated
                 ? (
                   <>
-                    <NavItem to="/budgets">
+                    <NavItem to="/budgets" setOpen={setOpen}>
                       Budgets
                     </NavItem>
-                    <NavItem to="/profile">
+                    <NavItem to="/profile" setOpen={setOpen}>
                       Profile
                     </NavItem>
                   </>
                 )
                 : (
-                  <NavItem to="/login">
+                  <NavItem to="/login" setOpen={setOpen}>
                     Login
                   </NavItem>
                 )}
@@ -101,10 +101,11 @@ function Navbar() {
 
 interface NavItemProps {
   to: To;
+  setOpen: (open: boolean) => void;
   children: React.ReactNode;
 }
 
-function NavItem({ to, children }: NavItemProps) {
+function NavItem({ to, children, setOpen }: NavItemProps) {
   const base: string =
     "flex items-center justify-center rounded-full h-11 md:h-full px-5 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all";
 
@@ -112,6 +113,7 @@ function NavItem({ to, children }: NavItemProps) {
     <li className="h-full">
       <NavLink
         to={to}
+        onClick={() => setOpen(false)}
         className={({ isActive }) =>
           isActive ? base + " bg-slate-200 dark:bg-slate-700" : base}
       >

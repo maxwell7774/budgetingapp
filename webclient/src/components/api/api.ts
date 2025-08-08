@@ -2,24 +2,58 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../auth-provider.tsx";
 import { Collection, Link, Resource } from "./links.ts";
 
-/*
-type ErrorResponse struct {
-	Error string `json:"error"`
-}
-*/
-
 interface ErrorResponse {
   error: string;
 }
 
 export function useAPIResource<T extends Resource>(
-  link: Link,
+  initialLink: Link,
 ) {
-  const [data, setData] = useState<T | undefined>(undefined);
+  const [resource, setResource] = useState<T | undefined>(undefined);
+  const [link, setLink] = useState<Link>(initialLink);
   const [fetching, setFetching] = useState<boolean>(false);
   const [errored, setErrored] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const auth = useAuth();
+
+  const selectLink = function (
+    name: string,
+    templateParams?: Record<string, string[]>,
+  ) {
+    if (!resource) {
+      return;
+    }
+
+    const link = resource._links[name];
+    if (!link) {
+      return;
+    }
+
+    if (link.templated && templateParams) {
+      const regex = /\{\?([^}]*)\}/;
+      const matches = link.href.match(regex);
+      if (!matches) return;
+
+      const availableParams = matches[1].split(",");
+
+      const baseHref = link.href.replace(regex, "");
+      const linkURL = new URL(baseHref, globalThis.location.origin);
+
+      availableParams.forEach((key) => {
+        const values = templateParams[key];
+        if (!values) return;
+        values.forEach((val) => {
+          linkURL.searchParams.append(key, val);
+        });
+      });
+
+      link.href = baseHref + linkURL.search;
+    } else if (link.templated) {
+      return;
+    }
+
+    setLink(link);
+  };
 
   useEffect(() => {
     setFetching(true);
@@ -31,33 +65,80 @@ export function useAPIResource<T extends Resource>(
       },
     })
       .then((res) => res.json())
-      .then((dat: T) => setData(dat))
+      .then((dat: T) => setResource(dat))
       .catch((e) => {
         console.log(e);
         setErrored(true);
         setErrorMessage(e);
-        setData(undefined);
+        setResource(undefined);
       })
       .finally(() => setFetching(false));
   }, [link]);
 
   return {
-    resource: data,
+    resource: resource,
+    selectLink: selectLink,
     fetching: fetching,
     errored: errored,
     errorMessage: errorMessage,
   };
 }
 
-export function useAPICollection<Collection>(
+export function useAPICollection<T extends Resource>(
   initialLink: Link,
 ) {
   const [link, setLink] = useState<Link>(initialLink);
-  const [data, setData] = useState<Collection | undefined>(undefined);
+  const [collection, setCollection] = useState<Collection<T> | undefined>(
+    undefined,
+  );
   const [fetching, setFetching] = useState<boolean>(false);
   const [errored, setErrored] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const auth = useAuth();
+
+  const selectLink = function (
+    name: string,
+    templateParams?: Record<string, string[]>,
+  ) {
+    if (!collection) {
+      return;
+    }
+
+    const link = collection._links[name];
+    if (!link) {
+      return;
+    }
+
+    if (link.templated && templateParams) {
+      const regex = /\{\?([^}]*)\}/;
+      const matches = link.href.match(regex);
+      if (!matches) return;
+
+      const availableParams = matches[1].split(",");
+
+      const baseHref = link.href.replace(regex, "");
+      const linkURL = new URL(baseHref, globalThis.location.origin);
+
+      availableParams.forEach((key) => {
+        const values = templateParams[key];
+        if (!values) return;
+        values.forEach((val) => {
+          linkURL.searchParams.append(key, val);
+        });
+      });
+
+      link.href = baseHref + linkURL.search;
+    } else if (link.templated) {
+      return;
+    }
+
+    setLink(link);
+  };
+
+  const refetch = function () {
+    if (!collection) return;
+    setLink(collection._links["self"]);
+  };
 
   useEffect(() => {
     setFetching(true);
@@ -69,33 +150,44 @@ export function useAPICollection<Collection>(
       },
     })
       .then((res) => res.json())
-      .then((dat: Collection) => setData(dat))
+      .then((dat: Collection<T>) => setCollection(dat))
       .catch((e) => {
         console.log(e);
         setErrored(true);
-        setData(undefined);
+        setCollection(undefined);
         setErrorMessage;
       })
       .finally(() => setFetching(false));
   }, [link]);
 
   return {
-    collection: data,
+    collection: collection,
     link: link,
-    setLink: setLink,
+    selectLink: selectLink,
+    refetch: refetch,
     fetching: fetching,
     errored: errored,
     errorMessage: errorMessage,
   };
 }
 
-export function useAPIMutation<T extends Resource>(link: Link) {
+export interface MutateParams<T extends Resource> {
+  updatedDat?: Partial<T>;
+  callback?: () => void;
+}
+
+export function useAPIMutation<T extends Resource>(
+  link?: Link,
+) {
   const [mutating, setMutating] = useState<boolean>(false);
   const [errored, setErrored] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const auth = useAuth();
 
-  const mutate = async function (updatedDat: Partial<T>): Promise<T> {
+  const mutate = async function (
+    { updatedDat, callback }: MutateParams<T>,
+  ): Promise<T | undefined> {
+    if (!link) throw Error("Invalid link");
     setErrored(false);
     setMutating(true);
 
@@ -106,14 +198,19 @@ export function useAPIMutation<T extends Resource>(link: Link) {
           "Authorization": `Bearer ${auth.accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updatedDat),
+        body: updatedDat ? JSON.stringify(updatedDat) : undefined,
       });
 
       if (!res.ok) {
         const e: ErrorResponse = await res.json();
+        setErrored(true);
         setErrorMessage(e.error);
         throw Error(e.error);
       }
+
+      if (callback) callback();
+
+      if (link.method === "DELETE") return;
 
       const dat: T = await res.json();
       return dat;
