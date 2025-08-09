@@ -85,6 +85,42 @@ func (cfg *ApiConfig) HandlerPlanCategoriesGet(w http.ResponseWriter, r *http.Re
 	})
 }
 
+func (cfg *ApiConfig) HandlerPlanCategoryGetByID(w http.ResponseWriter, r *http.Request) {
+	accessToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
+		return
+	}
+
+	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		return
+	}
+
+	id, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't parse id", err)
+		return
+	}
+
+	cat, err := cfg.db.GetPlanCategoryByID(r.Context(), id)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve plan category", err)
+		return
+	}
+
+	respondWithItem(w, http.StatusOK, &PlanCategory{
+		ID:        cat.ID,
+		PlanID:    cat.PlanID,
+		Name:      cat.Name,
+		Deposit:   cat.Deposit,
+		Withdrawl: cat.Deposit,
+		CreatedAt: cat.CreatedAt,
+		UpdatedAt: cat.UpdatedAt,
+	})
+}
+
 type CreatePlanCategoryParams struct {
 	PlanID    uuid.UUID `json:"plan_id"`
 	Name      string    `json:"name"`
@@ -133,4 +169,83 @@ func (cfg *ApiConfig) HandlerPlanCategoryCreate(w http.ResponseWriter, r *http.R
 		CreatedAt: plan_category.CreatedAt,
 		UpdatedAt: plan_category.UpdatedAt,
 	})
+}
+
+type UpdatePlanCategoryParams struct {
+	Name string `json:"name"`
+}
+
+func (cfg *ApiConfig) HandlerPlanCategoryUpdate(w http.ResponseWriter, r *http.Request) {
+	accessToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
+		return
+	}
+
+	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		return
+	}
+
+	id, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't parse id", err)
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	params := UpdatePlanCategoryParams{}
+	err = decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't decode params", err)
+		return
+	}
+
+	planCategory, err := cfg.db.UpdatePlanCategoryName(r.Context(), database.UpdatePlanCategoryNameParams{
+		ID:   id,
+		Name: params.Name,
+	})
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't update category", err)
+		return
+	}
+
+	respondWithItem(w, http.StatusOK, &PlanCategory{
+		ID:        planCategory.ID,
+		PlanID:    planCategory.PlanID,
+		Name:      planCategory.Name,
+		Deposit:   planCategory.Deposit,
+		Withdrawl: planCategory.Deposit,
+		CreatedAt: planCategory.CreatedAt,
+		UpdatedAt: planCategory.UpdatedAt,
+	})
+}
+
+func (cfg *ApiConfig) HandlerPlanCategoryDelete(w http.ResponseWriter, r *http.Request) {
+	accessToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
+		return
+	}
+
+	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		return
+	}
+
+	id, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't parse id", err)
+		return
+	}
+
+	err = cfg.db.DeletePlanCategory(r.Context(), id)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't delete category", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

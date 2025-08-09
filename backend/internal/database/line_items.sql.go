@@ -11,6 +11,32 @@ import (
 	"github.com/google/uuid"
 )
 
+const countLineItemsForCategory = `-- name: CountLineItemsForCategory :one
+SELECT COUNT(*)
+FROM line_items
+WHERE plan_category_id = $1
+`
+
+func (q *Queries) CountLineItemsForCategory(ctx context.Context, planCategoryID uuid.UUID) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countLineItemsForCategory, planCategoryID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countLineItemsForPlan = `-- name: CountLineItemsForPlan :one
+SELECT COUNT(*)
+FROM line_items
+WHERE plan_id = $1
+`
+
+func (q *Queries) CountLineItemsForPlan(ctx context.Context, planID uuid.UUID) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countLineItemsForPlan, planID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createLineItem = `-- name: CreateLineItem :one
 INSERT INTO line_items(
     id,
@@ -70,14 +96,54 @@ func (q *Queries) CreateLineItem(ctx context.Context, arg CreateLineItemParams) 
 	return i, err
 }
 
-const getLineItems = `-- name: GetLineItems :many
-SELECT id, user_id, plan_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
-FROM line_items
-WHERE plan_id = $1
+const deleteLineItem = `-- name: DeleteLineItem :exec
+DELETE FROM line_items
+WHERE id = $1
 `
 
-func (q *Queries) GetLineItems(ctx context.Context, planID uuid.UUID) ([]LineItem, error) {
-	rows, err := q.db.QueryContext(ctx, getLineItems, planID)
+func (q *Queries) DeleteLineItem(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteLineItem, id)
+	return err
+}
+
+const getLineItemByID = `-- name: GetLineItemByID :one
+SELECT id, user_id, plan_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
+FROM line_items
+WHERE id = $1
+`
+
+func (q *Queries) GetLineItemByID(ctx context.Context, id uuid.UUID) (LineItem, error) {
+	row := q.db.QueryRowContext(ctx, getLineItemByID, id)
+	var i LineItem
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.PlanID,
+		&i.PlanCategoryID,
+		&i.Description,
+		&i.Deposit,
+		&i.Withdrawl,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getLineItemsForCategory = `-- name: GetLineItemsForCategory :many
+SELECT id, user_id, plan_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
+FROM line_items
+WHERE plan_category_id = $1
+LIMIT $2 OFFSET $3
+`
+
+type GetLineItemsForCategoryParams struct {
+	PlanCategoryID uuid.UUID
+	Limit          int32
+	Offset         int32
+}
+
+func (q *Queries) GetLineItemsForCategory(ctx context.Context, arg GetLineItemsForCategoryParams) ([]LineItem, error) {
+	rows, err := q.db.QueryContext(ctx, getLineItemsForCategory, arg.PlanCategoryID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -107,4 +173,81 @@ func (q *Queries) GetLineItems(ctx context.Context, planID uuid.UUID) ([]LineIte
 		return nil, err
 	}
 	return items, nil
+}
+
+const getLineItemsForPlan = `-- name: GetLineItemsForPlan :many
+SELECT id, user_id, plan_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
+FROM line_items
+WHERE plan_id = $1
+LIMIT $2 OFFSET $3
+`
+
+type GetLineItemsForPlanParams struct {
+	PlanID uuid.UUID
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) GetLineItemsForPlan(ctx context.Context, arg GetLineItemsForPlanParams) ([]LineItem, error) {
+	rows, err := q.db.QueryContext(ctx, getLineItemsForPlan, arg.PlanID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []LineItem
+	for rows.Next() {
+		var i LineItem
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.PlanID,
+			&i.PlanCategoryID,
+			&i.Description,
+			&i.Deposit,
+			&i.Withdrawl,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateLineItem = `-- name: UpdateLineItem :one
+UPDATE line_items
+SET
+    description = $1,
+    updated_at = NOW()
+WHERE id = $2
+RETURNING id, user_id, plan_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
+`
+
+type UpdateLineItemParams struct {
+	Description string
+	ID          uuid.UUID
+}
+
+func (q *Queries) UpdateLineItem(ctx context.Context, arg UpdateLineItemParams) (LineItem, error) {
+	row := q.db.QueryRowContext(ctx, updateLineItem, arg.Description, arg.ID)
+	var i LineItem
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.PlanID,
+		&i.PlanCategoryID,
+		&i.Description,
+		&i.Deposit,
+		&i.Withdrawl,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

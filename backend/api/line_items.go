@@ -11,15 +11,21 @@ import (
 )
 
 type LineItem struct {
-	ID             uuid.UUID `json:"id"`
-	UserID         uuid.UUID `json:"user_id"`
-	PlanID         uuid.UUID `json:"plan_id"`
-	PlanCategoryID uuid.UUID `json:"plan_category_id"`
-	Description    string    `json:"description"`
-	Deposit        int32     `json:"deposit"`
-	Withdrawl      int32     `json:"withdrawl"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	ID             uuid.UUID       `json:"id"`
+	UserID         uuid.UUID       `json:"user_id"`
+	PlanID         uuid.UUID       `json:"plan_id"`
+	PlanCategoryID uuid.UUID       `json:"plan_category_id"`
+	Description    string          `json:"description"`
+	Deposit        int32           `json:"deposit"`
+	Withdrawl      int32           `json:"withdrawl"`
+	CreatedAt      time.Time       `json:"created_at"`
+	UpdatedAt      time.Time       `json:"updated_at"`
+	Links          map[string]Link `json:"_links"`
+}
+
+func (l *LineItem) GenerateLinks() {
+	self := "/api/v1/line-items/" + l.ID.String()
+	l.Links = DefaultLinks(self)
 }
 
 func (cfg *ApiConfig) HandlerLineItemsGet(w http.ResponseWriter, r *http.Request) {
@@ -35,20 +41,68 @@ func (cfg *ApiConfig) HandlerLineItemsGet(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	planID, err := uuid.Parse(r.PathValue("id"))
-	if err != nil {
-		respondWithError(w, http.StatusNotFound, "Not a valid id", err)
+	pagination := Pagination{}
+	lineItemsDB := []database.LineItem{}
+
+	planIDQuery := r.URL.Query().Get("plan_id")
+	categoryIDQuery := r.URL.Query().Get("category_id")
+
+	if planIDQuery != "" {
+		planID, err := uuid.Parse(planIDQuery)
+		if err != nil {
+			respondWithError(w, http.StatusNotFound, "Not a valid id", err)
+			return
+		}
+
+		totalLineItems, err := cfg.db.CountLineItemsForPlan(r.Context(), planID)
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve count of line items for plan", err)
+			return
+		}
+
+		pagination = getPaginationFromQuery(r.URL.Query(), totalLineItems)
+
+		lineItemsDB, err = cfg.db.GetLineItemsForPlan(r.Context(), database.GetLineItemsForPlanParams{
+			PlanID: planID,
+			Limit:  pagination.Limit(),
+			Offset: pagination.Offset(),
+		})
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve line items", err)
+			return
+		}
+	} else if categoryIDQuery != "" {
+		categoryID, err := uuid.Parse(categoryIDQuery)
+		if err != nil {
+			respondWithError(w, http.StatusNotFound, "Not a valid id", err)
+			return
+		}
+
+		totalLineItems, err := cfg.db.CountLineItemsForCategory(r.Context(), categoryID)
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve count of line items for plan", err)
+			return
+		}
+
+		pagination = getPaginationFromQuery(r.URL.Query(), totalLineItems)
+
+		lineItemsDB, err = cfg.db.GetLineItemsForCategory(r.Context(), database.GetLineItemsForCategoryParams{
+			PlanCategoryID: categoryID,
+			Limit:          pagination.Limit(),
+			Offset:         pagination.Offset(),
+		})
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve line items", err)
+			return
+		}
+	} else {
+		respondWithError(w, http.StatusBadRequest, "No ?plan_id={id} or ?category_id={id} query found", nil)
 		return
 	}
 
-	lineItemsDB, err := cfg.db.GetLineItems(r.Context(), planID)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve line items", err)
-		return
-	}
-	lineItems := []LineItem{}
-	for _, p := range lineItemsDB {
-		lineItems = append(lineItems, LineItem{
+	lineItems := make([]Item, len(lineItemsDB))
+	for i, p := range lineItemsDB {
+		lineItems[i] = &LineItem{
 			ID:             p.ID,
 			UserID:         p.UserID,
 			PlanID:         p.PlanID,
@@ -58,10 +112,16 @@ func (cfg *ApiConfig) HandlerLineItemsGet(w http.ResponseWriter, r *http.Request
 			Withdrawl:      p.Withdrawl,
 			CreatedAt:      p.CreatedAt,
 			UpdatedAt:      p.UpdatedAt,
-		})
+		}
 	}
 
-	respondWithJSON(w, http.StatusOK, lineItems)
+	respondWithCollection(w, http.StatusOK, Collection{
+		Self:       r.URL,
+		Pagination: pagination,
+		Embedded: Embedded{
+			Items: lineItems,
+		},
+	})
 }
 
 type CreateLineItemParams struct {
@@ -100,7 +160,7 @@ func (cfg *ApiConfig) HandlerLineItemCreate(w http.ResponseWriter, r *http.Reque
 
 	deposit := int32(0)
 	withdrawl := int32(0)
-	
+
 	if planCategory.Withdrawl > 0 {
 		withdrawl = params.Amount
 	} else {
@@ -120,7 +180,7 @@ func (cfg *ApiConfig) HandlerLineItemCreate(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, LineItem{
+	respondWithItem(w, http.StatusCreated, &LineItem{
 		ID:             lineItem.ID,
 		UserID:         lineItem.UserID,
 		PlanID:         lineItem.PlanID,

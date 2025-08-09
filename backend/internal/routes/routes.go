@@ -28,6 +28,9 @@ func NewRouter(db *database.Queries, jwtSecret string) *http.ServeMux {
 
 	mux.HandleFunc("GET /api/v1/plan-categories", apiConfig.HandlerPlanCategoriesGet)
 	mux.HandleFunc("POST /api/v1/plan-categories", apiConfig.HandlerPlanCategoryCreate)
+	mux.HandleFunc("GET /api/v1/plan-categories/{id}", apiConfig.HandlerPlanCategoryGetByID)
+	mux.HandleFunc("PUT /api/v1/plan-categories/{id}", apiConfig.HandlerPlanCategoryUpdate)
+	mux.HandleFunc("DELETE /api/v1/plan-categories/{id}", apiConfig.HandlerPlanCategoryDelete)
 
 	mux.HandleFunc("POST /api/v1/line-items", apiConfig.HandlerLineItemCreate)
 
