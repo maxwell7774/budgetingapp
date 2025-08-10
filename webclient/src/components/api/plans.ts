@@ -9,24 +9,22 @@ export interface Plan extends Resource {
   updated_at: string;
 }
 
-function usePlans() {
+export function usePlans() {
   return useAPICollection<Plan>({
     href: "/api/v1/plans",
   });
 }
 
-function usePlan(id: string) {
+export function usePlan(id: string) {
   return useAPIResource<Plan>(
     { href: `/api/v1/plans/${id}` },
   );
 }
 
-function useCreatePlan(link?: Link) {
+export function useCreatePlan(link?: Link) {
   return useAPIMutation<Plan>(link);
 }
 
-function useDeletePlan(link?: Link) {
+export function useDeletePlan(link?: Link) {
   return useAPIMutation<Plan>(link);
 }
-
-export { useCreatePlan, useDeletePlan, usePlan, usePlans };

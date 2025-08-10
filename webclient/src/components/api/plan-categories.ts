@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "../auth-provider.tsx";
+import { useAPICollection, useAPIMutation, useAPIResource } from "./api.ts";
+import { Link, Resource } from "./links.ts";
 
-export interface PlanCategory {
+export interface PlanCategory extends Resource {
   id: string;
   plan_id: string;
   name: string;
@@ -11,23 +11,22 @@ export interface PlanCategory {
   updated_at: string;
 }
 
-function usePlanCategories(planID: string) {
-  const [planCategories, setPlanCategories] = useState<PlanCategory[]>([]);
-  const auth = useAuth();
-
-  const url = `/api/v1/plans/${planID}/categories`;
-
-  useEffect(() => {
-    fetch(url, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${auth.accessToken}`,
-      },
-    }).then((res) => res.json())
-      .then((dat: PlanCategory[]) => setPlanCategories(dat));
-  }, []);
-
-  return planCategories;
+export function usePlanCategories(planID: string) {
+  return useAPICollection<PlanCategory>({
+    href: `/api/v1/plan-categories?plan_id=${planID}`,
+  });
 }
 
-export { usePlanCategories };
+export function usePlanCategory(id: string) {
+  return useAPIResource<PlanCategory>({
+    href: `/api/v1/plan-categories/${id}`,
+  });
+}
+
+export function useCreatePlanCategory(link?: Link) {
+  return useAPIMutation<PlanCategory>(link);
+}
+
+export function useDeletePlanCategory(link?: Link) {
+  return useAPIMutation<PlanCategory>(link);
+}
