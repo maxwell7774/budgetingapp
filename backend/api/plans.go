@@ -25,7 +25,7 @@ func (p *Plan) GenerateLinks() {
 	p.Links = DefaultLinks(self)
 }
 
-func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Request) {
+func (cfg *APIConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Request) {
 	accessToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
@@ -89,7 +89,7 @@ func (cfg *ApiConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Req
 	})
 }
 
-func (cfg *ApiConfig) HandlerPlanGetByID(w http.ResponseWriter, r *http.Request) {
+func (cfg *APIConfig) HandlerPlanGetByID(w http.ResponseWriter, r *http.Request) {
 	accessToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
@@ -132,7 +132,7 @@ type CreatePlanParams struct {
 	Name string `json:"name"`
 }
 
-func (cfg *ApiConfig) HandlerPlanCreate(w http.ResponseWriter, r *http.Request) {
+func (cfg *APIConfig) HandlerPlanCreate(w http.ResponseWriter, r *http.Request) {
 	accessToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
@@ -180,7 +180,7 @@ type UpdatePlanParams struct {
 	Name string `json:"name"`
 }
 
-func (cfg *ApiConfig) HandlerPlanUpdateName(w http.ResponseWriter, r *http.Request) {
+func (cfg *APIConfig) HandlerPlanUpdateName(w http.ResponseWriter, r *http.Request) {
 	accessToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
@@ -230,7 +230,7 @@ func (cfg *ApiConfig) HandlerPlanUpdateName(w http.ResponseWriter, r *http.Reque
 	})
 }
 
-func (cfg *ApiConfig) HandlerPlanDelete(w http.ResponseWriter, r *http.Request) {
+func (cfg *APIConfig) HandlerPlanDelete(w http.ResponseWriter, r *http.Request) {
 	accessToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)

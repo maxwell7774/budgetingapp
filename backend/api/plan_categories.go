@@ -26,7 +26,7 @@ func (p *PlanCategory) GenerateLinks() {
 	p.Links = DefaultLinks(self)
 }
 
-func (cfg *ApiConfig) HandlerPlanCategoriesGet(w http.ResponseWriter, r *http.Request) {
+func (cfg *APIConfig) HandlerPlanCategoriesGet(w http.ResponseWriter, r *http.Request) {
 	accessToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
@@ -85,7 +85,7 @@ func (cfg *ApiConfig) HandlerPlanCategoriesGet(w http.ResponseWriter, r *http.Re
 	})
 }
 
-func (cfg *ApiConfig) HandlerPlanCategoryGetByID(w http.ResponseWriter, r *http.Request) {
+func (cfg *APIConfig) HandlerPlanCategoryGetByID(w http.ResponseWriter, r *http.Request) {
 	accessToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
@@ -128,7 +128,7 @@ type CreatePlanCategoryParams struct {
 	Withdrawl int32     `json:"withdrawl"`
 }
 
-func (cfg *ApiConfig) HandlerPlanCategoryCreate(w http.ResponseWriter, r *http.Request) {
+func (cfg *APIConfig) HandlerPlanCategoryCreate(w http.ResponseWriter, r *http.Request) {
 	accessToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
@@ -175,7 +175,7 @@ type UpdatePlanCategoryParams struct {
 	Name string `json:"name"`
 }
 
-func (cfg *ApiConfig) HandlerPlanCategoryUpdate(w http.ResponseWriter, r *http.Request) {
+func (cfg *APIConfig) HandlerPlanCategoryUpdate(w http.ResponseWriter, r *http.Request) {
 	accessToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
@@ -222,7 +222,7 @@ func (cfg *ApiConfig) HandlerPlanCategoryUpdate(w http.ResponseWriter, r *http.R
 	})
 }
 
-func (cfg *ApiConfig) HandlerPlanCategoryDelete(w http.ResponseWriter, r *http.Request) {
+func (cfg *APIConfig) HandlerPlanCategoryDelete(w http.ResponseWriter, r *http.Request) {
 	accessToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)

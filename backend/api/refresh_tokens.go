@@ -12,7 +12,7 @@ type RefreshResponse struct {
 	Token string `json:"token"`
 }
 
-func (cfg *ApiConfig) HandlerRefreshAccessToken(w http.ResponseWriter, r *http.Request) {
+func (cfg *APIConfig) HandlerRefreshAccessToken(w http.ResponseWriter, r *http.Request) {
 	refreshToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		refreshTokenCookie, err := r.Cookie("refresh_token")
@@ -52,7 +52,7 @@ func (cfg *ApiConfig) HandlerRefreshAccessToken(w http.ResponseWriter, r *http.R
 	})
 }
 
-func (cfg *ApiConfig) HandlerRevokeRefreshToken(w http.ResponseWriter, r *http.Request) {
+func (cfg *APIConfig) HandlerRevokeRefreshToken(w http.ResponseWriter, r *http.Request) {
 	refreshToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		refreshTokenCookie, err := r.Cookie("refresh_token")

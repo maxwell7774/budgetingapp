@@ -20,7 +20,7 @@ type LoginResponse struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-func (cfg *ApiConfig) HandlerLogin(w http.ResponseWriter, r *http.Request) {
+func (cfg *APIConfig) HandlerLogin(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	params := LoginParams{}
 	err := decoder.Decode(&params)

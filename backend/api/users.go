@@ -20,7 +20,7 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func (cfg *ApiConfig) HandlerUsersGet(w http.ResponseWriter, r *http.Request) {
+func (cfg *APIConfig) HandlerUsersGet(w http.ResponseWriter, r *http.Request) {
 	accessToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
@@ -61,7 +61,7 @@ type CreateUserParams struct {
 	Password  string `json:"password"`
 }
 
-func (cfg *ApiConfig) HandlerUserCreate(w http.ResponseWriter, r *http.Request) {
+func (cfg *APIConfig) HandlerUserCreate(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	params := CreateUserParams{}
 	err := decoder.Decode(&params)

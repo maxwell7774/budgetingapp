@@ -28,7 +28,7 @@ func (l *LineItem) GenerateLinks() {
 	l.Links = DefaultLinks(self)
 }
 
-func (cfg *ApiConfig) HandlerLineItemsGet(w http.ResponseWriter, r *http.Request) {
+func (cfg *APIConfig) HandlerLineItemsGet(w http.ResponseWriter, r *http.Request) {
 	accessToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
@@ -124,6 +124,44 @@ func (cfg *ApiConfig) HandlerLineItemsGet(w http.ResponseWriter, r *http.Request
 	})
 }
 
+func (cfg *APIConfig) HandlerLineItemGetByID(w http.ResponseWriter, r *http.Request) {
+	accessToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
+		return
+	}
+
+	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		return
+	}
+
+	id, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't parse line item id", err)
+		return
+	}
+
+	lineItem, err := cfg.db.GetLineItemByID(r.Context(), id)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve line item", err)
+		return
+	}
+
+	respondWithItem(w, http.StatusOK, &LineItem{
+		ID:             lineItem.ID,
+		UserID:         lineItem.UserID,
+		PlanID:         lineItem.PlanID,
+		PlanCategoryID: lineItem.PlanCategoryID,
+		Description:    lineItem.Description,
+		Deposit:        lineItem.Deposit,
+		Withdrawl:      lineItem.Withdrawl,
+		CreatedAt:      lineItem.CreatedAt,
+		UpdatedAt:      lineItem.UpdatedAt,
+	})
+}
+
 type CreateLineItemParams struct {
 	PlanID         uuid.UUID `json:"plan_id"`
 	PlanCategoryID uuid.UUID `json:"plan_category_id"`
@@ -131,7 +169,7 @@ type CreateLineItemParams struct {
 	Amount         int32     `json:"amount"`
 }
 
-func (cfg *ApiConfig) HandlerLineItemCreate(w http.ResponseWriter, r *http.Request) {
+func (cfg *APIConfig) HandlerLineItemCreate(w http.ResponseWriter, r *http.Request) {
 	accessToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
@@ -192,4 +230,85 @@ func (cfg *ApiConfig) HandlerLineItemCreate(w http.ResponseWriter, r *http.Reque
 		UpdatedAt:      lineItem.UpdatedAt,
 	})
 
+}
+
+type UpdateLineItemParams struct {
+	Description string `json:"description"`
+}
+
+func (cfg *APIConfig) HandlerLineItemUpdate(w http.ResponseWriter, r *http.Request) {
+	accessToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
+		return
+	}
+
+	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		return
+	}
+
+	id, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't parse line item id", err)
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	params := UpdateLineItemParams{}
+	err = decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't decode params", err)
+		return
+	}
+
+	lineItem, err := cfg.db.UpdateLineItem(r.Context(), database.UpdateLineItemParams{
+		ID:          id,
+		Description: params.Description,
+	})
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't update line item", err)
+		return
+	}
+
+	respondWithItem(w, http.StatusOK, &LineItem{
+		ID:             lineItem.ID,
+		UserID:         lineItem.UserID,
+		PlanID:         lineItem.PlanID,
+		PlanCategoryID: lineItem.PlanCategoryID,
+		Description:    lineItem.Description,
+		Deposit:        lineItem.Deposit,
+		Withdrawl:      lineItem.Withdrawl,
+		CreatedAt:      lineItem.CreatedAt,
+		UpdatedAt:      lineItem.UpdatedAt,
+	})
+}
+
+func (cfg *APIConfig) HandlerLineItemDelete(w http.ResponseWriter, r *http.Request) {
+	accessToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
+		return
+	}
+
+	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		return
+	}
+
+	id, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't parse line item id", err)
+		return
+	}
+
+	cfg.db.DeleteLineItem(r.Context(), id)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't delete line item", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

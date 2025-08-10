@@ -2,13 +2,13 @@ package api
 
 import "github.com/maxwell7774/budgetingapp/backend/internal/database"
 
-type ApiConfig struct {
+type APIConfig struct {
 	db        *database.Queries
 	jwtSecret string
 }
 
-func NewApiConfig(db *database.Queries, jwtSecret string) ApiConfig {
-	return ApiConfig{
+func NewAPIConfig(db *database.Queries, jwtSecret string) APIConfig {
+	return APIConfig{
 		db:        db,
 		jwtSecret: jwtSecret,
 	}
