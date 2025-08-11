@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams } from "react-router";
 import { usePlan } from "../../components/api/plans.ts";
 import { usePlanCategories } from "../../components/api/plan-categories.ts";
@@ -13,13 +14,14 @@ function BudgetDetails() {
   const { resource: plan } = usePlan(id);
   const { collection: planCategories } = usePlanCategories(id);
   const { collection: lineItems } = useLineItems(id);
+  const [value, setValue] = useState<string>("");
 
   return (
     <div>
       <h1>{plan?.name}</h1>
       <form className="flex gap-8">
         <Input />
-        <Select />
+        <Select value={value} onChange={setValue} />
         <Button>Add</Button>
       </form>
       <ul>

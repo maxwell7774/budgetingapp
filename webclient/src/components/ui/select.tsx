@@ -62,36 +62,33 @@ function SelectItem({ children, setValue, value }: SelectItemProps) {
 }
 */
 
-import {
-  KeyboardEvent,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "./index.ts";
-import { ChevronDownIcon } from "./icons/chevron-down.tsx";
 
-export function Select() {
+interface Option {
+  label: string;
+  value: string | number;
+}
+
+interface Props {
+  options?: Option[];
+  value: string;
+  onChange: (valvue: string) => void;
+  placeholder?: string;
+}
+
+export function Select({
+  options = [],
+  value,
+  onChange,
+  placeholder = "Select...",
+}: Props) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState<string | number>();
-  const [highlightedIndex, setHighlightedIndex] = useState<number>(0);
+  const selectRef = useRef<HTMLDivElement>(null);
 
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
-
-  const items = ["item 1", "item 2", "item 3", "item 4", "item 5"];
-
-  // Close when clicking outside
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (
-        listRef.current &&
-        !listRef.current.contains(e.target as Node) &&
-        buttonRef.current &&
-        !buttonRef.current.contains(e.target as Node)
-      ) {
+      if (selectRef.current && !selectRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     }
@@ -99,127 +96,33 @@ export function Select() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Focus the highlighted item when opening
-  useEffect(() => {
-    if (open && listRef.current) {
-      const item = listRef.current.querySelectorAll<HTMLLIElement>(
-        "[role='option']",
-      )[highlightedIndex];
-      item?.focus();
-    }
-  }, [open, highlightedIndex]);
-
-  const selectItem = useCallback(
-    (index: number) => {
-      setValue(items[index]);
-      setOpen(false);
-      buttonRef.current?.focus();
-    },
-    [items],
-  );
-
-  const onButtonKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
-    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-      e.preventDefault();
-      setOpen(true);
-      setHighlightedIndex(0);
-    }
-  };
-
-  const onListKeyDown = (e: KeyboardEvent<HTMLUListElement>) => {
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setHighlightedIndex((prev) => (prev + 1) % items.length);
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setHighlightedIndex((prev) => (prev - 1 + items.length) % items.length);
-    } else if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      selectItem(highlightedIndex);
-    } else if (e.key === "Escape") {
-      setOpen(false);
-      buttonRef.current?.focus();
-    }
-  };
-
   return (
-    <div className="relative inline-block">
+    <div
+      ref={selectRef}
+      className="relative inline-block w-56"
+    >
       <Button
         type="button"
-        variant="outline"
-        className="pe-10"
-        ref={buttonRef}
         aria-haspopup="listbox"
         aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
-        onKeyDown={onButtonKeyDown}
+        variant="outline"
+        onClick={() => setOpen(!open)}
+        className="w-full"
       >
-        {value ?? "Category"}
+        {/* {value ? value : placeholder} */}
+        {open ? "true" : "false"}
       </Button>
-
-      <div className="absolute top-0 bottom-0 right-4 grid place-content-center select-none pointer-events-none">
-        <ChevronDownIcon
-          data-open={open}
-          className="size-5 text-slate-500 data-[open=true]:rotate-180 transition-transform"
-        />
-      </div>
-
-      {open && (
-        <ul
-          ref={listRef}
-          role="listbox"
-          aria-activedescendant={`option-${highlightedIndex}`}
-          tabIndex={-1}
-          onKeyDown={onListKeyDown}
-          className="absolute top-full mt-1 bg-slate-200 rounded-3xl p-3 min-w-full shadow-lg focus:outline-none"
-        >
-          {items.map((item, i) => (
-            <SelectItem
-              key={item}
-              id={`option-${i}`}
-              value={item}
-              selected={value === item}
-              highlighted={highlightedIndex === i}
-              onSelect={() => selectItem(i)}
-            >
-              {item}
-            </SelectItem>
-          ))}
-        </ul>
-      )}
+      <ul
+        role="listbox"
+        data-open={open}
+        aria-hidden={!open}
+        className="absolute origin-top mt-1 w-full bg-white opacity-100 scale-100 aria-hidden:opacity-0 aria-hidden:scale-95 transition-all pointer-events-none z-10 isolate"
+      >
+        <li>item 1</li>
+        <li>item 2</li>
+        <li>item 3</li>
+        <li>item 4</li>
+      </ul>
     </div>
   );
 }
-
-interface SelectItemProps {
-  id: string;
-  children: ReactNode;
-  value: string | number;
-  selected: boolean;
-  highlighted: boolean;
-  onSelect: () => void;
-}
-
-function SelectItem({
-  id,
-  children,
-  selected,
-  highlighted,
-  onSelect,
-}: SelectItemProps) {
-  return (
-    <li
-      id={id}
-      role="option"
-      aria-selected={selected}
-      tabIndex={-1}
-      onClick={onSelect}
-      className={`px-2 py-1 rounded-3xl select-none cursor-pointer transition-colors ${
-        highlighted ? "bg-slate-300" : "hover:bg-slate-100"
-      }`}
-    >
-      {children}
-    </li>
-  );
-}
-
