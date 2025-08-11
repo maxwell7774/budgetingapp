@@ -1,5 +1,6 @@
 export * from "./chevron-right.tsx";
 export * from "./chevron-left.tsx";
+export * from "./chevron-down.tsx";
 export * from "./double-chevron-left.tsx";
 export * from "./double-chevron-right.tsx";
 export * from "./ellipsis.tsx";
