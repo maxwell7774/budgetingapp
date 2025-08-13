@@ -3,7 +3,7 @@ import { useParams } from "react-router";
 import { usePlan } from "../../components/api/plans.ts";
 import { usePlanCategories } from "../../components/api/plan-categories.ts";
 import { useLineItems } from "../../components/api/line-items.ts";
-import { Button, Select } from "../../components/ui/index.ts";
+import { Button, Dialog, Select } from "../../components/ui/index.ts";
 import { Input } from "../../components/ui/input.tsx";
 
 function BudgetDetails() {
@@ -14,7 +14,7 @@ function BudgetDetails() {
   const { resource: plan } = usePlan(id);
   const { collection: planCategories } = usePlanCategories(id);
   const { collection: lineItems } = useLineItems(id);
-  const [value, setValue] = useState<string>("");
+  const [value, setValue] = useState<string | number>("");
 
   return (
     <div>
@@ -30,6 +30,9 @@ function BudgetDetails() {
         />
         <Button>Add</Button>
       </form>
+      <Dialog triggerLabel="Open My Dialog">
+        <Input />
+      </Dialog>
       <ul>
         {planCategories?._embedded.items.map((c) => <li key={c.id}>{c.name}
         </li>)}
