@@ -21,7 +21,13 @@ function BudgetDetails() {
       <h1>{plan?.name}</h1>
       <form className="flex gap-8">
         <Input />
-        <Select value={value} onChange={setValue} />
+        <Select
+          options={planCategories?._embedded.items.map((p) => {
+            return { label: p.name, value: p.id };
+          })}
+          value={value}
+          onChange={setValue}
+        />
         <Button>Add</Button>
       </form>
       <ul>

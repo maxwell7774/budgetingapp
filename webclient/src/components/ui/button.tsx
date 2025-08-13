@@ -24,7 +24,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={"text-nowrap font-semibold h-11 px-5 hover:opacity-80 hover:cursor-pointer active:opacity-60 transition-all rounded-full inline-flex items-center justify-center disabled:opacity-50 " +
+        className={"focus-visible:outline-2 outline-offset-2 outline-indigo-500 text-nowrap font-semibold h-11 px-5 hover:opacity-80 hover:cursor-pointer active:opacity-60 transition-all rounded-full inline-flex items-center justify-center disabled:opacity-50 " +
           variantClasses + " " + className}
         {...props}
       >

@@ -1,67 +1,3 @@
-/*
-import { ReactNode, useEffect, useState } from "react";
-import { Button } from "./index.ts";
-import { ChevronDownIcon } from "./icons/chevron-down.tsx";
-
-export function Select() {
-  const [open, setOpen] = useState<boolean>(false);
-  const [value, setValue] = useState<string | number | undefined>(undefined);
-
-  useEffect(() => {
-    setOpen(false);
-  }, [value]);
-
-  return (
-    <div className="relative">
-      <Button
-        type="button"
-        variant="outline"
-        className="pe-10"
-        onClick={() => setOpen(!open)}
-      >
-        {value ? value.toString() : "Category"}
-      </Button>
-      <div className="absolute top-0 bottom-0 right-4 grid place-content-center select-none pointer-events-none">
-        <ChevronDownIcon
-          data-open={open}
-          className="size-5 text-slate-500 data-[open=true]:rotate-180 transition-transform"
-        />
-      </div>
-      <ul
-        data-open={open}
-        className="absolute top-full bg-slate-200 rounded-3xl p-3 hidden data-[open=true]:block min-w-full"
-      >
-        <SelectItem value="item 1" setValue={setValue}>item 1</SelectItem>
-        <SelectItem value="item 2" setValue={setValue}>item 2</SelectItem>
-        <SelectItem value="item 3" setValue={setValue}>item 3</SelectItem>
-        <SelectItem value="item 4" setValue={setValue}>item 4</SelectItem>
-        <SelectItem value="item 5" setValue={setValue}>item 5</SelectItem>
-      </ul>
-    </div>
-  );
-}
-
-interface SelectItemProps {
-  children: ReactNode;
-  value: string | number;
-  setValue: (newValue: string | number | undefined) => void;
-}
-
-function SelectItem({ children, setValue, value }: SelectItemProps) {
-  return (
-    <li
-      onClick={() => {
-        setValue(value);
-        console.log("Selected Value!");
-      }}
-      className="px-2 py-1 hover:bg-slate-100 transition-colors rounded-3xl hover:cursor-pointer select-none"
-    >
-      {children}
-    </li>
-  );
-}
-*/
-
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./index.ts";
 
@@ -73,7 +9,7 @@ interface Option {
 interface Props {
   options?: Option[];
   value: string;
-  onChange: (valvue: string) => void;
+  onChange: (value: string | number) => void;
   placeholder?: string;
 }
 
@@ -83,8 +19,12 @@ export function Select({
   onChange,
   placeholder = "Select...",
 }: Props) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
+  const [render, setRender] = useState<boolean>(false);
+  const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const selectRef = useRef<HTMLDivElement>(null);
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -96,33 +36,111 @@ export function Select({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (!open && render) {
+      setHighlightedIndex(-1);
+      const timer = setTimeout(() => setRender(false), 150);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
+
+  const handleOpen = function () {
+    setRender(true);
+    requestAnimationFrame(() => setOpen(true));
+  };
+
+  const handleSelectOption = function (newValue: string | number) {
+    if (newValue !== value) {
+      onChange(newValue);
+    }
+    setOpen(false);
+  };
+
+  const handleKeyDown = function (e: React.KeyboardEvent) {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      handleOpen();
+      setHighlightedIndex((prev) => ++prev % options.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      handleOpen();
+      setHighlightedIndex((prev) => (--prev + options.length) % options.length);
+    } else if (e.key === "Enter" && highlightedIndex >= 0) {
+      e.preventDefault();
+      handleSelectOption(options[highlightedIndex].value);
+    } else if (e.key === "Escape") {
+      setOpen(false);
+    } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      const newSearch = searchTerm + e.key.toLowerCase();
+      setSearchTerm(newSearch);
+      if (searchTimeout.current) clearTimeout(searchTimeout.current);
+      searchTimeout.current = setTimeout(() => setSearchTerm(""), 500);
+
+      const matchIndex = options.findIndex((opt) =>
+        opt.label.toLowerCase().startsWith(newSearch)
+      );
+      if (matchIndex >= 0) {
+        setHighlightedIndex(matchIndex);
+        handleOpen();
+      }
+    }
+  };
+
+  const selectedOption = options.find((o) => o.value === value);
+
   return (
     <div
       ref={selectRef}
-      className="relative inline-block w-56"
+      className="relative inline-block w-56 focus-visible:outline-2 outline-offset-2 outline-indigo-500"
+      onKeyDown={handleKeyDown}
     >
       <Button
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
         variant="outline"
-        onClick={() => setOpen(!open)}
-        className="w-full"
+        onClick={() => {
+          if (!render) {
+            handleOpen();
+          } else {
+            setOpen(false);
+          }
+        }}
+        className="w-full focus-visible:outline-0"
       >
-        {/* {value ? value : placeholder} */}
-        {open ? "true" : "false"}
+        {selectedOption ? selectedOption.label : placeholder}
       </Button>
-      <ul
-        role="listbox"
-        data-open={open}
-        aria-hidden={!open}
-        className="absolute origin-top mt-1 w-full bg-white opacity-100 scale-100 aria-hidden:opacity-0 aria-hidden:scale-95 transition-all pointer-events-none z-10 isolate"
-      >
-        <li>item 1</li>
-        <li>item 2</li>
-        <li>item 3</li>
-        <li>item 4</li>
-      </ul>
+      {render &&
+        (
+          <ul
+            role="listbox"
+            data-open={open}
+            className="absolute origin-top mt-1 w-full bg-white dark:bg-slate-800
+                        data-[open=true]:opacity-100 data-[open=true]:scale-100 opacity-0
+                        scale-95 transition-all z-10 isolate p-1 rounded-3xl shadow-md"
+            aria-activedescendant={highlightedIndex >= 0
+              ? `option-${options[highlightedIndex].value}`
+              : undefined}
+          >
+            {options.map((o, i) => {
+              return (
+                <li
+                  key={`option-${o.value}`}
+                  aria-selected={value === o.value}
+                  data-highlighted={i === highlightedIndex}
+                  className="p-2 px-4 data-[highlighted=true]:bg-slate-100 select-none
+                                    data-[highlighted=true]:dark:bg-slate-700
+                                    aria-selected:bg-slate-200 aria-selected:dark:bg-slate-600
+                                    hover:cursor-pointer rounded-full transition-colors"
+                  onMouseEnter={() => setHighlightedIndex(i)}
+                  onClick={() => handleSelectOption(o.value)}
+                >
+                  {o.label}
+                </li>
+              );
+            })}
+          </ul>
+        )}
     </div>
   );
 }
