@@ -11,10 +11,15 @@ function BudgetDetails() {
   if (!id) {
     return null;
   }
+  const [open, setOpen] = useState<boolean>(false);
   const { resource: plan } = usePlan(id);
   const { collection: planCategories } = usePlanCategories(id);
   const { collection: lineItems } = useLineItems(id);
   const [value, setValue] = useState<string | number>("");
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   return (
     <div>
@@ -30,8 +35,11 @@ function BudgetDetails() {
         />
         <Button>Add</Button>
       </form>
-      <Dialog triggerLabel="Open My Dialog">
-        <Input />
+      <Button onClick={() => setOpen(true)}>Open Modal</Button>
+      <Dialog open={open} onClose={handleClose}>
+        <div className="max-w-7xl w-full m-auto">
+          <h1>Hello</h1>
+        </div>
       </Dialog>
       <ul>
         {planCategories?._embedded.items.map((c) => <li key={c.id}>{c.name}
