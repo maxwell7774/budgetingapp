@@ -27,7 +27,8 @@ func (q *Queries) CountLineItemsForCategory(ctx context.Context, planCategoryID 
 const countLineItemsForPlan = `-- name: CountLineItemsForPlan :one
 SELECT COUNT(*)
 FROM line_items
-WHERE plan_id = $1
+JOIN plan_categories ON plan_categories.id = line_items.plan_category_id
+WHERE plan_categories.plan_id = $1
 `
 
 func (q *Queries) CountLineItemsForPlan(ctx context.Context, planID uuid.UUID) (int64, error) {
@@ -41,7 +42,6 @@ const createLineItem = `-- name: CreateLineItem :one
 INSERT INTO line_items(
     id,
     user_id,
-    plan_id,
     plan_category_id,
     description,
     deposit,
@@ -56,16 +56,14 @@ VALUES(
     $3,
     $4,
     $5,
-    $6,
     NOW(),
     NOW()
 )
-RETURNING id, user_id, plan_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
+RETURNING id, user_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
 `
 
 type CreateLineItemParams struct {
 	UserID         uuid.UUID
-	PlanID         uuid.UUID
 	PlanCategoryID uuid.UUID
 	Description    string
 	Deposit        int32
@@ -75,7 +73,6 @@ type CreateLineItemParams struct {
 func (q *Queries) CreateLineItem(ctx context.Context, arg CreateLineItemParams) (LineItem, error) {
 	row := q.db.QueryRowContext(ctx, createLineItem,
 		arg.UserID,
-		arg.PlanID,
 		arg.PlanCategoryID,
 		arg.Description,
 		arg.Deposit,
@@ -85,7 +82,6 @@ func (q *Queries) CreateLineItem(ctx context.Context, arg CreateLineItemParams) 
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
-		&i.PlanID,
 		&i.PlanCategoryID,
 		&i.Description,
 		&i.Deposit,
@@ -107,7 +103,7 @@ func (q *Queries) DeleteLineItem(ctx context.Context, id uuid.UUID) error {
 }
 
 const getLineItemByID = `-- name: GetLineItemByID :one
-SELECT id, user_id, plan_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
+SELECT id, user_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
 FROM line_items
 WHERE id = $1
 `
@@ -118,7 +114,6 @@ func (q *Queries) GetLineItemByID(ctx context.Context, id uuid.UUID) (LineItem, 
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
-		&i.PlanID,
 		&i.PlanCategoryID,
 		&i.Description,
 		&i.Deposit,
@@ -130,7 +125,7 @@ func (q *Queries) GetLineItemByID(ctx context.Context, id uuid.UUID) (LineItem, 
 }
 
 const getLineItemsForCategory = `-- name: GetLineItemsForCategory :many
-SELECT id, user_id, plan_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
+SELECT id, user_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
 FROM line_items
 WHERE plan_category_id = $1
 LIMIT $2 OFFSET $3
@@ -154,7 +149,6 @@ func (q *Queries) GetLineItemsForCategory(ctx context.Context, arg GetLineItemsF
 		if err := rows.Scan(
 			&i.ID,
 			&i.UserID,
-			&i.PlanID,
 			&i.PlanCategoryID,
 			&i.Description,
 			&i.Deposit,
@@ -176,9 +170,10 @@ func (q *Queries) GetLineItemsForCategory(ctx context.Context, arg GetLineItemsF
 }
 
 const getLineItemsForPlan = `-- name: GetLineItemsForPlan :many
-SELECT id, user_id, plan_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
+SELECT line_items.id, line_items.user_id, line_items.plan_category_id, line_items.description, line_items.deposit, line_items.withdrawl, line_items.created_at, line_items.updated_at
 FROM line_items
-WHERE plan_id = $1
+JOIN plan_categories ON plan_categories.id = line_items.plan_category_id
+WHERE plan_categories.plan_id = $1
 LIMIT $2 OFFSET $3
 `
 
@@ -200,7 +195,6 @@ func (q *Queries) GetLineItemsForPlan(ctx context.Context, arg GetLineItemsForPl
 		if err := rows.Scan(
 			&i.ID,
 			&i.UserID,
-			&i.PlanID,
 			&i.PlanCategoryID,
 			&i.Description,
 			&i.Deposit,
@@ -227,7 +221,7 @@ SET
     description = $1,
     updated_at = NOW()
 WHERE id = $2
-RETURNING id, user_id, plan_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
+RETURNING id, user_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
 `
 
 type UpdateLineItemParams struct {
@@ -241,7 +235,6 @@ func (q *Queries) UpdateLineItem(ctx context.Context, arg UpdateLineItemParams) 
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
-		&i.PlanID,
 		&i.PlanCategoryID,
 		&i.Description,
 		&i.Deposit,

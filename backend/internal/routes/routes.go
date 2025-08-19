@@ -34,6 +34,7 @@ func NewRouter(db *database.Queries, jwtSecret string) *http.ServeMux {
 	mux.HandleFunc("GET /api/v1/line-items", apiConfig.HandlerLineItemsGet)
 	mux.HandleFunc("GET /api/v1/line-items/{id}", apiConfig.HandlerLineItemGetByID)
 	mux.HandleFunc("POST /api/v1/line-items", apiConfig.HandlerLineItemCreate)
+	mux.HandleFunc("POST /api/v1/line-items/{id}/revert", apiConfig.HandlerLineItemRevert)
 	mux.HandleFunc("PUT /api/v1/line-items/{id}", apiConfig.HandlerLineItemUpdate)
 	mux.HandleFunc("DELETE /api/v1/line-items/{id}", apiConfig.HandlerLineItemDelete)
 

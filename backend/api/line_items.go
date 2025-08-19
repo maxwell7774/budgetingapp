@@ -13,7 +13,6 @@ import (
 type LineItem struct {
 	ID             uuid.UUID       `json:"id"`
 	UserID         uuid.UUID       `json:"user_id"`
-	PlanID         uuid.UUID       `json:"plan_id"`
 	PlanCategoryID uuid.UUID       `json:"plan_category_id"`
 	Description    string          `json:"description"`
 	Deposit        int32           `json:"deposit"`
@@ -26,6 +25,7 @@ type LineItem struct {
 func (l *LineItem) GenerateLinks() {
 	self := "/api/v1/line-items/" + l.ID.String()
 	l.Links = DefaultLinks(self)
+	l.Links["revert"] = Link{Href: self + "/revert", Method: "POST"}
 }
 
 func (cfg *APIConfig) HandlerLineItemsGet(w http.ResponseWriter, r *http.Request) {
@@ -105,7 +105,6 @@ func (cfg *APIConfig) HandlerLineItemsGet(w http.ResponseWriter, r *http.Request
 		lineItems[i] = &LineItem{
 			ID:             p.ID,
 			UserID:         p.UserID,
-			PlanID:         p.PlanID,
 			PlanCategoryID: p.PlanCategoryID,
 			Description:    p.Description,
 			Deposit:        p.Deposit,
@@ -120,6 +119,12 @@ func (cfg *APIConfig) HandlerLineItemsGet(w http.ResponseWriter, r *http.Request
 		Pagination: pagination,
 		Embedded: Embedded{
 			Items: lineItems,
+		},
+		Links: map[string]Link{
+			"create": {
+				Href:   r.URL.Path,
+				Method: "POST",
+			},
 		},
 	})
 }
@@ -152,7 +157,6 @@ func (cfg *APIConfig) HandlerLineItemGetByID(w http.ResponseWriter, r *http.Requ
 	respondWithItem(w, http.StatusOK, &LineItem{
 		ID:             lineItem.ID,
 		UserID:         lineItem.UserID,
-		PlanID:         lineItem.PlanID,
 		PlanCategoryID: lineItem.PlanCategoryID,
 		Description:    lineItem.Description,
 		Deposit:        lineItem.Deposit,
@@ -163,7 +167,6 @@ func (cfg *APIConfig) HandlerLineItemGetByID(w http.ResponseWriter, r *http.Requ
 }
 
 type CreateLineItemParams struct {
-	PlanID         uuid.UUID `json:"plan_id"`
 	PlanCategoryID uuid.UUID `json:"plan_category_id"`
 	Description    string    `json:"description"`
 	Amount         int32     `json:"amount"`
@@ -207,7 +210,6 @@ func (cfg *APIConfig) HandlerLineItemCreate(w http.ResponseWriter, r *http.Reque
 
 	lineItem, err := cfg.db.CreateLineItem(r.Context(), database.CreateLineItemParams{
 		UserID:         userID,
-		PlanID:         params.PlanID,
 		PlanCategoryID: params.PlanCategoryID,
 		Description:    params.Description,
 		Deposit:        deposit,
@@ -221,7 +223,6 @@ func (cfg *APIConfig) HandlerLineItemCreate(w http.ResponseWriter, r *http.Reque
 	respondWithItem(w, http.StatusCreated, &LineItem{
 		ID:             lineItem.ID,
 		UserID:         lineItem.UserID,
-		PlanID:         lineItem.PlanID,
 		PlanCategoryID: lineItem.PlanCategoryID,
 		Description:    lineItem.Description,
 		Deposit:        lineItem.Deposit,
@@ -275,13 +276,79 @@ func (cfg *APIConfig) HandlerLineItemUpdate(w http.ResponseWriter, r *http.Reque
 	respondWithItem(w, http.StatusOK, &LineItem{
 		ID:             lineItem.ID,
 		UserID:         lineItem.UserID,
-		PlanID:         lineItem.PlanID,
 		PlanCategoryID: lineItem.PlanCategoryID,
 		Description:    lineItem.Description,
 		Deposit:        lineItem.Deposit,
 		Withdrawl:      lineItem.Withdrawl,
 		CreatedAt:      lineItem.CreatedAt,
 		UpdatedAt:      lineItem.UpdatedAt,
+	})
+}
+
+type RevertLineItemParams struct {
+	Description string `json:"description"`
+}
+
+func (cfg *APIConfig) HandlerLineItemRevert(w http.ResponseWriter, r *http.Request) {
+	accessToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
+		return
+	}
+
+	userID, err := auth.ValidateJWT(accessToken, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		return
+	}
+
+	id, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't parse line item id", err)
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	params := RevertLineItemParams{}
+	err = decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		return
+	}
+
+	lineItem, err := cfg.db.GetLineItemByID(r.Context(), id)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve line item", err)
+		return
+	}
+
+	args := database.CreateLineItemParams{
+		UserID:         userID,
+		PlanCategoryID: lineItem.PlanCategoryID,
+		Description:    params.Description,
+	}
+
+	if lineItem.Withdrawl > 0 {
+		args.Deposit = lineItem.Withdrawl
+	} else {
+		args.Withdrawl = lineItem.Deposit
+	}
+
+	revertedLineItem, err := cfg.db.CreateLineItem(r.Context(), args)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't add reverted line item", err)
+		return
+	}
+
+	respondWithItem(w, http.StatusOK, &LineItem{
+		ID:             revertedLineItem.ID,
+		UserID:         revertedLineItem.UserID,
+		PlanCategoryID: revertedLineItem.PlanCategoryID,
+		Description:    revertedLineItem.Description,
+		Deposit:        revertedLineItem.Deposit,
+		Withdrawl:      revertedLineItem.Withdrawl,
+		CreatedAt:      revertedLineItem.CreatedAt,
+		UpdatedAt:      revertedLineItem.UpdatedAt,
 	})
 }
 
@@ -304,7 +371,7 @@ func (cfg *APIConfig) HandlerLineItemDelete(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	cfg.db.DeleteLineItem(r.Context(), id)
+	err = cfg.db.DeleteLineItem(r.Context(), id)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't delete line item", err)
 		return

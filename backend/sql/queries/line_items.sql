@@ -1,13 +1,15 @@
 -- name: GetLineItemsForPlan :many
-SELECT *
+SELECT line_items.*
 FROM line_items
-WHERE plan_id = $1
+JOIN plan_categories ON plan_categories.id = line_items.plan_category_id
+WHERE plan_categories.plan_id = $1
 LIMIT $2 OFFSET $3;
 
 -- name: CountLineItemsForPlan :one
 SELECT COUNT(*)
 FROM line_items
-WHERE plan_id = $1;
+JOIN plan_categories ON plan_categories.id = line_items.plan_category_id
+WHERE plan_categories.plan_id = $1;
 
 -- name: GetLineItemsForCategory :many
 SELECT *
@@ -29,7 +31,6 @@ WHERE id = $1;
 INSERT INTO line_items(
     id,
     user_id,
-    plan_id,
     plan_category_id,
     description,
     deposit,
@@ -44,7 +45,6 @@ VALUES(
     $3,
     $4,
     $5,
-    $6,
     NOW(),
     NOW()
 )
