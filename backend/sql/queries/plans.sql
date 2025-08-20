@@ -11,6 +11,7 @@ FROM plans
 WHERE owner_id = $1
 AND name ILIKE '%' || sqlc.arg(keyword) || '%';
 
+
 -- name: GetPlanByID :one
 SELECT *
 FROM plans
