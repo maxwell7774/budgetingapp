@@ -4,9 +4,18 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/maxwell7774/budgetingapp/backend/internal/auth"
 	"github.com/maxwell7774/budgetingapp/backend/internal/database"
 )
+
+type PlanUsage struct {
+	PlanID                uuid.UUID `json:"plan_id"`
+	TargetWithdrawlAmount int64     `json:"target_withdrawl_amount"`
+	TargetDepositAmount   int64     `json:"target_deposit_amount"`
+	ActualWithdrawlAmount int64     `json:"actual_withdrawl_amount"`
+	ActualDepositAmount   int64     `json:"actual_deposit_amount"`
+}
 
 func (cfg *APIConfig) HandlerPlansUsage(w http.ResponseWriter, r *http.Request) {
 	accessToken, err := auth.GetBearerToken(r.Header)
@@ -31,5 +40,27 @@ func (cfg *APIConfig) HandlerPlansUsage(w http.ResponseWriter, r *http.Request) 
 	}
 	pagination := getPaginationFromQuery(r.URL.Query(), totalPlans)
 
-	plansUsage, err := cfg.db.GetPlansUsageForOwner(r.Context(), database.GetPlansUsageForOwnerParams{})
+	plansUsageDB, err := cfg.db.GetPlansUsageForOwner(r.Context(), database.GetPlansUsageForOwnerParams{
+		OwnerID: userID,
+		Limit:   pagination.Limit(),
+		Offset:  pagination.Offset(),
+		Keyword: sql.NullString{Valid: true, String: r.URL.Query().Get("search")},
+	})
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve plans usages", err)
+		return
+	}
+
+	plansUsage := make([]PlanUsage, len(plansUsageDB))
+	for i, p := range plansUsageDB {
+		plansUsage[i] = PlanUsage{
+			PlanID:                p.PlanID,
+			TargetWithdrawlAmount: p.TargetWithdrawlAmount,
+			TargetDepositAmount:   p.TargetDepositAmount,
+			ActualWithdrawlAmount: p.ActualWithdrawlAmount,
+			ActualDepositAmount:   p.ActualDepositAmount,
+		}
+	}
+
+	respondWithJSON(w, http.StatusOK, plansUsage)
 }
