@@ -10,11 +10,14 @@ import (
 )
 
 type PlanUsage struct {
-	PlanID                 uuid.UUID `json:"plan_id"`
-	TargetWithdrawalAmount int64     `json:"target_withdrawal_amount"`
-	TargetDepositAmount    int64     `json:"target_deposit_amount"`
-	ActualWithdrawalAmount int64     `json:"actual_withdrawal_amount"`
-	ActualDepositAmount    int64     `json:"actual_deposit_amount"`
+	PlanID           uuid.UUID `json:"plan_id"`
+	PlanName         string    `json:"plan_name"`
+	TargetWithdrawal int64     `json:"target_withdrawal"`
+	TargetDeposit    int64     `json:"target_deposit"`
+	ActualWithdrawal int64     `json:"actual_withdrawal"`
+	ActualDeposit    int64     `json:"actual_deposit"`
+	NetWithdrawal    int64     `json:"net_withdrawal"`
+	NetDeposit       int64     `json:"net_deposit"`
 }
 
 func (cfg *APIConfig) HandlerPlansUsage(w http.ResponseWriter, r *http.Request) {
@@ -40,7 +43,7 @@ func (cfg *APIConfig) HandlerPlansUsage(w http.ResponseWriter, r *http.Request) 
 	}
 	pagination := getPaginationFromQuery(r.URL.Query(), totalPlans)
 
-	plansUsageDB, err := cfg.db.GetPlansUsageForOwner(r.Context(), database.GetPlansUsageForOwnerParams{
+	plansUsageDB, err := cfg.db.GetAllPlanUsagesForOwnerID(r.Context(), database.GetAllPlanUsagesForOwnerIDParams{
 		OwnerID: userID,
 		Limit:   pagination.Limit(),
 		Offset:  pagination.Offset(),
@@ -54,11 +57,14 @@ func (cfg *APIConfig) HandlerPlansUsage(w http.ResponseWriter, r *http.Request) 
 	plansUsage := make([]PlanUsage, len(plansUsageDB))
 	for i, p := range plansUsageDB {
 		plansUsage[i] = PlanUsage{
-			PlanID:                 p.PlanID,
-			TargetWithdrawalAmount: p.TargetWithdrawalAmount,
-			TargetDepositAmount:    p.TargetDepositAmount,
-			ActualWithdrawalAmount: p.ActualWithdrawalAmount,
-			ActualDepositAmount:    p.ActualDepositAmount,
+			PlanID:           p.PlanID,
+			PlanName:         p.PlanName,
+			TargetWithdrawal: p.TargetWithdrawal,
+			TargetDeposit:    p.TargetDeposit,
+			ActualWithdrawal: p.ActualWithdrawal,
+			ActualDeposit:    p.ActualDeposit,
+			NetWithdrawal:    p.NetWithdrawal,
+			NetDeposit:       p.NetDeposit,
 		}
 	}
 
