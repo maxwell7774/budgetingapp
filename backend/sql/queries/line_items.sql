@@ -34,7 +34,7 @@ INSERT INTO line_items(
     plan_category_id,
     description,
     deposit,
-    withdrawl,
+    withdrawal,
     created_at,
     updated_at
 )

@@ -45,7 +45,7 @@ INSERT INTO line_items(
     plan_category_id,
     description,
     deposit,
-    withdrawl,
+    withdrawal,
     created_at,
     updated_at
 )
@@ -59,7 +59,7 @@ VALUES(
     NOW(),
     NOW()
 )
-RETURNING id, user_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
+RETURNING id, user_id, plan_category_id, description, deposit, withdrawal, created_at, updated_at
 `
 
 type CreateLineItemParams struct {
@@ -67,7 +67,7 @@ type CreateLineItemParams struct {
 	PlanCategoryID uuid.UUID
 	Description    string
 	Deposit        int32
-	Withdrawl      int32
+	Withdrawal     int32
 }
 
 func (q *Queries) CreateLineItem(ctx context.Context, arg CreateLineItemParams) (LineItem, error) {
@@ -76,7 +76,7 @@ func (q *Queries) CreateLineItem(ctx context.Context, arg CreateLineItemParams) 
 		arg.PlanCategoryID,
 		arg.Description,
 		arg.Deposit,
-		arg.Withdrawl,
+		arg.Withdrawal,
 	)
 	var i LineItem
 	err := row.Scan(
@@ -85,7 +85,7 @@ func (q *Queries) CreateLineItem(ctx context.Context, arg CreateLineItemParams) 
 		&i.PlanCategoryID,
 		&i.Description,
 		&i.Deposit,
-		&i.Withdrawl,
+		&i.Withdrawal,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -103,7 +103,7 @@ func (q *Queries) DeleteLineItem(ctx context.Context, id uuid.UUID) error {
 }
 
 const getLineItemByID = `-- name: GetLineItemByID :one
-SELECT id, user_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
+SELECT id, user_id, plan_category_id, description, deposit, withdrawal, created_at, updated_at
 FROM line_items
 WHERE id = $1
 `
@@ -117,7 +117,7 @@ func (q *Queries) GetLineItemByID(ctx context.Context, id uuid.UUID) (LineItem, 
 		&i.PlanCategoryID,
 		&i.Description,
 		&i.Deposit,
-		&i.Withdrawl,
+		&i.Withdrawal,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -125,7 +125,7 @@ func (q *Queries) GetLineItemByID(ctx context.Context, id uuid.UUID) (LineItem, 
 }
 
 const getLineItemsForCategory = `-- name: GetLineItemsForCategory :many
-SELECT id, user_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
+SELECT id, user_id, plan_category_id, description, deposit, withdrawal, created_at, updated_at
 FROM line_items
 WHERE plan_category_id = $1
 LIMIT $2 OFFSET $3
@@ -152,7 +152,7 @@ func (q *Queries) GetLineItemsForCategory(ctx context.Context, arg GetLineItemsF
 			&i.PlanCategoryID,
 			&i.Description,
 			&i.Deposit,
-			&i.Withdrawl,
+			&i.Withdrawal,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -170,7 +170,7 @@ func (q *Queries) GetLineItemsForCategory(ctx context.Context, arg GetLineItemsF
 }
 
 const getLineItemsForPlan = `-- name: GetLineItemsForPlan :many
-SELECT line_items.id, line_items.user_id, line_items.plan_category_id, line_items.description, line_items.deposit, line_items.withdrawl, line_items.created_at, line_items.updated_at
+SELECT line_items.id, line_items.user_id, line_items.plan_category_id, line_items.description, line_items.deposit, line_items.withdrawal, line_items.created_at, line_items.updated_at
 FROM line_items
 JOIN plan_categories ON plan_categories.id = line_items.plan_category_id
 WHERE plan_categories.plan_id = $1
@@ -198,7 +198,7 @@ func (q *Queries) GetLineItemsForPlan(ctx context.Context, arg GetLineItemsForPl
 			&i.PlanCategoryID,
 			&i.Description,
 			&i.Deposit,
-			&i.Withdrawl,
+			&i.Withdrawal,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -221,7 +221,7 @@ SET
     description = $1,
     updated_at = NOW()
 WHERE id = $2
-RETURNING id, user_id, plan_category_id, description, deposit, withdrawl, created_at, updated_at
+RETURNING id, user_id, plan_category_id, description, deposit, withdrawal, created_at, updated_at
 `
 
 type UpdateLineItemParams struct {
@@ -238,7 +238,7 @@ func (q *Queries) UpdateLineItem(ctx context.Context, arg UpdateLineItemParams) 
 		&i.PlanCategoryID,
 		&i.Description,
 		&i.Deposit,
-		&i.Withdrawl,
+		&i.Withdrawal,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

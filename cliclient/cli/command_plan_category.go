@@ -53,7 +53,7 @@ func commandListPlanCategories(cfg *config, args ...string) error {
 	Writef(cfg.terminal, "\n----------%s Categories----------\n", plan.Name)
 
 	for _, c := range categories {
-		Writef(cfg.terminal, "* Name: %s, Deposit: %d, Withdrawl: %d\n", c.Name, c.Deposit, c.Withdrawl)
+		Writef(cfg.terminal, "* Name: %s, Deposit: %d, Withdrawal: %d\n", c.Name, c.Deposit, c.Withdrawal)
 	}
 
 	return nil
@@ -97,7 +97,7 @@ func commandCreatePlanCategory(cfg *config, args ...string) error {
 		return err
 	}
 
-	cfg.terminal.SetPrompt("Withdrawl or Deposit (enter w or d): ")
+	cfg.terminal.SetPrompt("Withdrawal or Deposit (enter w or d): ")
 	line, err = cfg.terminal.ReadLine()
 	if err != nil {
 		return err
@@ -106,18 +106,18 @@ func commandCreatePlanCategory(cfg *config, args ...string) error {
 
 	switch typeOfCategory {
 	case "w":
-		cfg.terminal.SetPrompt("Withdrawl Goal: ")
+		cfg.terminal.SetPrompt("Withdrawal Goal: ")
 		line, err = cfg.terminal.ReadLine()
 		if err != nil {
 			return err
 		}
 
-		withdrawl, err := strconv.Atoi(line)
+		withdrawal, err := strconv.Atoi(line)
 		if err != nil {
 			return fmt.Errorf("Not a valid deposit amount: %w", err)
 		}
 
-		params.Withdrawl = int32(withdrawl)
+		params.Withdrawal = int32(withdrawal)
 		params.Deposit = 0
 	case "d":
 		cfg.terminal.SetPrompt("Deposit Goal: ")
@@ -132,9 +132,9 @@ func commandCreatePlanCategory(cfg *config, args ...string) error {
 		}
 
 		params.Deposit = int32(deposit)
-		params.Withdrawl = 0
+		params.Withdrawal = 0
 	default:
-		return fmt.Errorf("You didn't select withdrawl or deposit...")
+		return fmt.Errorf("You didn't select withdrawal or deposit...")
 	}
 
 	category, err := cfg.apiClient.CreatePlanCategory(context.Background(), params)
@@ -144,9 +144,9 @@ func commandCreatePlanCategory(cfg *config, args ...string) error {
 
 	Writeln(cfg.terminal, "----------NEW CATEGORY----------")
 	Writef(cfg.terminal, "* ID: %s\n", category.ID)
-	Writef(cfg.terminal,"* Name: %s\n", category.Name)
-	Writef(cfg.terminal,"* Deposit: %d\n", category.Deposit)
-	Writef(cfg.terminal, "* Withdrawl: %d\n", category.Withdrawl)
+	Writef(cfg.terminal, "* Name: %s\n", category.Name)
+	Writef(cfg.terminal, "* Deposit: %d\n", category.Deposit)
+	Writef(cfg.terminal, "* Withdrawal: %d\n", category.Withdrawal)
 	Writef(cfg.terminal, "* Created At: %s\n", category.CreatedAt.String())
 
 	return nil

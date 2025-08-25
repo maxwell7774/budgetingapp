@@ -16,7 +16,7 @@ type LineItem struct {
 	PlanCategoryID uuid.UUID       `json:"plan_category_id"`
 	Description    string          `json:"description"`
 	Deposit        int32           `json:"deposit"`
-	Withdrawl      int32           `json:"withdrawl"`
+	Withdrawal     int32           `json:"withdrawal"`
 	CreatedAt      time.Time       `json:"created_at"`
 	UpdatedAt      time.Time       `json:"updated_at"`
 	Links          map[string]Link `json:"_links"`
@@ -108,7 +108,7 @@ func (cfg *APIConfig) HandlerLineItemsGet(w http.ResponseWriter, r *http.Request
 			PlanCategoryID: p.PlanCategoryID,
 			Description:    p.Description,
 			Deposit:        p.Deposit,
-			Withdrawl:      p.Withdrawl,
+			Withdrawal:     p.Withdrawal,
 			CreatedAt:      p.CreatedAt,
 			UpdatedAt:      p.UpdatedAt,
 		}
@@ -160,7 +160,7 @@ func (cfg *APIConfig) HandlerLineItemGetByID(w http.ResponseWriter, r *http.Requ
 		PlanCategoryID: lineItem.PlanCategoryID,
 		Description:    lineItem.Description,
 		Deposit:        lineItem.Deposit,
-		Withdrawl:      lineItem.Withdrawl,
+		Withdrawal:     lineItem.Withdrawal,
 		CreatedAt:      lineItem.CreatedAt,
 		UpdatedAt:      lineItem.UpdatedAt,
 	})
@@ -200,10 +200,10 @@ func (cfg *APIConfig) HandlerLineItemCreate(w http.ResponseWriter, r *http.Reque
 	}
 
 	deposit := int32(0)
-	withdrawl := int32(0)
+	withdrawal := int32(0)
 
-	if planCategory.Withdrawl > 0 {
-		withdrawl = params.Amount
+	if planCategory.Withdrawal > 0 {
+		withdrawal = params.Amount
 	} else {
 		deposit = params.Amount
 	}
@@ -213,7 +213,7 @@ func (cfg *APIConfig) HandlerLineItemCreate(w http.ResponseWriter, r *http.Reque
 		PlanCategoryID: params.PlanCategoryID,
 		Description:    params.Description,
 		Deposit:        deposit,
-		Withdrawl:      withdrawl,
+		Withdrawal:     withdrawal,
 	})
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
@@ -226,7 +226,7 @@ func (cfg *APIConfig) HandlerLineItemCreate(w http.ResponseWriter, r *http.Reque
 		PlanCategoryID: lineItem.PlanCategoryID,
 		Description:    lineItem.Description,
 		Deposit:        lineItem.Deposit,
-		Withdrawl:      lineItem.Withdrawl,
+		Withdrawal:     lineItem.Withdrawal,
 		CreatedAt:      lineItem.CreatedAt,
 		UpdatedAt:      lineItem.UpdatedAt,
 	})
@@ -279,7 +279,7 @@ func (cfg *APIConfig) HandlerLineItemUpdate(w http.ResponseWriter, r *http.Reque
 		PlanCategoryID: lineItem.PlanCategoryID,
 		Description:    lineItem.Description,
 		Deposit:        lineItem.Deposit,
-		Withdrawl:      lineItem.Withdrawl,
+		Withdrawal:     lineItem.Withdrawal,
 		CreatedAt:      lineItem.CreatedAt,
 		UpdatedAt:      lineItem.UpdatedAt,
 	})
@@ -328,10 +328,10 @@ func (cfg *APIConfig) HandlerLineItemRevert(w http.ResponseWriter, r *http.Reque
 		Description:    params.Description,
 	}
 
-	if lineItem.Withdrawl > 0 {
-		args.Deposit = lineItem.Withdrawl
+	if lineItem.Withdrawal > 0 {
+		args.Deposit = lineItem.Withdrawal
 	} else {
-		args.Withdrawl = lineItem.Deposit
+		args.Withdrawal = lineItem.Deposit
 	}
 
 	revertedLineItem, err := cfg.db.CreateLineItem(r.Context(), args)
@@ -346,7 +346,7 @@ func (cfg *APIConfig) HandlerLineItemRevert(w http.ResponseWriter, r *http.Reque
 		PlanCategoryID: revertedLineItem.PlanCategoryID,
 		Description:    revertedLineItem.Description,
 		Deposit:        revertedLineItem.Deposit,
-		Withdrawl:      revertedLineItem.Withdrawl,
+		Withdrawal:     revertedLineItem.Withdrawal,
 		CreatedAt:      revertedLineItem.CreatedAt,
 		UpdatedAt:      revertedLineItem.UpdatedAt,
 	})

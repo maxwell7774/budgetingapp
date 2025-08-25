@@ -52,7 +52,7 @@ func commandListLineItemsForPlan(cfg *config, args ...string) error {
 	Writef(cfg.terminal, "\n----------%s Line Items----------\n", plan.Name)
 
 	for _, l := range lineItems {
-		Writef(cfg.terminal, "* Description: %s, Deposit: %d, Withdrawl: %d\n", l.Description, l.Deposit, l.Withdrawl)
+		Writef(cfg.terminal, "* Description: %s, Deposit: %d, Withdrawal: %d\n", l.Description, l.Deposit, l.Withdrawal)
 	}
 
 	return nil
@@ -153,7 +153,7 @@ func commandCreateLineItem(cfg *config, args ...string) error {
 	Writef(cfg.terminal, "* Plan: %s\n", plan.Name)
 	Writef(cfg.terminal, "* Category: %s\n", category.Name)
 	Writef(cfg.terminal, "* Deposit: %d\n", lineItem.Deposit)
-	Writef(cfg.terminal, "* Withdrawl: %d\n", lineItem.Withdrawl)
+	Writef(cfg.terminal, "* Withdrawal: %d\n", lineItem.Withdrawal)
 	Writef(cfg.terminal, "* CreatedAt: %s\n", lineItem.CreatedAt)
 	Writef(cfg.terminal, "* UpdatedAt: %s\n", lineItem.UpdatedAt)
 

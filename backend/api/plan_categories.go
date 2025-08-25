@@ -11,14 +11,14 @@ import (
 )
 
 type PlanCategory struct {
-	ID        uuid.UUID       `json:"id"`
-	PlanID    uuid.UUID       `json:"plan_id"`
-	Name      string          `json:"name"`
-	Deposit   int32           `json:"deposit"`
-	Withdrawl int32           `json:"withdrawl"`
-	CreatedAt time.Time       `json:"created_at"`
-	UpdatedAt time.Time       `json:"updated_at"`
-	Links     map[string]Link `json:"_links"`
+	ID         uuid.UUID       `json:"id"`
+	PlanID     uuid.UUID       `json:"plan_id"`
+	Name       string          `json:"name"`
+	Deposit    int32           `json:"deposit"`
+	Withdrawal int32           `json:"withdrawal"`
+	CreatedAt  time.Time       `json:"created_at"`
+	UpdatedAt  time.Time       `json:"updated_at"`
+	Links      map[string]Link `json:"_links"`
 }
 
 func (p *PlanCategory) GenerateLinks() {
@@ -66,13 +66,13 @@ func (cfg *APIConfig) HandlerPlanCategoriesGet(w http.ResponseWriter, r *http.Re
 	planCats := make([]Item, len(planCategoriesDB))
 	for i, p := range planCategoriesDB {
 		planCats[i] = &PlanCategory{
-			ID:        p.ID,
-			PlanID:    p.PlanID,
-			Name:      p.Name,
-			Deposit:   p.Deposit,
-			Withdrawl: p.Withdrawl,
-			CreatedAt: p.CreatedAt,
-			UpdatedAt: p.UpdatedAt,
+			ID:         p.ID,
+			PlanID:     p.PlanID,
+			Name:       p.Name,
+			Deposit:    p.Deposit,
+			Withdrawal: p.Withdrawal,
+			CreatedAt:  p.CreatedAt,
+			UpdatedAt:  p.UpdatedAt,
 		}
 	}
 
@@ -111,21 +111,21 @@ func (cfg *APIConfig) HandlerPlanCategoryGetByID(w http.ResponseWriter, r *http.
 	}
 
 	respondWithItem(w, http.StatusOK, &PlanCategory{
-		ID:        cat.ID,
-		PlanID:    cat.PlanID,
-		Name:      cat.Name,
-		Deposit:   cat.Deposit,
-		Withdrawl: cat.Deposit,
-		CreatedAt: cat.CreatedAt,
-		UpdatedAt: cat.UpdatedAt,
+		ID:         cat.ID,
+		PlanID:     cat.PlanID,
+		Name:       cat.Name,
+		Deposit:    cat.Deposit,
+		Withdrawal: cat.Deposit,
+		CreatedAt:  cat.CreatedAt,
+		UpdatedAt:  cat.UpdatedAt,
 	})
 }
 
 type CreatePlanCategoryParams struct {
-	PlanID    uuid.UUID `json:"plan_id"`
-	Name      string    `json:"name"`
-	Deposit   int32     `json:"deposit"`
-	Withdrawl int32     `json:"withdrawl"`
+	PlanID     uuid.UUID `json:"plan_id"`
+	Name       string    `json:"name"`
+	Deposit    int32     `json:"deposit"`
+	Withdrawal int32     `json:"withdrawal"`
 }
 
 func (cfg *APIConfig) HandlerPlanCategoryCreate(w http.ResponseWriter, r *http.Request) {
@@ -150,10 +150,10 @@ func (cfg *APIConfig) HandlerPlanCategoryCreate(w http.ResponseWriter, r *http.R
 	}
 
 	plan_category, err := cfg.db.CreatePlanCategory(r.Context(), database.CreatePlanCategoryParams{
-		PlanID:    params.PlanID,
-		Name:      params.Name,
-		Deposit:   params.Deposit,
-		Withdrawl: params.Withdrawl,
+		PlanID:     params.PlanID,
+		Name:       params.Name,
+		Deposit:    params.Deposit,
+		Withdrawal: params.Withdrawal,
 	})
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create category", err)
@@ -161,13 +161,13 @@ func (cfg *APIConfig) HandlerPlanCategoryCreate(w http.ResponseWriter, r *http.R
 	}
 
 	respondWithItem(w, http.StatusCreated, &PlanCategory{
-		ID:        plan_category.ID,
-		PlanID:    plan_category.PlanID,
-		Name:      plan_category.Name,
-		Deposit:   plan_category.Deposit,
-		Withdrawl: plan_category.Withdrawl,
-		CreatedAt: plan_category.CreatedAt,
-		UpdatedAt: plan_category.UpdatedAt,
+		ID:         plan_category.ID,
+		PlanID:     plan_category.PlanID,
+		Name:       plan_category.Name,
+		Deposit:    plan_category.Deposit,
+		Withdrawal: plan_category.Withdrawal,
+		CreatedAt:  plan_category.CreatedAt,
+		UpdatedAt:  plan_category.UpdatedAt,
 	})
 }
 
@@ -212,13 +212,13 @@ func (cfg *APIConfig) HandlerPlanCategoryUpdate(w http.ResponseWriter, r *http.R
 	}
 
 	respondWithItem(w, http.StatusOK, &PlanCategory{
-		ID:        planCategory.ID,
-		PlanID:    planCategory.PlanID,
-		Name:      planCategory.Name,
-		Deposit:   planCategory.Deposit,
-		Withdrawl: planCategory.Deposit,
-		CreatedAt: planCategory.CreatedAt,
-		UpdatedAt: planCategory.UpdatedAt,
+		ID:         planCategory.ID,
+		PlanID:     planCategory.PlanID,
+		Name:       planCategory.Name,
+		Deposit:    planCategory.Deposit,
+		Withdrawal: planCategory.Deposit,
+		CreatedAt:  planCategory.CreatedAt,
+		UpdatedAt:  planCategory.UpdatedAt,
 	})
 }
 

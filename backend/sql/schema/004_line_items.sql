@@ -6,7 +6,7 @@ CREATE TABLE line_items(
     plan_category_id UUID NOT NULL REFERENCES plan_categories(id),
     description TEXT NOT NULL,
     deposit INT NOT NULL,
-    withdrawl INT NOT NULL,
+    withdrawal INT NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );

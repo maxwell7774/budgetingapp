@@ -16,7 +16,7 @@ const getPlansUsageForOwner = `-- name: GetPlansUsageForOwner :many
 WITH category_sums AS (
     SELECT
         plan_id,
-        SUM(withdrawl) AS total_withdrawl,
+        SUM(withdrawal) AS total_withdrawal,
         SUM(deposit) AS total_deposit
     FROM plan_categories
     GROUP BY plan_id
@@ -24,7 +24,7 @@ WITH category_sums AS (
 line_item_sums AS (
     SELECT
         plan_categories.plan_id,
-        SUM(line_items.withdrawl) AS total_withdrawl,
+        SUM(line_items.withdrawal) AS total_withdrawal,
         SUM(line_items.deposit) AS total_deposit
     FROM line_items 
     JOIN plan_categories ON plan_categories.id = line_items.plan_category_id
@@ -32,9 +32,9 @@ line_item_sums AS (
 )
 SELECT
     plans.id AS plan_id,
-    COALESCE(category_sums.total_withdrawl, 0)::BIGINT AS target_withdrawl_amount,
+    COALESCE(category_sums.total_withdrawal, 0)::BIGINT AS target_withdrawal_amount,
     COALESCE(category_sums.total_deposit, 0)::BIGINT AS target_deposit_amount,
-    COALESCE(line_item_sums.total_withdrawl, 0)::BIGINT AS actual_withdrawl_amount,
+    COALESCE(line_item_sums.total_withdrawal, 0)::BIGINT AS actual_withdrawal_amount,
     COALESCE(line_item_sums.total_deposit, 0)::BIGINT AS actual_deposit_amount
 FROM plans
 LEFT JOIN category_sums ON category_sums.plan_id = plans.id
@@ -53,11 +53,11 @@ type GetPlansUsageForOwnerParams struct {
 }
 
 type GetPlansUsageForOwnerRow struct {
-	PlanID                uuid.UUID
-	TargetWithdrawlAmount int64
-	TargetDepositAmount   int64
-	ActualWithdrawlAmount int64
-	ActualDepositAmount   int64
+	PlanID                 uuid.UUID
+	TargetWithdrawalAmount int64
+	TargetDepositAmount    int64
+	ActualWithdrawalAmount int64
+	ActualDepositAmount    int64
 }
 
 func (q *Queries) GetPlansUsageForOwner(ctx context.Context, arg GetPlansUsageForOwnerParams) ([]GetPlansUsageForOwnerRow, error) {
@@ -76,9 +76,9 @@ func (q *Queries) GetPlansUsageForOwner(ctx context.Context, arg GetPlansUsageFo
 		var i GetPlansUsageForOwnerRow
 		if err := rows.Scan(
 			&i.PlanID,
-			&i.TargetWithdrawlAmount,
+			&i.TargetWithdrawalAmount,
 			&i.TargetDepositAmount,
-			&i.ActualWithdrawlAmount,
+			&i.ActualWithdrawalAmount,
 			&i.ActualDepositAmount,
 		); err != nil {
 			return nil, err

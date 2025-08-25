@@ -17,7 +17,7 @@ type LineItem struct {
 	PlanCategoryID uuid.UUID
 	Description    string
 	Deposit        int32
-	Withdrawl      int32
+	Withdrawal     int32
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }
@@ -31,13 +31,13 @@ type Plan struct {
 }
 
 type PlanCategory struct {
-	ID        uuid.UUID
-	PlanID    uuid.UUID
-	Name      string
-	Deposit   int32
-	Withdrawl int32
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID         uuid.UUID
+	PlanID     uuid.UUID
+	Name       string
+	Deposit    int32
+	Withdrawal int32
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 type RefreshToken struct {

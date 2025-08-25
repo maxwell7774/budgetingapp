@@ -8,7 +8,7 @@ export interface LineItem extends Resource {
   plan_category_id: string;
   description: string;
   deposit: number;
-  withdrawl: number;
+  withdrawal: number;
   created_at: string;
   updated_at: string;
 }

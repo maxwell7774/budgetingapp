@@ -21,7 +21,7 @@ INSERT INTO plan_categories(
     plan_id,
     name,
     deposit,
-    withdrawl,
+    withdrawal,
     created_at,
     updated_at
 )

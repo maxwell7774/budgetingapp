@@ -13,9 +13,9 @@ func NewRouter(db *database.Queries, jwtSecret string) *http.ServeMux {
 	apiConfig := api.NewAPIConfig(db, jwtSecret)
 
 	mux.HandleFunc("GET /api/v1/users", apiConfig.HandlerUsersGet)
-	mux.HandleFunc("POST /api/v1/users", apiConfig.HandlerUserCreate)
 
 	mux.HandleFunc("POST /api/v1/auth/login", apiConfig.HandlerLogin)
+	mux.HandleFunc("POST /api/v1/auth/register", apiConfig.HandlerUserCreate)
 	mux.HandleFunc("GET /api/v1/auth/refresh", apiConfig.HandlerRefreshAccessToken)
 	mux.HandleFunc("POST /api/v1/auth/revoke", apiConfig.HandlerRevokeRefreshToken)
 

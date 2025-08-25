@@ -30,7 +30,7 @@ INSERT INTO plan_categories(
     plan_id,
     name,
     deposit,
-    withdrawl,
+    withdrawal,
     created_at,
     updated_at
 )
@@ -43,14 +43,14 @@ VALUES(
     NOW(),
     NOW()
 )
-RETURNING id, plan_id, name, deposit, withdrawl, created_at, updated_at
+RETURNING id, plan_id, name, deposit, withdrawal, created_at, updated_at
 `
 
 type CreatePlanCategoryParams struct {
-	PlanID    uuid.UUID
-	Name      string
-	Deposit   int32
-	Withdrawl int32
+	PlanID     uuid.UUID
+	Name       string
+	Deposit    int32
+	Withdrawal int32
 }
 
 func (q *Queries) CreatePlanCategory(ctx context.Context, arg CreatePlanCategoryParams) (PlanCategory, error) {
@@ -58,7 +58,7 @@ func (q *Queries) CreatePlanCategory(ctx context.Context, arg CreatePlanCategory
 		arg.PlanID,
 		arg.Name,
 		arg.Deposit,
-		arg.Withdrawl,
+		arg.Withdrawal,
 	)
 	var i PlanCategory
 	err := row.Scan(
@@ -66,7 +66,7 @@ func (q *Queries) CreatePlanCategory(ctx context.Context, arg CreatePlanCategory
 		&i.PlanID,
 		&i.Name,
 		&i.Deposit,
-		&i.Withdrawl,
+		&i.Withdrawal,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -84,7 +84,7 @@ func (q *Queries) DeletePlanCategory(ctx context.Context, id uuid.UUID) error {
 }
 
 const getPlanCategories = `-- name: GetPlanCategories :many
-SELECT id, plan_id, name, deposit, withdrawl, created_at, updated_at
+SELECT id, plan_id, name, deposit, withdrawal, created_at, updated_at
 FROM plan_categories
 WHERE plan_id = $1
 LIMIT $2 OFFSET $3
@@ -110,7 +110,7 @@ func (q *Queries) GetPlanCategories(ctx context.Context, arg GetPlanCategoriesPa
 			&i.PlanID,
 			&i.Name,
 			&i.Deposit,
-			&i.Withdrawl,
+			&i.Withdrawal,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -128,7 +128,7 @@ func (q *Queries) GetPlanCategories(ctx context.Context, arg GetPlanCategoriesPa
 }
 
 const getPlanCategoryByID = `-- name: GetPlanCategoryByID :one
-SELECT id, plan_id, name, deposit, withdrawl, created_at, updated_at
+SELECT id, plan_id, name, deposit, withdrawal, created_at, updated_at
 FROM plan_categories
 WHERE id = $1
 `
@@ -141,7 +141,7 @@ func (q *Queries) GetPlanCategoryByID(ctx context.Context, id uuid.UUID) (PlanCa
 		&i.PlanID,
 		&i.Name,
 		&i.Deposit,
-		&i.Withdrawl,
+		&i.Withdrawal,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -154,7 +154,7 @@ SET
     name = $1,
     updated_at = NOW()
 WHERE id = $2
-RETURNING id, plan_id, name, deposit, withdrawl, created_at, updated_at
+RETURNING id, plan_id, name, deposit, withdrawal, created_at, updated_at
 `
 
 type UpdatePlanCategoryNameParams struct {
@@ -170,7 +170,7 @@ func (q *Queries) UpdatePlanCategoryName(ctx context.Context, arg UpdatePlanCate
 		&i.PlanID,
 		&i.Name,
 		&i.Deposit,
-		&i.Withdrawl,
+		&i.Withdrawal,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

@@ -6,7 +6,7 @@ export interface PlanCategory extends Resource {
   plan_id: string;
   name: string;
   deposit: number;
-  withdrawl: number;
+  withdrawal: number;
   created_at: string;
   updated_at: string;
 }
