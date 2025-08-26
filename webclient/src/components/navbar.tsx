@@ -26,10 +26,10 @@ function Navbar() {
       <nav>
         <div
           data-open={open}
-          className="max-w-7xl min-w-max mx-auto flex items-center h-16 bg-slate-100 dark:bg-slate-800 md:bg-transparent
+          className="max-w-7xl min-w-max mx-auto flex items-center h-16 bg-white dark:bg-slate-800 md:bg-transparent
                     md:dark:bg-transparent data-[open=true]:rounded-t-4xl data-[open=false]:rounded-full data-[open=false]:delay-150"
         >
-          <div className="p-2 h-full bg-slate-100 dark:bg-slate-800 rounded-full">
+          <div className="p-2 h-full bg-white dark:bg-slate-800 rounded-full">
             <Link
               data-open={open}
               className="h-full px-4 sm:px-8 text-xl font-bold flex items-center min-w-max rounded-full hover:bg-slate-200 dark:hover:bg-slate-700"
@@ -50,7 +50,7 @@ function Navbar() {
           </div>
           <div
             data-open={open}
-            className="ms-auto md:h-full md:!max-h-fit md:!flex items-center font-semibold gap-0.5 bg-slate-100 dark:bg-slate-800 md:rounded-full
+            className="ms-auto md:h-full md:!max-h-fit md:!flex items-center font-semibold gap-0.5 bg-white dark:bg-slate-800 md:rounded-full
                         absolute top-full left-0 right-0 md:static data-[open=true]:shadow-lg rounded-b-4xl
                         data-[open=true]:starting:max-h-0 data-[open=true]:max-h-96 data-[open=true]:block max-h-0 transition-all hidden overflow-hidden transition-discrete"
           >

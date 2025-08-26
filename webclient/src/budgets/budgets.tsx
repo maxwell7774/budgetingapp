@@ -10,7 +10,12 @@ import {
   SearchIcon,
   TrashIcon,
 } from "../components/ui/icons/index.ts";
-import { Button, Input, Pagination } from "../components/ui/index.ts";
+import {
+  Button,
+  Input,
+  Pagination,
+  ProgressBar,
+} from "../components/ui/index.ts";
 import { useAPICollection } from "../components/api/api.ts";
 import { PlanUsage } from "../components/api/usages.ts";
 import { useMemo } from "react";
@@ -31,7 +36,7 @@ function Budgets() {
   }, [usages]);
 
   if (!collection) {
-    return <div className="animate-pulse">Loading plans...</div>;
+    return null;
   }
 
   if (errored) {
@@ -83,7 +88,7 @@ function Budgets() {
             </div>
             <Input
               id="plan-search"
-              className="ps-10"
+              className="bg-white ps-10"
               name="name"
               placeholder="Search plan name..."
             />
@@ -104,7 +109,7 @@ function Budgets() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-3 gap-8 mb-8">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,1fr))] gap-8 mb-8">
         {collection?._embedded.items.map((plan) => (
           <PlanCard
             key={plan.id}
@@ -172,34 +177,38 @@ function PlanCard({
         >
           {plan.name}
         </Link>
-        <Button variant="ghost" onClick={deletePlan}>
+        <Button variant="ghost" onClick={deletePlan} aria-label="Delete plan">
           <TrashIcon className="size-5" />
         </Button>
       </div>
-
-      {planUsage
-        ? (
-          <div className="mb-6 space-y-2">
-            <p>
-              {formatCurrency(planUsage.net_withdrawal)} /{" "}
-              {formatCurrency(planUsage.target_withdrawal)} Withdrawn
-            </p>
-            <p>
-              {formatCurrency(planUsage.net_deposit)} /{" "}
-              {formatCurrency(planUsage.target_deposit)} Deposited
-            </p>
-            <p>
-              {(() => {
-                const net = planUsage.net_deposit - planUsage.net_withdrawal;
-                return `${formatCurrency(Math.abs(net))} ${
-                  net >= 0 ? "gained" : "lost"
-                }`;
-              })()}
-            </p>
-          </div>
-        )
-        : <p className="mb-6">Loading usage...</p>}
-
+      <div className="mb-6 space-y-4">
+        <div>
+          <p className="text-sm font-bold text-slate-600 dark:text-slate-400 mb-1">
+            Withdrawn
+          </p>
+          <ProgressBar
+            value={planUsage?.net_withdrawal}
+            target={planUsage?.target_withdrawal}
+            label={planUsage
+              ? formatCurrency(planUsage.net_withdrawal) + " / " +
+                formatCurrency(planUsage.target_withdrawal)
+              : ""}
+          />
+        </div>
+        <div>
+          <p className="text-sm font-bold text-slate-600 dark:text-slate-400 mb-1">
+            Deposited
+          </p>
+          <ProgressBar
+            value={planUsage?.net_deposit}
+            target={planUsage?.target_deposit}
+            label={planUsage
+              ? formatCurrency(planUsage.net_deposit) + " / " +
+                formatCurrency(planUsage.target_deposit)
+              : ""}
+          />
+        </div>
+      </div>
       <p className="ms-auto w-fit italic text-sm text-slate-400">
         Updated at {new Date(plan.updated_at).toLocaleString()}
       </p>

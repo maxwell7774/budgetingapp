@@ -137,23 +137,23 @@ func main() {
 				UserID:         u.ID,
 				PlanCategoryID: pc1.ID,
 				Description:    fmt.Sprintf("%s 1st check", u.FirstName),
-				Deposit:        pc1.Deposit / 2,
+				Deposit:        2 * pc1.Deposit / 3,
 				Withdrawal:     0,
 			})
 			if err != nil {
 				log.Fatalf("Couldn't create %s 1st check: %v", u.FirstName, err)
 			}
 
-			_, err = dbQueries.CreateLineItem(context.Background(), database.CreateLineItemParams{
-				UserID:         u.ID,
-				PlanCategoryID: pc1.ID,
-				Description:    fmt.Sprintf("%s 2nd check", u.FirstName),
-				Deposit:        pc1.Deposit / 2,
-				Withdrawal:     0,
-			})
-			if err != nil {
-				log.Fatalf("Couldn't create %s 2nd check: %v", u.FirstName, err)
-			}
+			// _, err = dbQueries.CreateLineItem(context.Background(), database.CreateLineItemParams{
+			// 	UserID:         u.ID,
+			// 	PlanCategoryID: pc1.ID,
+			// 	Description:    fmt.Sprintf("%s 2nd check", u.FirstName),
+			// 	Deposit:        pc1.Deposit / 2,
+			// 	Withdrawal:     0,
+			// })
+			// if err != nil {
+			// 	log.Fatalf("Couldn't create %s 2nd check: %v", u.FirstName, err)
+			// }
 
 			walmartTrip1Withdrawal := int32(len(u.FirstName) * 25)
 			if j == 2 {
