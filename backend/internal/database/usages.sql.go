@@ -129,9 +129,17 @@ SELECT
     END AS net_deposit
 FROM plan_categories
 LEFT JOIN line_items ON line_items.plan_category_id = plan_categories.id
-WHERE plan_categories.plan_id = '2569061a-ecb8-4645-b031-095fb68cc1c1'
+WHERE plan_categories.plan_id = $1
 GROUP BY plan_categories.id, plan_categories.plan_id, plan_categories.name, plan_categories.withdrawal, plan_categories.deposit
+ORDER BY plan_categories.name
+LIMIT $2 OFFSET $3
 `
+
+type GetPlanCategoriesUsageForPlanParams struct {
+	PlanID uuid.UUID
+	Limit  int32
+	Offset int32
+}
 
 type GetPlanCategoriesUsageForPlanRow struct {
 	PlanCategoryID   uuid.UUID
@@ -145,8 +153,8 @@ type GetPlanCategoriesUsageForPlanRow struct {
 	NetDeposit       int32
 }
 
-func (q *Queries) GetPlanCategoriesUsageForPlan(ctx context.Context) ([]GetPlanCategoriesUsageForPlanRow, error) {
-	rows, err := q.db.QueryContext(ctx, getPlanCategoriesUsageForPlan)
+func (q *Queries) GetPlanCategoriesUsageForPlan(ctx context.Context, arg GetPlanCategoriesUsageForPlanParams) ([]GetPlanCategoriesUsageForPlanRow, error) {
+	rows, err := q.db.QueryContext(ctx, getPlanCategoriesUsageForPlan, arg.PlanID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -176,4 +184,70 @@ func (q *Queries) GetPlanCategoriesUsageForPlan(ctx context.Context) ([]GetPlanC
 		return nil, err
 	}
 	return items, nil
+}
+
+const getPlanUsageByID = `-- name: GetPlanUsageByID :one
+WITH plan_sums AS (
+    SELECT
+        plan_categories.id,
+        plan_categories.plan_id,
+        plan_categories.name,
+        plan_categories.withdrawal AS target_withdrawal,
+        plan_categories.deposit AS target_deposit,
+        COALESCE(SUM(line_items.withdrawal), 0)::BIGINT AS actual_withdrawal,
+        COALESCE(SUM(line_items.deposit), 0)::BIGINT AS actual_deposit,
+        CASE
+            WHEN plan_categories.withdrawal > 0 THEN COALESCE(SUM(line_items.withdrawal), 0)::BIGINT - COALESCE(SUM(line_items.deposit), 0)
+            ELSE 0
+        END AS net_withdrawal,
+        CASE
+            WHEN plan_categories.deposit > 0 THEN COALESCE(SUM(line_items.deposit), 0)::BIGINT - COALESCE(SUM(line_items.withdrawal), 0)
+            ELSE 0
+        END AS net_deposit
+    FROM plan_categories
+    LEFT JOIN line_items ON line_items.plan_category_id = plan_categories.id
+    LEFT JOIN plans ON plans.id = plan_categories.plan_id
+    WHERE plan_categories.plan_id = $1
+    GROUP BY plan_categories.id, plan_categories.plan_id, plan_categories.name, plan_categories.withdrawal, plan_categories.deposit
+)
+SELECT
+    plans.id AS plan_id,
+    plans.name AS plan_name,
+    COALESCE(SUM(plan_sums.target_withdrawal), 0)::BIGINT AS target_withdrawal,
+    COALESCE(SUM(plan_sums.target_deposit), 0)::BIGINT AS target_deposit,
+    COALESCE(SUM(plan_sums.actual_withdrawal), 0)::BIGINT AS actual_withdrawal,
+    COALESCE(SUM(plan_sums.actual_deposit), 0)::BIGINT AS actual_deposit,
+    COALESCE(SUM(plan_sums.net_withdrawal), 0)::BIGINT AS net_withdrawal,
+    COALESCE(SUM(plan_sums.net_deposit), 0)::BIGINT AS net_deposit
+FROM plans
+LEFT JOIN plan_sums ON plan_sums.plan_id = plans.id
+WHERE plans.id = $1
+GROUP BY plans.id, plans.name
+`
+
+type GetPlanUsageByIDRow struct {
+	PlanID           uuid.UUID
+	PlanName         string
+	TargetWithdrawal int64
+	TargetDeposit    int64
+	ActualWithdrawal int64
+	ActualDeposit    int64
+	NetWithdrawal    int64
+	NetDeposit       int64
+}
+
+func (q *Queries) GetPlanUsageByID(ctx context.Context, id uuid.UUID) (GetPlanUsageByIDRow, error) {
+	row := q.db.QueryRowContext(ctx, getPlanUsageByID, id)
+	var i GetPlanUsageByIDRow
+	err := row.Scan(
+		&i.PlanID,
+		&i.PlanName,
+		&i.TargetWithdrawal,
+		&i.TargetDeposit,
+		&i.ActualWithdrawal,
+		&i.ActualDeposit,
+		&i.NetWithdrawal,
+		&i.NetDeposit,
+	)
+	return i, err
 }

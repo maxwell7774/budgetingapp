@@ -79,6 +79,12 @@ func (cfg *APIConfig) HandlerPlanCategoriesGet(w http.ResponseWriter, r *http.Re
 	respondWithCollection(w, http.StatusOK, Collection{
 		Self:       r.URL,
 		Pagination: pagination,
+		Links: map[string]Link{
+			"create": {
+				Href:   r.URL.Path,
+				Method: "POST",
+			},
+		},
 		Embedded: Embedded{
 			Items: planCats,
 		},

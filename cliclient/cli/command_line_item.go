@@ -122,7 +122,6 @@ func commandCreateLineItem(cfg *config, args ...string) error {
 	category := categories[categoryIndex]
 
 	params := api.CreateLineItemParams{
-		PlanID:         category.PlanID,
 		PlanCategoryID: category.ID,
 	}
 

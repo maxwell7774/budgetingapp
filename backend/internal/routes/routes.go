@@ -24,13 +24,15 @@ func NewRouter(db *database.Queries, jwtSecret string) *http.ServeMux {
 	mux.HandleFunc("POST /api/v1/plans", apiConfig.HandlerPlanCreate)
 	mux.HandleFunc("PUT /api/v1/plans/{id}", apiConfig.HandlerPlanUpdateName)
 	mux.HandleFunc("DELETE /api/v1/plans/{id}", apiConfig.HandlerPlanDelete)
-	mux.HandleFunc("GET /api/v1/plans/usage", apiConfig.HandlerPlansUsage)
+	mux.HandleFunc("GET /api/v1/plans/{id}/usage", apiConfig.HandlerGetPlanUsage)
+	mux.HandleFunc("GET /api/v1/plans/usage", apiConfig.HandlerGetAllPlanUsagesForOwner)
 
 	mux.HandleFunc("GET /api/v1/plan-categories", apiConfig.HandlerPlanCategoriesGet)
 	mux.HandleFunc("GET /api/v1/plan-categories/{id}", apiConfig.HandlerPlanCategoryGetByID)
 	mux.HandleFunc("POST /api/v1/plan-categories", apiConfig.HandlerPlanCategoryCreate)
 	mux.HandleFunc("PUT /api/v1/plan-categories/{id}", apiConfig.HandlerPlanCategoryUpdate)
 	mux.HandleFunc("DELETE /api/v1/plan-categories/{id}", apiConfig.HandlerPlanCategoryDelete)
+	mux.HandleFunc("GET /api/v1/plan-categories/usage", apiConfig.HandlerGetPlanCategoriesUsageForPlan)
 
 	mux.HandleFunc("GET /api/v1/line-items", apiConfig.HandlerLineItemsGet)
 	mux.HandleFunc("GET /api/v1/line-items/{id}", apiConfig.HandlerLineItemGetByID)

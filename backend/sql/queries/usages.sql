@@ -17,8 +17,10 @@ SELECT
     END AS net_deposit
 FROM plan_categories
 LEFT JOIN line_items ON line_items.plan_category_id = plan_categories.id
-WHERE plan_categories.plan_id = '2569061a-ecb8-4645-b031-095fb68cc1c1'
-GROUP BY plan_categories.id, plan_categories.plan_id, plan_categories.name, plan_categories.withdrawal, plan_categories.deposit;
+WHERE plan_categories.plan_id = $1
+GROUP BY plan_categories.id, plan_categories.plan_id, plan_categories.name, plan_categories.withdrawal, plan_categories.deposit
+ORDER BY plan_categories.name
+LIMIT $2 OFFSET $3;
 
 -- name: GetAllPlanUsagesForOwnerID :many
 WITH plan_sums AS (
@@ -62,7 +64,7 @@ GROUP BY plans.id, plans.name
 ORDER BY plans.name
 LIMIT $2 OFFSET $3;
 
--- GetPlanUsagesByID :one
+-- name: GetPlanUsageByID :one
 WITH plan_sums AS (
     SELECT
         plan_categories.id,
@@ -83,11 +85,12 @@ WITH plan_sums AS (
     FROM plan_categories
     LEFT JOIN line_items ON line_items.plan_category_id = plan_categories.id
     LEFT JOIN plans ON plans.id = plan_categories.plan_id
-    WHERE plan_categories.plan_id = '2569061a-ecb8-4645-b031-095fb68cc1c1'
+    WHERE plan_categories.plan_id = $1
     GROUP BY plan_categories.id, plan_categories.plan_id, plan_categories.name, plan_categories.withdrawal, plan_categories.deposit
 )
 SELECT
     plans.id AS plan_id,
+    plans.name AS plan_name,
     COALESCE(SUM(plan_sums.target_withdrawal), 0)::BIGINT AS target_withdrawal,
     COALESCE(SUM(plan_sums.target_deposit), 0)::BIGINT AS target_deposit,
     COALESCE(SUM(plan_sums.actual_withdrawal), 0)::BIGINT AS actual_withdrawal,
@@ -96,5 +99,5 @@ SELECT
     COALESCE(SUM(plan_sums.net_deposit), 0)::BIGINT AS net_deposit
 FROM plans
 LEFT JOIN plan_sums ON plan_sums.plan_id = plans.id
-WHERE plans.id = '2569061a-ecb8-4645-b031-095fb68cc1c1'
+WHERE plans.id = $1
 GROUP BY plans.id, plans.name;
