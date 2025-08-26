@@ -80,10 +80,8 @@ func (cfg *APIConfig) HandlerPlanCategoriesGet(w http.ResponseWriter, r *http.Re
 		Self:       r.URL,
 		Pagination: pagination,
 		Links: map[string]Link{
-			"create": {
-				Href:   r.URL.Path,
-				Method: "POST",
-			},
+			"create": {Href: r.URL.Path, Method: "POST"},
+			"usage":  {Href: r.URL.Path + "/usage?plan_id=" + planID.String()},
 		},
 		Embedded: Embedded{
 			Items: planCats,
