@@ -82,6 +82,10 @@ func (cfg *APIConfig) HandlerGetAllPlanUsagesForOwner(w http.ResponseWriter, r *
 		Self:       r.URL,
 		Links: map[string]Link{
 			"plans": {Href: "/api/v1/plans"},
+			"filter": {
+				Href:      r.URL.Path + "{?search,sort_col,sort_dir}",
+				Templated: true,
+			},
 		},
 		Embedded: Embedded{
 			Items: plansUsage,

@@ -5,6 +5,7 @@ export * from "./double-chevron-left.tsx";
 export * from "./double-chevron-right.tsx";
 export * from "./ellipsis.tsx";
 export * from "./moon.tsx";
+export * from "./loader.tsx";
 export * from "./search.tsx";
 export * from "./sun.tsx";
 export * from "./trash.tsx";

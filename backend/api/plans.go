@@ -86,6 +86,9 @@ func (cfg *APIConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Req
 				Href:   r.URL.Path,
 				Method: "POST",
 			},
+			"usage": {
+				Href: r.URL.Path + "/usage?" + r.URL.Query().Encode(),
+			},
 		},
 	})
 }

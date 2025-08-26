@@ -101,6 +101,7 @@ SELECT id, owner_id, name, created_at, updated_at
 FROM plans
 WHERE owner_id = $1
 AND name ILIKE '%' || $4 || '%'
+ORDER BY plans.created_at
 LIMIT $2 OFFSET $3
 `
 

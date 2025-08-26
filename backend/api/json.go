@@ -138,12 +138,6 @@ func (c *Collection) GenerateLinks() {
 		addLink("next", c.Page+1, Link{})
 		addLink("last", c.TotalPages, Link{})
 	}
-
-	/*
-		for key, val := range c.Links {
-			addLink(key, c.Page, val)
-		}
-	*/
 }
 
 type ErrorResponse struct {

@@ -1,16 +1,17 @@
-import { Collection, Link, Resource } from "../api/links.ts";
+import { Collection, Resource } from "../api/links.ts";
 import { ChevronRightIcon } from "./icons/chevron-right.tsx";
 import { DoubleChevronRightIcon } from "./icons/double-chevron-right.tsx";
 import { ChevronLeftIcon, DoubleChevronLeftIcon } from "./icons/index.ts";
 import { Button } from "./index.ts";
 
 interface Props<T extends Resource> {
-  collection: Collection<T>;
-  selectLink: (name: string) => void;
+  collection?: Collection<T>;
+  selectLink?: (name: string) => void;
 }
 export function Pagination<T extends Resource>(
   { collection, selectLink }: Props<T>,
 ) {
+  if (!collection || !selectLink) return null;
   return (
     <div className="flex items-center gap-1">
       {collection.page_size < collection.total_items

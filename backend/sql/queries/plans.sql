@@ -3,6 +3,7 @@ SELECT *
 FROM plans
 WHERE owner_id = $1
 AND name ILIKE '%' || sqlc.arg(keyword) || '%'
+ORDER BY plans.created_at
 LIMIT $2 OFFSET $3;
 
 -- name: CountPlansForOwner :one

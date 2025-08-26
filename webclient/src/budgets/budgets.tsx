@@ -5,63 +5,84 @@ import {
   usePlans,
 } from "../components/api/plans.ts";
 import { Link } from "react-router";
-import { SearchIcon } from "../components/ui/icons/index.ts";
-import { Button, Input } from "../components/ui/index.ts";
-import { Pagination } from "../components/ui/pagination.tsx";
-import { TrashIcon } from "../components/ui/icons/trash.tsx";
+import {
+  LoaderIcon,
+  SearchIcon,
+  TrashIcon,
+} from "../components/ui/icons/index.ts";
+import { Button, Input, Pagination } from "../components/ui/index.ts";
+import { useAPICollection } from "../components/api/api.ts";
+import { PlanUsage } from "../components/api/usages.ts";
+import { useMemo } from "react";
 
 function Budgets() {
-  const { collection, selectLink, refetch } = usePlans();
+  const { collection, selectLink, refetch, fetching, errored } = usePlans();
   const createPlan = useCreatePlan(collection?._links["create"]);
+  const { collection: usages } = useAPICollection<PlanUsage>(
+    collection?._links["usage"],
+  );
+
+  const planUsages = useMemo(() => {
+    const map: Record<string, PlanUsage> = {};
+    usages?._embedded.items.forEach((i) => {
+      map[i.plan_id] = i;
+    });
+    return map;
+  }, [usages]);
 
   if (!collection) {
-    return <div className="animate-puse">Loading plans...</div>;
+    return <div className="animate-pulse">Loading plans...</div>;
   }
 
-  const handleSubmit = async function (e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const formData = new FormData(form);
+  if (errored) {
+    return <div className="text-red-500">Failed to load plans.</div>;
+  }
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
     const planName = formData.get("plan_name") as string;
 
-    await createPlan.mutate(
-      {
-        updatedDat: {
-          name: planName,
-        },
+    try {
+      await createPlan.mutate({
+        updatedDat: { name: planName },
         callback: refetch,
-      },
-    );
-
-    if (createPlan.errored) {
-      return;
+      });
+      e.currentTarget.reset();
+    } catch {
+      // errors should be surfaced in createPlan.errored as well
     }
-    form.reset();
   };
 
-  const handleSearch = function (e: React.FormEvent<HTMLFormElement>) {
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const name = formData.get("name") as string;
-    selectLink("filter", { "search": [name] });
+    selectLink("filter", { search: [name] });
   };
+
+  const formatCurrency = (val: number) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(val);
 
   return (
     <div>
       <div className="flex justify-between text-slate-500 dark:text-slate-300 items-end">
-        <h1 className="font-bold mb-2">
-          Budget Plans
-        </h1>
-        <form
-          onSubmit={handleSearch}
-          className="flex items-center gap-2 mb-3"
-        >
+        <h1 className="font-bold mb-2">Budget Plans</h1>
+        <form onSubmit={handleSearch} className="flex items-center gap-2 mb-3">
           <div className="relative max-w-96 w-full">
+            <label htmlFor="plan-search" className="sr-only">
+              Search plan name
+            </label>
             <div className="absolute left-3 w-5 h-full grid place-content-center">
-              <SearchIcon className="w-full" />
+              {fetching
+                ? <LoaderIcon className="animate-spin w-full" />
+                : <SearchIcon className="w-full" />}
             </div>
             <Input
+              id="plan-search"
               className="ps-10"
               name="name"
               placeholder="Search plan name..."
@@ -70,28 +91,52 @@ function Budgets() {
           <Button variant="outline">Search</Button>
         </form>
       </div>
+
       <div className="ms-auto my-8 w-max">
-        <Button>New Plan</Button>
+        {/* Could scroll into view of the form, or open a modal */}
+        <Button
+          onClick={() =>
+            document.getElementById("create-plan-form")?.scrollIntoView({
+              behavior: "smooth",
+            })}
+        >
+          New Plan
+        </Button>
       </div>
+
       <div className="grid grid-cols-3 gap-8 mb-8">
-        {collection._embedded.items.map((plan) => (
-          <PlanCard key={plan.id} plan={plan} refetchCollection={refetch} />
+        {collection?._embedded.items.map((plan) => (
+          <PlanCard
+            key={plan.id}
+            plan={plan}
+            planUsage={planUsages[plan.id]}
+            refetchCollection={refetch}
+            formatCurrency={formatCurrency}
+          />
         ))}
       </div>
+
       <Pagination collection={collection} selectLink={selectLink} />
+
       <form
+        id="create-plan-form"
         onSubmit={handleSubmit}
         className="bg-white dark:bg-slate-800 shadow-md mx-auto max-w-xl p-10 rounded-3xl space-y-8 mt-32"
       >
         <h2 className="text-lg font-bold text-indigo-500">Create Plan</h2>
-        <label className="block mb-1 font-bold text-slate-800 dark:text-slate-200">
+        <label
+          htmlFor="plan-name"
+          className="block mb-1 font-bold text-slate-800 dark:text-slate-200"
+        >
           Plan Name
         </label>
         <Input
+          id="plan-name"
           name="plan_name"
           type="text"
           className="dark:bg-slate-900"
           placeholder="type here..."
+          required
         />
         <Button type="submit">Add Plan</Button>
       </form>
@@ -101,19 +146,26 @@ function Budgets() {
 
 interface PlanCardProps {
   plan: Plan;
+  planUsage?: PlanUsage;
   refetchCollection: () => void;
+  formatCurrency: (val: number) => string;
 }
 
-function PlanCard({ plan, refetchCollection }: PlanCardProps) {
+function PlanCard({
+  plan,
+  planUsage,
+  refetchCollection,
+  formatCurrency,
+}: PlanCardProps) {
   const { mutate } = useDeletePlan(plan._links["delete"]);
 
-  const deletePlan = async function () {
+  const deletePlan = async () => {
     await mutate({ callback: refetchCollection });
   };
 
   return (
     <div className="p-8 bg-white dark:bg-slate-800 shadow-md rounded-3xl">
-      <div className="mb-16 flex items-baseline justify-between gap-3">
+      <div className="mb-6 flex items-baseline justify-between gap-3">
         <Link
           to={`/budgets/${plan.id}`}
           className="text-indigo-500 text-lg font-bold hover:opacity-80 active:opacity-60 transition-opacity"
@@ -124,6 +176,30 @@ function PlanCard({ plan, refetchCollection }: PlanCardProps) {
           <TrashIcon className="size-5" />
         </Button>
       </div>
+
+      {planUsage
+        ? (
+          <div className="mb-6 space-y-2">
+            <p>
+              {formatCurrency(planUsage.net_withdrawal)} /{" "}
+              {formatCurrency(planUsage.target_withdrawal)} Withdrawn
+            </p>
+            <p>
+              {formatCurrency(planUsage.net_deposit)} /{" "}
+              {formatCurrency(planUsage.target_deposit)} Deposited
+            </p>
+            <p>
+              {(() => {
+                const net = planUsage.net_deposit - planUsage.net_withdrawal;
+                return `${formatCurrency(Math.abs(net))} ${
+                  net >= 0 ? "gained" : "lost"
+                }`;
+              })()}
+            </p>
+          </div>
+        )
+        : <p className="mb-6">Loading usage...</p>}
+
       <p className="ms-auto w-fit italic text-sm text-slate-400">
         Updated at {new Date(plan.updated_at).toLocaleString()}
       </p>

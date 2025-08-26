@@ -51,7 +51,7 @@ LEFT JOIN plan_sums ON plan_sums.plan_id = plans.id
 WHERE plans.owner_id = $1
   AND plans.name ILIKE '%' || $4 || '%'
 GROUP BY plans.id, plans.name
-ORDER BY plans.name
+ORDER BY plans.created_at
 LIMIT $2 OFFSET $3
 `
 

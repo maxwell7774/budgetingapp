@@ -30,9 +30,9 @@ useEffect(() => {
 }, [link]);
 */
 export function useAPIResource<T extends Resource>(
-  initialLink: Link,
+  initialLink?: Link,
 ) {
-  const [link, setLink] = useState<Link>(initialLink);
+  const [link, setLink] = useState<Link | undefined>(initialLink);
   const [resource, setResource] = useState<T | undefined>(
     undefined,
   );
@@ -87,6 +87,7 @@ export function useAPIResource<T extends Resource>(
   };
 
   useEffect(() => {
+    if (!link) return;
     setFetching(true);
     setErrored(false);
     fetch(link.href, {
@@ -118,9 +119,9 @@ export function useAPIResource<T extends Resource>(
 }
 
 export function useAPICollection<T extends Resource>(
-  initialLink: Link,
+  initialLink?: Link,
 ) {
-  const [link, setLink] = useState<Link>(initialLink);
+  const [link, setLink] = useState<Link | undefined>(initialLink);
   const [collection, setCollection] = useState<Collection<T> | undefined>(
     undefined,
   );
@@ -128,6 +129,10 @@ export function useAPICollection<T extends Resource>(
   const [errored, setErrored] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const auth = useAuth();
+
+  useEffect(() => {
+    setLink(initialLink);
+  }, [initialLink]);
 
   const selectLink = function (
     name: string,
@@ -175,6 +180,7 @@ export function useAPICollection<T extends Resource>(
   };
 
   useEffect(() => {
+    if (!link) return;
     setFetching(true);
     setErrored(false);
     fetch(link.href, {
