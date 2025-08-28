@@ -87,6 +87,10 @@ export function useAPIResource<T extends Resource>(
   };
 
   useEffect(() => {
+    setLink(initialLink);
+  }, [initialLink]);
+
+  useEffect(() => {
     if (!link) return;
     setFetching(true);
     setErrored(false);

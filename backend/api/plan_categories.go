@@ -24,6 +24,7 @@ type PlanCategory struct {
 func (p *PlanCategory) GenerateLinks() {
 	self := "/api/v1/plan-categories/" + p.ID.String()
 	p.Links = DefaultLinks(self)
+	p.Links["line_items"] = Link{Href: "/api/v1/line-items?category_id=" + p.ID.String()}
 }
 
 func (cfg *APIConfig) HandlerPlanCategoriesGet(w http.ResponseWriter, r *http.Request) {

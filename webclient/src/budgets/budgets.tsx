@@ -18,7 +18,7 @@ import {
 } from "../components/ui/index.ts";
 import { useAPICollection } from "../components/api/api.ts";
 import { PlanUsage } from "../components/api/usages.ts";
-import { useMemo } from "react";
+import { formatCurrency } from "../utils/index.ts";
 
 function Budgets() {
   const { collection, selectLink, refetch, fetching, errored } = usePlans();
@@ -27,13 +27,10 @@ function Budgets() {
     collection?._links["usage"],
   );
 
-  const planUsages = useMemo(() => {
-    const map: Record<string, PlanUsage> = {};
-    usages?._embedded.items.forEach((i) => {
-      map[i.plan_id] = i;
-    });
-    return map;
-  }, [usages]);
+  const planUsages: Record<string, PlanUsage> = {};
+  usages?._embedded.items.forEach((i) => {
+    planUsages[i.plan_id] = i;
+  });
 
   if (!collection) {
     return null;
@@ -65,12 +62,6 @@ function Budgets() {
     const name = formData.get("name") as string;
     selectLink("filter", { search: [name] });
   };
-
-  const formatCurrency = (val: number) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(val);
 
   return (
     <div>
@@ -116,7 +107,6 @@ function Budgets() {
             plan={plan}
             planUsage={planUsages[plan.id]}
             refetchCollection={refetch}
-            formatCurrency={formatCurrency}
           />
         ))}
       </div>
@@ -153,14 +143,12 @@ interface PlanCardProps {
   plan: Plan;
   planUsage?: PlanUsage;
   refetchCollection: () => void;
-  formatCurrency: (val: number) => string;
 }
 
 function PlanCard({
   plan,
   planUsage,
   refetchCollection,
-  formatCurrency,
 }: PlanCardProps) {
   const { mutate } = useDeletePlan(plan._links["delete"]);
 
