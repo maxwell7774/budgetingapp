@@ -1,13 +1,22 @@
-import { useState } from "react";
+import { FormEventHandler, useState } from "react";
 import { useParams } from "react-router";
 import { usePlan } from "../../components/api/plans.ts";
 import {
   PlanCategory,
   usePlanCategories,
 } from "../../components/api/plan-categories.ts";
-import { Button, ProgressBar } from "../../components/ui/index.ts";
+import {
+  Button,
+  Input,
+  ProgressBar,
+  Select,
+} from "../../components/ui/index.ts";
 import { ChevronDownIcon } from "../../components/ui/icons/chevron-down.tsx";
-import { useAPICollection, useAPIResource } from "../../components/api/api.ts";
+import {
+  useAPICollection,
+  useAPIMutation,
+  useAPIResource,
+} from "../../components/api/api.ts";
 import { PlanCategoryUsage, PlanUsage } from "../../components/api/usages.ts";
 import { formatCurrency } from "../../utils/index.ts";
 import { LineItem } from "../../components/api/line-items.ts";
@@ -19,19 +28,43 @@ function BudgetDetails() {
   if (!id) {
     return null;
   }
+  const [newCategoryType, setNewCategoryType] = useState<string>("");
   const { resource: plan } = usePlan(id);
-  const { collection: planCategories } = usePlanCategories(id);
+  const { collection: planCategories, refetch: refetchPlanCategories } =
+    usePlanCategories(id);
   const { resource: planUsage } = useAPIResource<PlanUsage>(
     plan?._links["usage"],
   );
   const { collection: usages } = useAPICollection<PlanCategoryUsage>(
     plan?._links["plan_categories_usage"],
   );
+  const { mutate } = useAPIMutation<PlanCategory>(
+    planCategories?._links["create"],
+  );
 
   const categoryUsages: Record<string, PlanCategoryUsage> = {};
   usages?._embedded.items.forEach((i) => {
     categoryUsages[i.plan_category_id] = i;
   });
+
+  const handleSubmitNewCategory = async function (
+    e: React.FormEvent<HTMLFormElement>,
+  ) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+    const amount = Number(formData.get("amount") as string);
+
+    const newCategory = await mutate({
+      updatedDat: {
+        name: name,
+        plan_id: plan?.id,
+        deposit: newCategoryType === "deposit" ? amount : 0,
+        withdrawal: newCategoryType === "withdrawal" ? amount : 0,
+      },
+      callback: refetchPlanCategories,
+    });
+  };
 
   return (
     <div>
@@ -64,6 +97,36 @@ function BudgetDetails() {
             : ""}
         />
       </div>
+      <form
+        className="flex justify-between gap-4"
+        onSubmit={handleSubmitNewCategory}
+      >
+        <div>
+          <label>Category Name</label>
+          <Input name="name" type="text" placeholder="type text here..." />
+        </div>
+        <div>
+          <label>Amount</label>
+          <Input name="amount" type="number" placeholder="type text here..." />
+        </div>
+        <div>
+          <label>Type</label>
+          <div>
+            <Select
+              onChange={(newValue: string | number) =>
+                setNewCategoryType(newValue as string)}
+              value={newCategoryType}
+              options={[
+                { label: "Deposit", value: "deposit" },
+                { label: "Withdrawal", value: "withdrawal" },
+              ]}
+            />
+          </div>
+        </div>
+        <div className="mt-auto">
+          <Button type="submit">Add Category</Button>
+        </div>
+      </form>
       <ul className="my-8 space-y-8">
         {planCategories?._embedded.items.map((c) => (
           <PlanCategoryItem
