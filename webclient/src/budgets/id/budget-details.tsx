@@ -165,28 +165,43 @@ function PlanCategoryItem({ planCategory, usage }: PlanCategoryItemProps) {
                     Loading line items...
                   </p>
                 )}
-                <table className="w-full">
-                  <thead>
-                    <tr>
-                      <th className="w-full p-4">DESCRIPTION</th>
-                      <th className="p-4">DEPOSIT</th>
-                      <th className="p-4">WITHDRAWAL</th>
-                      <th className="p-4">DATE</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {lineItems?._embedded.items?.map((l) => (
-                      <tr key={l.id}>
-                        <td className="w-full p-4">{l.description}</td>
-                        <td className="p-4">{formatCurrency(l.deposit)}</td>
-                        <td className="p-4">{formatCurrency(l.withdrawal)}</td>
-                        <td className="p-4 text-nowrap">
-                          {(new Date(l.created_at)).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                {lineItems &&
+                  (
+                    <table className="w-full">
+                      <thead>
+                        <tr className="text-xs font-bold tracking-wide text-slate-600 dark:text-slate-400">
+                          <th className="w-full p-4">DESCRIPTION</th>
+                          <th className="p-4">DEPOSIT</th>
+                          <th className="p-4">WITHDRAWAL</th>
+                          <th className="p-4">DATE</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {lineItems._embedded.items?.map((l) => (
+                          <tr key={l.id}>
+                            <td className="w-full p-4">{l.description}</td>
+                            <td
+                              className={`p-4 ${
+                                l.deposit > 0 && "text-lime-600"
+                              }`}
+                            >
+                              {formatCurrency(l.deposit)}
+                            </td>
+                            <td
+                              className={`p-4 ${
+                                l.withdrawal > 0 && "text-red-600"
+                              }`}
+                            >
+                              {formatCurrency(l.withdrawal)}
+                            </td>
+                            <td className="p-4 text-nowrap">
+                              {(new Date(l.created_at)).toLocaleDateString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
               </div>
             </div>
           </div>
