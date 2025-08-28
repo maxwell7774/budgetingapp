@@ -165,9 +165,28 @@ function PlanCategoryItem({ planCategory, usage }: PlanCategoryItemProps) {
                     Loading line items...
                   </p>
                 )}
-                {lineItems?._embedded.items?.map((l) => (
-                  <p key={l.id}>{l.description}</p>
-                ))}
+                <table className="w-full">
+                  <thead>
+                    <tr>
+                      <th className="w-full p-4">DESCRIPTION</th>
+                      <th className="p-4">DEPOSIT</th>
+                      <th className="p-4">WITHDRAWAL</th>
+                      <th className="p-4">DATE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lineItems?._embedded.items?.map((l) => (
+                      <tr key={l.id}>
+                        <td className="w-full p-4">{l.description}</td>
+                        <td className="p-4">{formatCurrency(l.deposit)}</td>
+                        <td className="p-4">{formatCurrency(l.withdrawal)}</td>
+                        <td className="p-4 text-nowrap">
+                          {(new Date(l.created_at)).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
