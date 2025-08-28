@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router";
 import { usePlan } from "../../components/api/plans.ts";
 import {
@@ -10,7 +10,7 @@ import { ChevronDownIcon } from "../../components/ui/icons/chevron-down.tsx";
 import { useAPICollection, useAPIResource } from "../../components/api/api.ts";
 import { PlanCategoryUsage, PlanUsage } from "../../components/api/usages.ts";
 import { formatCurrency } from "../../utils/index.ts";
-import { LineItem, useLineItems } from "../../components/api/line-items.ts";
+import { LineItem } from "../../components/api/line-items.ts";
 import { Link } from "../../components/api/links.ts";
 import { LoaderIcon } from "../../components/ui/icons/loader.tsx";
 
@@ -27,7 +27,6 @@ function BudgetDetails() {
   const { collection: usages } = useAPICollection<PlanCategoryUsage>(
     plan?._links["plan_categories_usage"],
   );
-  //const { collection: lineItems } = useLineItems(id);
 
   const categoryUsages: Record<string, PlanCategoryUsage> = {};
   usages?._embedded.items.forEach((i) => {
@@ -65,17 +64,6 @@ function BudgetDetails() {
             : ""}
         />
       </div>
-      {/* <form className="flex gap-8"> */}
-      {/*   <Input /> */}
-      {/*   <Select */}
-      {/*     options={planCategories?._embedded.items.map((p) => { */}
-      {/*       return { label: p.name, value: p.id }; */}
-      {/*     })} */}
-      {/*     value={value} */}
-      {/*     onChange={setValue} */}
-      {/*   /> */}
-      {/*   <Button>Add</Button> */}
-      {/* </form> */}
       <ul className="my-8 space-y-8">
         {planCategories?._embedded.items.map((c) => (
           <PlanCategoryItem
@@ -105,7 +93,7 @@ function PlanCategoryItem({ planCategory, usage }: PlanCategoryItemProps) {
   >(lineItemsLink);
 
   return (
-    <li className="bg-white dark:bg-slate-800 rounded-3xl p-8 hover:bg-slate-200 hover:dark:bg-slate-900 transition-colors hover:cursor-pointer">
+    <li className="bg-white dark:bg-slate-800 rounded-3xl p-8">
       <div>
         <h2 className="font-bold text-indigo-500 text-lg mb-6">
           {planCategory.name}
