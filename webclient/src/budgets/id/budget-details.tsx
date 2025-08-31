@@ -1,4 +1,4 @@
-import { FormEventHandler, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router";
 import { usePlan } from "../../components/api/plans.ts";
 import {
@@ -55,7 +55,7 @@ function BudgetDetails() {
     const name = formData.get("name") as string;
     const amount = Number(formData.get("amount") as string);
 
-    const newCategory = await mutate({
+    await mutate({
       updatedDat: {
         name: name,
         plan_id: plan?.id,
