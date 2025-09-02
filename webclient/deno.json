@@ -16,6 +16,10 @@
       "dom.iterable",
       "deno.ns"
     ],
+    "imports": {
+        "@": "./src",
+        "@/": "./src/"
+    },
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
