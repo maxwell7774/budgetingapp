@@ -113,7 +113,40 @@ function BudgetDetails() {
           <DialogHeader>
             <DialogTitle>Hello</DialogTitle>
           </DialogHeader>
-          <DialogDescription>Hello there</DialogDescription>
+          <form
+            className="space-y-8"
+            onSubmit={handleSubmitNewCategory}
+          >
+            <div>
+              <label>Category Name</label>
+              <Input name="name" type="text" placeholder="type text here..." />
+            </div>
+            <div>
+              <label>Amount</label>
+              <Input
+                name="amount"
+                type="number"
+                placeholder="type text here..."
+              />
+            </div>
+            <div>
+              <label>Type</label>
+              <div>
+                <Select
+                  onChange={(newValue: string | number) =>
+                    setNewCategoryType(newValue as string)}
+                  value={newCategoryType}
+                  options={[
+                    { label: "Deposit", value: "deposit" },
+                    { label: "Withdrawal", value: "withdrawal" },
+                  ]}
+                />
+              </div>
+            </div>
+            <div className="mt-auto">
+              <Button type="submit">Add Category</Button>
+            </div>
+          </form>
           <DialogFooter>
             <DialogClose asChild>
               <Button>Close</Button>
@@ -121,40 +154,6 @@ function BudgetDetails() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <form
-        className="flex justify-between gap-4"
-        onSubmit={handleSubmitNewCategory}
-      >
-        <div>
-          <label>Category Name</label>
-          <Input name="name" type="text" placeholder="type text here..." />
-        </div>
-        <div>
-          <label>Amount</label>
-          <Input
-            name="amount"
-            type="number"
-            placeholder="type text here..."
-          />
-        </div>
-        <div>
-          <label>Type</label>
-          <div>
-            <Select
-              onChange={(newValue: string | number) =>
-                setNewCategoryType(newValue as string)}
-              value={newCategoryType}
-              options={[
-                { label: "Deposit", value: "deposit" },
-                { label: "Withdrawal", value: "withdrawal" },
-              ]}
-            />
-          </div>
-        </div>
-        <div className="mt-auto">
-          <Button type="submit">Add Category</Button>
-        </div>
-      </form>
       <ul className="my-8 space-y-8">
         {planCategories?._embedded.items.map((c) => (
           <PlanCategoryItem
