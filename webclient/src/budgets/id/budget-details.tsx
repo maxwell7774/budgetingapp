@@ -7,6 +7,7 @@ import {
 } from "../../components/api/plan-categories.ts";
 import {
   Button,
+  Dialog,
   Input,
   ProgressBar,
   Select,
@@ -22,6 +23,7 @@ import { formatCurrency } from "../../utils/index.ts";
 import { LineItem } from "../../components/api/line-items.ts";
 import { Link } from "../../components/api/links.ts";
 import { LoaderIcon } from "../../components/ui/icons/loader.tsx";
+import { DialogOverlay, DialogTrigger } from "../../components/ui/dialog.tsx";
 
 function BudgetDetails() {
   const { id } = useParams();
@@ -97,6 +99,13 @@ function BudgetDetails() {
             : ""}
         />
       </div>
+
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button>Open</Button>
+        </DialogTrigger>
+        <DialogOverlay></DialogOverlay>
+      </Dialog>
       <form
         className="flex justify-between gap-4"
         onSubmit={handleSubmitNewCategory}
@@ -107,7 +116,11 @@ function BudgetDetails() {
         </div>
         <div>
           <label>Amount</label>
-          <Input name="amount" type="number" placeholder="type text here..." />
+          <Input
+            name="amount"
+            type="number"
+            placeholder="type text here..."
+          />
         </div>
         <div>
           <label>Type</label>

@@ -1,51 +1,41 @@
-import { ReactNode, useEffect, useRef } from "react";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 
-interface DialogProps {
-  open: boolean;
-  onClose: () => void;
-  children: ReactNode;
+function Dialog({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Root>) {
+  return <DialogPrimitive.Root data-slot="dialog" {...props} />;
 }
 
-export function Dialog({ open, onClose, children }: DialogProps) {
-  const ref = useRef<HTMLDialogElement>(null);
+function DialogTrigger({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
+  return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
+}
 
-  // Open / close based on the `open` prop
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
+function DialogPortal({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Portal>) {
+  return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
+}
 
-    if (open) {
-      if (!element.open) {
-        element.showModal();
-      }
-    } else {
-      if (element.open) {
-        element.close();
-      }
-    }
-  }, [open]);
+function DialogClose({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Close>) {
+  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
+}
 
-  // Close when user clicks outside or presses Esc
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-
-    const handleClose = () => {
-      onClose();
-    };
-
-    element.addEventListener("close", handleClose);
-    return () => {
-      element.removeEventListener("close", handleClose);
-    };
-  }, [onClose]);
-
+function DialogOverlay({
+  className,
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Overlay>) {
   return (
-    <dialog
-      ref={ref}
-      className="rounded-xl p-6 shadow-2xl backdrop:bg-black/50"
-    >
-      {children}
-    </dialog>
+    <DialogPrimitive.Overlay
+      data-slot="dialog-overlay"
+      className={`data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0
+                    data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50 ${className}`}
+      {...props}
+    />
   );
 }
+
+export { Dialog, DialogClose, DialogOverlay, DialogPortal, DialogTrigger };

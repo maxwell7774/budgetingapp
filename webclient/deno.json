@@ -1,34 +1,35 @@
 {
-  "tasks": {
-    "dev": "deno run -A npm:vite",
-    "build": "deno run -A npm:vite build"
-    "preview": "deno run -A npm:vite preview"
-  },
-  "nodeModulesDir": "auto",
-  "compilerOptions": {
-    "types": [
-      "react",
-      "react-dom",
-      "@types/react"
-    ],
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "deno.ns"
-    ],
-    "jsx": "react-jsx",
-    "jsxImportSource": "react"
-  },
-  "imports": {
-    "@std/assert": "jsr:@std/assert@1",
-    "@tailwindcss/vite": "npm:@tailwindcss/vite@^4.1.11",
-    "@types/react": "npm:@types/react@^19.1.8",
-    "@types/react-dom": "npm:@types/react-dom@^19.1.6",
-    "@vitejs/plugin-react": "npm:@vitejs/plugin-react@^4.6.0",
-    "react": "npm:react@^19.1.0",
-    "react-dom": "npm:react-dom@^19.1.0",
-    "react-router": "npm:react-router@^7.7.0",
-    "tailwindcss": "npm:tailwindcss@^4.1.11",
-    "vite": "npm:vite@^7.0.4"
-  }
+    "tasks": {
+        "dev": "deno run -A npm:vite",
+        "build": "deno run -A npm:vite build",
+        "preview": "deno run -A npm:vite preview"
+    },
+    "nodeModulesDir": "auto",
+    "compilerOptions": {
+        "types": [
+            "react",
+            "react-dom",
+            "@types/react"
+        ],
+        "lib": [
+            "dom",
+            "dom.iterable",
+            "deno.ns"
+        ],
+        "jsx": "react-jsx",
+        "jsxImportSource": "react"
+    },
+    "imports": {
+        "@radix-ui/react-dialog": "npm:@radix-ui/react-dialog",
+        "@std/assert": "jsr:@std/assert@1",
+        "@tailwindcss/vite": "npm:@tailwindcss/vite@^4.1.11",
+        "@types/react": "npm:@types/react@^19.1.8",
+        "@types/react-dom": "npm:@types/react-dom@^19.1.6",
+        "@vitejs/plugin-react": "npm:@vitejs/plugin-react@^4.6.0",
+        "react": "npm:react@^19.1.0",
+        "react-dom": "npm:react-dom@^19.1.0",
+        "react-router": "npm:react-router@^7.7.0",
+        "tailwindcss": "npm:tailwindcss@^4.1.11",
+        "vite": "npm:vite@^7.0.4"
+    }
 }
