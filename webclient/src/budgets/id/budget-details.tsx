@@ -8,6 +8,12 @@ import {
 import {
   Button,
   Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
   Input,
   ProgressBar,
   Select,
@@ -23,7 +29,7 @@ import { formatCurrency } from "../../utils/index.ts";
 import { LineItem } from "../../components/api/line-items.ts";
 import { Link } from "../../components/api/links.ts";
 import { LoaderIcon } from "../../components/ui/icons/loader.tsx";
-import { DialogOverlay, DialogTrigger } from "../../components/ui/dialog.tsx";
+import { DialogClose } from "../../components/ui/dialog.tsx";
 
 function BudgetDetails() {
   const { id } = useParams();
@@ -99,12 +105,21 @@ function BudgetDetails() {
             : ""}
         />
       </div>
-
       <Dialog>
         <DialogTrigger asChild>
           <Button>Open</Button>
         </DialogTrigger>
-        <DialogOverlay></DialogOverlay>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hello</DialogTitle>
+          </DialogHeader>
+          <DialogDescription>Hello there</DialogDescription>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button>Close</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
       <form
         className="flex justify-between gap-4"

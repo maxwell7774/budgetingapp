@@ -9,3 +9,4 @@ export * from "./loader.tsx";
 export * from "./search.tsx";
 export * from "./sun.tsx";
 export * from "./trash.tsx";
+export * from "./x.tsx";
