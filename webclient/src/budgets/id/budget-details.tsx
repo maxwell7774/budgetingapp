@@ -147,6 +147,7 @@ function BudgetDetails() {
               <Button type="submit">Add Category</Button>
             </div>
           </form>
+          <DialogDescription>Hello there</DialogDescription>
           <DialogFooter>
             <DialogClose asChild>
               <Button>Close</Button>
