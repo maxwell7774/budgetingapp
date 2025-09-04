@@ -7,9 +7,9 @@
     "nodeModulesDir": "auto",
     "compilerOptions": {
         "types": [
+            "@types/react",
             "react",
-            "react-dom",
-            "@types/react"
+            "react-dom"
         ],
         "lib": [
             "dom",

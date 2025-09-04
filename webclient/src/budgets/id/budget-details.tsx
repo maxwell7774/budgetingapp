@@ -14,9 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  Input,
   ProgressBar,
-  Select,
 } from "../../components/ui/index.ts";
 import { ChevronDownIcon } from "../../components/ui/icons/chevron-down.tsx";
 import {
@@ -30,23 +28,25 @@ import { LineItem } from "../../components/api/line-items.ts";
 import { Link } from "../../components/api/links.ts";
 import { LoaderIcon } from "../../components/ui/icons/loader.tsx";
 import { DialogClose } from "../../components/ui/dialog.tsx";
+import { CategoryForm } from "./components/category-form.tsx";
 
 function BudgetDetails() {
   const { id } = useParams();
   if (!id) {
     return null;
   }
-  const [newCategoryType, setNewCategoryType] = useState<string>("");
   const { resource: plan } = usePlan(id);
-  const { collection: planCategories, refetch: refetchPlanCategories } =
+  const { collection: planCategories, refetch: refetchCategories } =
     usePlanCategories(id);
   const { resource: planUsage } = useAPIResource<PlanUsage>(
     plan?._links["usage"],
   );
-  const { collection: usages } = useAPICollection<PlanCategoryUsage>(
+  const { collection: usages, refetch: refectUsages } = useAPICollection<
+    PlanCategoryUsage
+  >(
     plan?._links["plan_categories_usage"],
   );
-  const { mutate } = useAPIMutation<PlanCategory>(
+  const { mutate: createCategory } = useAPIMutation<PlanCategory>(
     planCategories?._links["create"],
   );
 
@@ -54,25 +54,6 @@ function BudgetDetails() {
   usages?._embedded.items.forEach((i) => {
     categoryUsages[i.plan_category_id] = i;
   });
-
-  const handleSubmitNewCategory = async function (
-    e: React.FormEvent<HTMLFormElement>,
-  ) {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const name = formData.get("name") as string;
-    const amount = Number(formData.get("amount") as string);
-
-    await mutate({
-      updatedDat: {
-        name: name,
-        plan_id: plan?.id,
-        deposit: newCategoryType === "deposit" ? amount : 0,
-        withdrawal: newCategoryType === "withdrawal" ? amount : 0,
-      },
-      callback: refetchPlanCategories,
-    });
-  };
 
   return (
     <div>
@@ -113,40 +94,11 @@ function BudgetDetails() {
           <DialogHeader>
             <DialogTitle>Hello</DialogTitle>
           </DialogHeader>
-          <form
-            className="space-y-8"
-            onSubmit={handleSubmitNewCategory}
-          >
-            <div>
-              <label>Category Name</label>
-              <Input name="name" type="text" placeholder="type text here..." />
-            </div>
-            <div>
-              <label>Amount</label>
-              <Input
-                name="amount"
-                type="number"
-                placeholder="type text here..."
-              />
-            </div>
-            <div>
-              <label>Type</label>
-              <div>
-                <Select
-                  onChange={(newValue: string | number) =>
-                    setNewCategoryType(newValue as string)}
-                  value={newCategoryType}
-                  options={[
-                    { label: "Deposit", value: "deposit" },
-                    { label: "Withdrawal", value: "withdrawal" },
-                  ]}
-                />
-              </div>
-            </div>
-            <div className="mt-auto">
-              <Button type="submit">Add Category</Button>
-            </div>
-          </form>
+          <CategoryForm
+            planID={id}
+            mutationFn={createCategory}
+            callbacks={[refetchCategories, refectUsages]}
+          />
           <DialogDescription>Hello there</DialogDescription>
           <DialogFooter>
             <DialogClose asChild>

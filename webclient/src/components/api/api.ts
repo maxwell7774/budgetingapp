@@ -215,10 +215,16 @@ export function useAPICollection<T extends Resource>(
   };
 }
 
+export type APIMutationCallbackFn = () => void;
+
 export interface MutateParams<T extends Resource> {
   updatedDat?: Partial<T>;
-  callback?: () => void;
+  callback?: APIMutationCallbackFn | APIMutationCallbackFn[];
 }
+
+export type APIMutationFn<T extends Resource> = (
+  params: MutateParams<T>,
+) => Promise<T | undefined>;
 
 export function useAPIMutation<T extends Resource>(
   link?: Link,
@@ -258,7 +264,13 @@ export function useAPIMutation<T extends Resource>(
         throw Error(message);
       }
 
-      if (callback) callback();
+      if (callback) {
+        if (Array.isArray(callback)) {
+          callback.forEach((c) => c());
+        } else {
+          callback();
+        }
+      }
 
       if (link.method === "DELETE") return;
 

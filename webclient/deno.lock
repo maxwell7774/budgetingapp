@@ -6,6 +6,7 @@
     "npm:@radix-ui/react-dialog@*": "1.1.15_@types+react@19.1.12_@types+react-dom@19.1.9__@types+react@19.1.12_react@19.1.1_react-dom@19.1.1__react@19.1.1",
     "npm:@radix-ui/react-dialog@^1.1.15": "1.1.15_@types+react@19.1.12_@types+react-dom@19.1.9__@types+react@19.1.12_react@19.1.1_react-dom@19.1.1__react@19.1.1",
     "npm:@tailwindcss/vite@^4.1.11": "4.1.12_vite@7.1.4__picomatch@4.0.3",
+    "npm:@tanstack/react-form@^1.19.3": "1.19.3_react@19.1.1_react-dom@19.1.1__react@19.1.1",
     "npm:@types/react-dom@^19.1.6": "19.1.9_@types+react@19.1.12",
     "npm:@types/react@^19.1.8": "19.1.12",
     "npm:@vitejs/plugin-react@^4.6.0": "4.7.0_vite@7.1.4__picomatch@4.0.3_@babel+core@7.28.3",
@@ -800,6 +801,34 @@
         "vite"
       ]
     },
+    "@tanstack/form-core@1.19.3": {
+      "integrity": "sha512-VUDKpR24kfKHh43nGtDExZtwpq1MMNmN0mrYbqNOOjOoOUm9yZ0fPxWjPBfJQOdvmyncV2Svg9I5klUPjXqWzA==",
+      "dependencies": [
+        "@tanstack/store"
+      ]
+    },
+    "@tanstack/react-form@1.19.3_react@19.1.1_react-dom@19.1.1__react@19.1.1": {
+      "integrity": "sha512-e9m/aAemSIfM9Qesk6xeXiBdXLRhZPnQp4QVp/epcaaA6peBCYS0rBL9fuLKGrL4LRyDIA4jA68XR0Mxq0yO4A==",
+      "dependencies": [
+        "@tanstack/form-core",
+        "@tanstack/react-store",
+        "decode-formdata",
+        "devalue",
+        "react"
+      ]
+    },
+    "@tanstack/react-store@0.7.4_react@19.1.1_react-dom@19.1.1__react@19.1.1": {
+      "integrity": "sha512-DyG1e5Qz/c1cNLt/NdFbCA7K1QGuFXQYT6EfUltYMJoQ4LzBOGnOl5IjuxepNcRtmIKkGpmdMzdFZEkevgU9bQ==",
+      "dependencies": [
+        "@tanstack/store",
+        "react",
+        "react-dom",
+        "use-sync-external-store"
+      ]
+    },
+    "@tanstack/store@0.7.4": {
+      "integrity": "sha512-F1XqZQici1Aq6WigEfcxJSml92nW+85Om8ElBMokPNg5glCYVOmPkZGIQeieYFxcPiKTfwo0MTOQpUyJtwncrg=="
+    },
     "@tybys/wasm-util@0.10.0": {
       "integrity": "sha512-VyyPYFlOMNylG45GoAe0xDoLwWuowvf92F9kySqzYh8vmYm7D2u4iUJKa1tOUpS70Ku13ASrOkS4ScXFsTaCNQ==",
       "dependencies": [
@@ -908,11 +937,17 @@
         "ms"
       ]
     },
+    "decode-formdata@0.9.0": {
+      "integrity": "sha512-q5uwOjR3Um5YD+ZWPOF/1sGHVW9A5rCrRwITQChRXlmPkxDFBqCm4jNTIVdGHNH9OnR+V9MoZVgRhsFb+ARbUw=="
+    },
     "detect-libc@2.0.4": {
       "integrity": "sha512-3UDv+G9CsCKO1WKMGw9fwq/SWJYbI0c5Y7LU1AXYoDdbhE2AHQ6N6Nb34sG8Fj7T5APy8qXDCKuuIHd1BR0tVA=="
     },
     "detect-node-es@1.1.0": {
       "integrity": "sha512-ypdmJU/TbBby2Dxibuv7ZLW3Bs1QEmM7nHjEANfohJLvE0XVujisn1qPJcZxg+qDucsr+bP6fLD1rPS3AhJ7EQ=="
+    },
+    "devalue@5.3.2": {
+      "integrity": "sha512-UDsjUbpQn9kvm68slnrs+mfxwFkIflOhkanmyabZ8zOYk8SMEIbJ3TK+88g70hSIeytu4y18f0z/hYHMTrXIWw=="
     },
     "electron-to-chromium@1.5.213": {
       "integrity": "sha512-xr9eRzSLNa4neDO0xVFrkXu3vyIzG4Ay08dApecw42Z1NbmCt+keEpXdvlYGVe0wtvY5dhW0Ay0lY0IOfsCg0Q=="
@@ -1288,6 +1323,12 @@
         "@types/react"
       ]
     },
+    "use-sync-external-store@1.5.0_react@19.1.1": {
+      "integrity": "sha512-Rb46I4cGGVBmjamjphe8L/UnvJD+uPPtTkNvX5mZgqdbavhI4EbgIWJiIHXJ8bc/i9EQGPRh4DwEURJ552Do0A==",
+      "dependencies": [
+        "react"
+      ]
+    },
     "vite@7.1.4_picomatch@4.0.3": {
       "integrity": "sha512-X5QFK4SGynAeeIt+A7ZWnApdUyHYm+pzv/8/A57LqSGcI88U6R6ipOs3uCesdc6yl7nl+zNO0t8LmqAdXcQihw==",
       "dependencies": [
@@ -1330,6 +1371,7 @@
       "dependencies": [
         "npm:@radix-ui/react-dialog@^1.1.15",
         "npm:@tailwindcss/vite@^4.1.11",
+        "npm:@tanstack/react-form@^1.19.3",
         "npm:babel-plugin-react-compiler@^19.1.0-rc.2",
         "npm:clsx@^2.1.1",
         "npm:tailwind-merge@^3.3.1",
