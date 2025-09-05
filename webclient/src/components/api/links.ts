@@ -8,24 +8,24 @@ type Link struct {
 }
 */
 
-type HTTPMethod = "GET" | "PUT" | "POST" | "PATCH" | "DELETE";
+type HTTPMethod = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
 export interface Link {
-  href: string;
-  method?: HTTPMethod;
-  title?: string;
-  templated?: boolean;
-  name?: string;
+    href: string;
+    method?: HTTPMethod;
+    title?: string;
+    templated?: boolean;
+    name?: string;
 }
 
 export interface Resource {
-  _links: Record<string, Link>;
+    _links: Record<string, Link>;
 }
 
 export interface Collection<T extends Resource> {
-  page: number;
-  page_size: number;
-  total_pages: number;
-  total_items: number;
-  _links: Record<string, Link>;
-  _embedded: { items: T[] };
+    page: number;
+    page_size: number;
+    total_pages: number;
+    total_items: number;
+    _links: Record<string, Link>;
+    _embedded: { items: T[] };
 }

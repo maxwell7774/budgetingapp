@@ -1,38 +1,38 @@
 interface FormState {
-  valid: boolean;
-  touched: false;
-  submitted: false;
-  submitting: false;
+    valid: boolean;
+    touched: false;
+    submitted: false;
+    submitting: false;
 }
 
 type FormValidator<T> = (value: T) => string | null;
 
 interface FormField<T> {
-  name: string;
-  defaultValue: T;
-  value?: T;
-  onChange?: (value: T) => void;
-  errors: string[];
-  validators: FormValidator<T>[];
+    name: string;
+    defaultValue: T;
+    value?: T;
+    onChange?: (value: T) => void;
+    errors: string[];
+    validators: FormValidator<T>[];
 }
 
 type FormFields<T> = {
-  [K in keyof T]: FormField<T[K]>;
+    [K in keyof T]: FormField<T[K]>;
 };
 
 interface Form<T> {
-  fields: FormFields<T>;
-  setFields: (fields: FormFields<T>) => void;
-  state: FormState;
+    fields: FormFields<T>;
+    setFields: (fields: FormFields<T>) => void;
+    state: FormState;
 }
 
 type FormValidators<T> = {
-  [K in keyof T]?: FormValidator<T[K]>[];
+    [K in keyof T]?: FormValidator<T[K]>[];
 };
 
 interface FormProps<T> {
-  defaultValues?: { [K in keyof T]?: T[K] };
-  validators?: FormValidators<T>;
+    defaultValues?: { [K in keyof T]?: T[K] };
+    validators?: FormValidators<T>;
 }
 
 // export function useForm<T>(
