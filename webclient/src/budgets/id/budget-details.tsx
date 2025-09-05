@@ -5,17 +5,7 @@ import {
   PlanCategory,
   usePlanCategories,
 } from "../../components/api/plan-categories.ts";
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  ProgressBar,
-} from "../../components/ui/index.ts";
+import { Button, ProgressBar } from "../../components/ui/index.ts";
 import { ChevronDownIcon } from "../../components/ui/icons/chevron-down.tsx";
 import {
   useAPICollection,
@@ -27,7 +17,6 @@ import { formatCurrency } from "../../utils/index.ts";
 import { LineItem } from "../../components/api/line-items.ts";
 import { Link } from "../../components/api/links.ts";
 import { LoaderIcon } from "../../components/ui/icons/loader.tsx";
-import { DialogClose } from "../../components/ui/dialog.tsx";
 import { CategoryForm } from "./components/category-form.tsx";
 
 function BudgetDetails() {
@@ -38,7 +27,9 @@ function BudgetDetails() {
   const { resource: plan } = usePlan(id);
   const { collection: planCategories, refetch: refetchCategories } =
     usePlanCategories(id);
-  const { resource: planUsage } = useAPIResource<PlanUsage>(
+  const { resource: planUsage, refetch: refectPlanUsage } = useAPIResource<
+    PlanUsage
+  >(
     plan?._links["usage"],
   );
   const { collection: usages, refetch: refectUsages } = useAPICollection<
@@ -86,28 +77,14 @@ function BudgetDetails() {
             : ""}
         />
       </div>
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button>Open</Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Hello</DialogTitle>
-          </DialogHeader>
-          <CategoryForm
-            planID={id}
-            mutationFn={createCategory}
-            callbacks={[refetchCategories, refectUsages]}
-          />
-          <DialogDescription>Hello there</DialogDescription>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button>Close</Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <ul className="my-8 space-y-8">
+      <div className="mt-8 mb-4 ms-auto w-max">
+        <CategoryForm
+          planID={id}
+          mutationFn={createCategory}
+          callbacks={[refetchCategories, refectUsages, refectPlanUsage]}
+        />
+      </div>
+      <ul className="mb-8 space-y-8">
         {planCategories?._embedded.items.map((c) => (
           <PlanCategoryItem
             planCategory={c}
