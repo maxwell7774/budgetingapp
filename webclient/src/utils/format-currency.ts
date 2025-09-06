@@ -1,5 +1,5 @@
-export const formatCurrency = (val: number) =>
+export const formatCurrency = (cents: number) =>
     new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
-    }).format(val);
+    }).format(cents / 100);

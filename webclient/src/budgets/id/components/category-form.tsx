@@ -18,6 +18,7 @@ import {
 import { PlanCategory } from '../../../components/api/plan-categories.ts';
 import { useForm } from '@tanstack/react-form';
 import { DialogDescription } from '@radix-ui/react-dialog';
+import { MoneyInput } from '../../../components/ui/money-input.tsx';
 
 interface Props {
     planID: string;
@@ -32,7 +33,7 @@ export function CategoryForm(
     const form = useForm({
         defaultValues: {
             name: '',
-            amount: '' as unknown as number,
+            amount: '',
             type: '',
         },
         validators: {
@@ -48,8 +49,12 @@ export function CategoryForm(
                 updatedDat: {
                     name: value.name,
                     plan_id: planID,
-                    deposit: value.type === 'deposit' ? value.amount : 0,
-                    withdrawal: value.type === 'withdrawal' ? value.amount : 0,
+                    deposit: value.type === 'deposit'
+                        ? Number(value.amount) * 100
+                        : 0,
+                    withdrawal: value.type === 'withdrawal'
+                        ? Number(value.amount) * 100
+                        : 0,
                 },
                 callback: callbacks,
             }).then(() => {
@@ -114,9 +119,10 @@ export function CategoryForm(
                         name='amount'
                         validators={{
                             onChange: ({ value }) => {
-                                if (
-                                    value <= 0 || isNaN(value)
-                                ) return 'Amount must be greater than 0';
+                                const num = Number(value);
+                                if (isNaN(num) || num <= 0) {
+                                    return 'Amount must be greater than 0';
+                                }
                             },
                         }}
                     >
@@ -125,15 +131,10 @@ export function CategoryForm(
                                 <label htmlFor='amount' className='mb-1 block'>
                                     Amount
                                 </label>
-                                <Input
+                                <MoneyInput
                                     name='amount'
-                                    type='number'
-                                    placeholder='type text here...'
                                     value={field.state.value}
-                                    onChange={(e) =>
-                                        field.handleChange(
-                                            e.target.valueAsNumber,
-                                        )}
+                                    onChange={field.handleChange}
                                     onBlur={field.handleBlur}
                                 />
                                 {field.state.meta.errors && (
