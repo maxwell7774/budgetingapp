@@ -13,14 +13,17 @@ export const MoneyInput: React.FC<MoneyInputProps> = function (
     { className, onChange, onBlur, value, ...props },
 ) {
     const handleChange = function (e: React.ChangeEvent<HTMLInputElement>) {
-        const newValue = e.target.valueAsNumber;
         const stringValue = e.target.value;
+        const newValue = Number(stringValue);
+        console.log('ON CHANGE: ', newValue);
 
         if (stringValue.length === 0) {
             onChange(stringValue);
             return;
         }
         if (isNaN(newValue)) return;
+        if (newValue < 0) return;
+        if (newValue > 9999999999999.99) return;
 
         if (stringValue.includes('.')) {
             const parts = stringValue.split('.');
@@ -63,6 +66,12 @@ export const MoneyInput: React.FC<MoneyInputProps> = function (
                 className={'ps-9 appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield] w-full h-11 bg-slate-100 dark:bg-slate-900 rounded-full px-5 focus-visible:outline-2 outline-offset-2 outline-indigo-500 ' +
                     className}
                 placeholder='0.00'
+                onKeyDown={(e) => {
+                    if (e.code === 'Minus') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                }}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={value}

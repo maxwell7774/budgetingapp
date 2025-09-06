@@ -121,7 +121,10 @@ export function CategoryForm(
                             onChange: ({ value }) => {
                                 const num = Number(value);
                                 if (isNaN(num) || num <= 0) {
-                                    return 'Amount must be greater than 0';
+                                    return 'Amount must be greater than $0.00';
+                                }
+                                if (num > 9999999999999.99) {
+                                    return 'Amount must be under $9999999999999.99';
                                 }
                             },
                         }}

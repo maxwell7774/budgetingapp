@@ -66,8 +66,8 @@ type CreateLineItemParams struct {
 	UserID         uuid.UUID
 	PlanCategoryID uuid.UUID
 	Description    string
-	Deposit        int32
-	Withdrawal     int32
+	Deposit        int64
+	Withdrawal     int64
 }
 
 func (q *Queries) CreateLineItem(ctx context.Context, arg CreateLineItemParams) (LineItem, error) {

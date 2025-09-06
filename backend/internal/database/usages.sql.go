@@ -23,12 +23,12 @@ WITH plan_sums AS (
         COALESCE(SUM(line_items.withdrawal), 0)::BIGINT AS actual_withdrawal,
         COALESCE(SUM(line_items.deposit), 0)::BIGINT AS actual_deposit,
         CASE
-            WHEN plan_categories.withdrawal > 0 THEN COALESCE(SUM(line_items.withdrawal), 0)::BIGINT - COALESCE(SUM(line_items.deposit), 0)
-            ELSE 0
+            WHEN plan_categories.withdrawal > 0 THEN COALESCE(SUM(line_items.withdrawal), 0)::BIGINT - COALESCE(SUM(line_items.deposit), 0)::BIGINT
+            ELSE 0::BIGINT
         END AS net_withdrawal,
         CASE
-            WHEN plan_categories.deposit > 0 THEN COALESCE(SUM(line_items.deposit), 0)::BIGINT - COALESCE(SUM(line_items.withdrawal), 0)
-            ELSE 0
+            WHEN plan_categories.deposit > 0 THEN COALESCE(SUM(line_items.deposit), 0)::BIGINT - COALESCE(SUM(line_items.withdrawal), 0)::BIGINT
+            ELSE 0::BIGINT
         END AS net_deposit
     FROM plan_categories
     LEFT JOIN line_items ON line_items.plan_category_id = plan_categories.id
@@ -120,12 +120,12 @@ SELECT
     COALESCE(SUM(line_items.withdrawal), 0)::BIGINT AS actual_withdrawal,
     COALESCE(SUM(line_items.deposit), 0)::BIGINT AS actual_deposit,
     CASE
-        WHEN plan_categories.withdrawal > 0 THEN COALESCE(SUM(line_items.withdrawal), 0)::BIGINT - COALESCE(SUM(line_items.deposit), 0)
-        ELSE 0
+        WHEN plan_categories.withdrawal > 0 THEN COALESCE(SUM(line_items.withdrawal), 0)::BIGINT - COALESCE(SUM(line_items.deposit), 0)::BIGINT
+        ELSE 0::BIGINT
     END AS net_withdrawal,
     CASE
-        WHEN plan_categories.deposit > 0 THEN COALESCE(SUM(line_items.deposit), 0)::BIGINT - COALESCE(SUM(line_items.withdrawal), 0)
-        ELSE 0
+        WHEN plan_categories.deposit > 0 THEN COALESCE(SUM(line_items.deposit), 0)::BIGINT - COALESCE(SUM(line_items.withdrawal), 0)::BIGINT
+        ELSE 0::BIGINT
     END AS net_deposit
 FROM plan_categories
 LEFT JOIN line_items ON line_items.plan_category_id = plan_categories.id
@@ -145,12 +145,12 @@ type GetPlanCategoriesUsageForPlanRow struct {
 	PlanCategoryID   uuid.UUID
 	PlanID           uuid.UUID
 	Name             string
-	TargetWithdrawal int32
-	TargetDeposit    int32
+	TargetWithdrawal int64
+	TargetDeposit    int64
 	ActualWithdrawal int64
 	ActualDeposit    int64
-	NetWithdrawal    int32
-	NetDeposit       int32
+	NetWithdrawal    int64
+	NetDeposit       int64
 }
 
 func (q *Queries) GetPlanCategoriesUsageForPlan(ctx context.Context, arg GetPlanCategoriesUsageForPlanParams) ([]GetPlanCategoriesUsageForPlanRow, error) {
@@ -197,12 +197,12 @@ WITH plan_sums AS (
         COALESCE(SUM(line_items.withdrawal), 0)::BIGINT AS actual_withdrawal,
         COALESCE(SUM(line_items.deposit), 0)::BIGINT AS actual_deposit,
         CASE
-            WHEN plan_categories.withdrawal > 0 THEN COALESCE(SUM(line_items.withdrawal), 0)::BIGINT - COALESCE(SUM(line_items.deposit), 0)
-            ELSE 0
+            WHEN plan_categories.withdrawal > 0 THEN COALESCE(SUM(line_items.withdrawal), 0)::BIGINT - COALESCE(SUM(line_items.deposit), 0)::BIGINT
+            ELSE 0::BIGINT
         END AS net_withdrawal,
         CASE
-            WHEN plan_categories.deposit > 0 THEN COALESCE(SUM(line_items.deposit), 0)::BIGINT - COALESCE(SUM(line_items.withdrawal), 0)
-            ELSE 0
+            WHEN plan_categories.deposit > 0 THEN COALESCE(SUM(line_items.deposit), 0)::BIGINT - COALESCE(SUM(line_items.withdrawal), 0)::BIGINT
+            ELSE 0::BIGINT
         END AS net_deposit
     FROM plan_categories
     LEFT JOIN line_items ON line_items.plan_category_id = plan_categories.id

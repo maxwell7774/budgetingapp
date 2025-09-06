@@ -14,8 +14,8 @@ type PlanCategory struct {
 	ID         uuid.UUID       `json:"id"`
 	PlanID     uuid.UUID       `json:"plan_id"`
 	Name       string          `json:"name"`
-	Deposit    int32           `json:"deposit"`
-	Withdrawal int32           `json:"withdrawal"`
+	Deposit    int64           `json:"deposit"`
+	Withdrawal int64           `json:"withdrawal"`
 	CreatedAt  time.Time       `json:"created_at"`
 	UpdatedAt  time.Time       `json:"updated_at"`
 	Links      map[string]Link `json:"_links"`
@@ -129,8 +129,8 @@ func (cfg *APIConfig) HandlerPlanCategoryGetByID(w http.ResponseWriter, r *http.
 type CreatePlanCategoryParams struct {
 	PlanID     uuid.UUID `json:"plan_id"`
 	Name       string    `json:"name"`
-	Deposit    int32     `json:"deposit"`
-	Withdrawal int32     `json:"withdrawal"`
+	Deposit    int64     `json:"deposit"`
+	Withdrawal int64     `json:"withdrawal"`
 }
 
 func (cfg *APIConfig) HandlerPlanCategoryCreate(w http.ResponseWriter, r *http.Request) {

@@ -8,12 +8,12 @@ SELECT
     COALESCE(SUM(line_items.withdrawal), 0)::BIGINT AS actual_withdrawal,
     COALESCE(SUM(line_items.deposit), 0)::BIGINT AS actual_deposit,
     CASE
-        WHEN plan_categories.withdrawal > 0 THEN COALESCE(SUM(line_items.withdrawal), 0)::BIGINT - COALESCE(SUM(line_items.deposit), 0)
-        ELSE 0
+        WHEN plan_categories.withdrawal > 0 THEN COALESCE(SUM(line_items.withdrawal), 0)::BIGINT - COALESCE(SUM(line_items.deposit), 0)::BIGINT
+        ELSE 0::BIGINT
     END AS net_withdrawal,
     CASE
-        WHEN plan_categories.deposit > 0 THEN COALESCE(SUM(line_items.deposit), 0)::BIGINT - COALESCE(SUM(line_items.withdrawal), 0)
-        ELSE 0
+        WHEN plan_categories.deposit > 0 THEN COALESCE(SUM(line_items.deposit), 0)::BIGINT - COALESCE(SUM(line_items.withdrawal), 0)::BIGINT
+        ELSE 0::BIGINT
     END AS net_deposit
 FROM plan_categories
 LEFT JOIN line_items ON line_items.plan_category_id = plan_categories.id
@@ -33,12 +33,12 @@ WITH plan_sums AS (
         COALESCE(SUM(line_items.withdrawal), 0)::BIGINT AS actual_withdrawal,
         COALESCE(SUM(line_items.deposit), 0)::BIGINT AS actual_deposit,
         CASE
-            WHEN plan_categories.withdrawal > 0 THEN COALESCE(SUM(line_items.withdrawal), 0)::BIGINT - COALESCE(SUM(line_items.deposit), 0)
-            ELSE 0
+            WHEN plan_categories.withdrawal > 0 THEN COALESCE(SUM(line_items.withdrawal), 0)::BIGINT - COALESCE(SUM(line_items.deposit), 0)::BIGINT
+            ELSE 0::BIGINT
         END AS net_withdrawal,
         CASE
-            WHEN plan_categories.deposit > 0 THEN COALESCE(SUM(line_items.deposit), 0)::BIGINT - COALESCE(SUM(line_items.withdrawal), 0)
-            ELSE 0
+            WHEN plan_categories.deposit > 0 THEN COALESCE(SUM(line_items.deposit), 0)::BIGINT - COALESCE(SUM(line_items.withdrawal), 0)::BIGINT
+            ELSE 0::BIGINT
         END AS net_deposit
     FROM plan_categories
     LEFT JOIN line_items ON line_items.plan_category_id = plan_categories.id
@@ -75,12 +75,12 @@ WITH plan_sums AS (
         COALESCE(SUM(line_items.withdrawal), 0)::BIGINT AS actual_withdrawal,
         COALESCE(SUM(line_items.deposit), 0)::BIGINT AS actual_deposit,
         CASE
-            WHEN plan_categories.withdrawal > 0 THEN COALESCE(SUM(line_items.withdrawal), 0)::BIGINT - COALESCE(SUM(line_items.deposit), 0)
-            ELSE 0
+            WHEN plan_categories.withdrawal > 0 THEN COALESCE(SUM(line_items.withdrawal), 0)::BIGINT - COALESCE(SUM(line_items.deposit), 0)::BIGINT
+            ELSE 0::BIGINT
         END AS net_withdrawal,
         CASE
-            WHEN plan_categories.deposit > 0 THEN COALESCE(SUM(line_items.deposit), 0)::BIGINT - COALESCE(SUM(line_items.withdrawal), 0)
-            ELSE 0
+            WHEN plan_categories.deposit > 0 THEN COALESCE(SUM(line_items.deposit), 0)::BIGINT - COALESCE(SUM(line_items.withdrawal), 0)::BIGINT
+            ELSE 0::BIGINT
         END AS net_deposit
     FROM plan_categories
     LEFT JOIN line_items ON line_items.plan_category_id = plan_categories.id

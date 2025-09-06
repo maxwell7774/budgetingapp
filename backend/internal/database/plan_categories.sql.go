@@ -49,8 +49,8 @@ RETURNING id, plan_id, name, deposit, withdrawal, created_at, updated_at
 type CreatePlanCategoryParams struct {
 	PlanID     uuid.UUID
 	Name       string
-	Deposit    int32
-	Withdrawal int32
+	Deposit    int64
+	Withdrawal int64
 }
 
 func (q *Queries) CreatePlanCategory(ctx context.Context, arg CreatePlanCategoryParams) (PlanCategory, error) {

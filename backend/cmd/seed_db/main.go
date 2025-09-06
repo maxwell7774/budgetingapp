@@ -106,7 +106,7 @@ func main() {
 			pc1, err := dbQueries.CreatePlanCategory(context.Background(), database.CreatePlanCategoryParams{
 				PlanID:     plan.ID,
 				Name:       "Income",
-				Deposit:    int32(len(u.FirstName) * 250 * j),
+				Deposit:    int64(len(u.FirstName) * 250 * j * 100),
 				Withdrawal: 0,
 			})
 			if err != nil {
@@ -117,7 +117,7 @@ func main() {
 				PlanID:     plan.ID,
 				Name:       "Groceries",
 				Deposit:    0,
-				Withdrawal: int32(len(u.FirstName) * 50 * j),
+				Withdrawal: int64(len(u.FirstName) * 50 * j * 100),
 			})
 			if err != nil {
 				log.Fatalf("Couldn't create %s Groceries: %v", u.FirstName, err)
@@ -127,7 +127,7 @@ func main() {
 				PlanID:     plan.ID,
 				Name:       "Bills",
 				Deposit:    0,
-				Withdrawal: int32(len(u.FirstName) * 25 * j),
+				Withdrawal: int64(len(u.FirstName) * 25 * j * 100),
 			})
 			if err != nil {
 				log.Fatalf("Couldn't create %s Bills: %v", u.FirstName, err)
@@ -137,7 +137,7 @@ func main() {
 				UserID:         u.ID,
 				PlanCategoryID: pc1.ID,
 				Description:    fmt.Sprintf("%s 1st check", u.FirstName),
-				Deposit:        2 * pc1.Deposit / 3,
+				Deposit:        (2 * pc1.Deposit / 3),
 				Withdrawal:     0,
 			})
 			if err != nil {
@@ -155,9 +155,9 @@ func main() {
 			// 	log.Fatalf("Couldn't create %s 2nd check: %v", u.FirstName, err)
 			// }
 
-			walmartTrip1Withdrawal := int32(len(u.FirstName) * 25)
+			walmartTrip1Withdrawal := int64(len(u.FirstName) * 25 * 100)
 			if j == 2 {
-				walmartTrip1Withdrawal = pc1.Deposit + 100
+				walmartTrip1Withdrawal = pc1.Deposit + 100*100
 			}
 
 			_, err = dbQueries.CreateLineItem(context.Background(), database.CreateLineItemParams{
@@ -176,7 +176,7 @@ func main() {
 				PlanCategoryID: pc2.ID,
 				Description:    fmt.Sprintf("%s Walmart trip 2", u.FirstName),
 				Deposit:        0,
-				Withdrawal:     int32(len(u.FirstName) * 10),
+				Withdrawal:     int64(len(u.FirstName) * 10 * 100),
 			})
 			if err != nil {
 				log.Fatalf("Couldn't create %s Walmart trip 2: %v", u.FirstName, err)
@@ -187,7 +187,7 @@ func main() {
 				PlanCategoryID: pc2.ID,
 				Description:    fmt.Sprintf("%s Costco trip", u.FirstName),
 				Deposit:        0,
-				Withdrawal:     int32(len(u.FirstName) * 5),
+				Withdrawal:     int64(len(u.FirstName) * 5 * 100),
 			})
 			if err != nil {
 				log.Fatalf("Couldn't create %s Costco trip: %v", u.FirstName, err)
@@ -209,7 +209,7 @@ func main() {
 				PlanCategoryID: pc3.ID,
 				Description:    fmt.Sprintf("%s Electric bill", u.FirstName),
 				Deposit:        0,
-				Withdrawal:     int32(len(u.FirstName) * 7),
+				Withdrawal:     int64(len(u.FirstName) * 7 * 100),
 			})
 			if err != nil {
 				log.Fatalf("Couldn't create %s Electric bill: %v", u.FirstName, err)
@@ -220,7 +220,7 @@ func main() {
 				PlanCategoryID: pc3.ID,
 				Description:    fmt.Sprintf("%s Gas bill", u.FirstName),
 				Deposit:        0,
-				Withdrawal:     int32(len(u.FirstName) * 3),
+				Withdrawal:     int64(len(u.FirstName) * 3 * 100),
 			})
 			if err != nil {
 				log.Fatalf("Couldn't create %s Gas bill: %v", u.FirstName, err)
@@ -231,7 +231,7 @@ func main() {
 				PlanCategoryID: pc3.ID,
 				Description:    fmt.Sprintf("%s Insurance", u.FirstName),
 				Deposit:        0,
-				Withdrawal:     int32(len(u.FirstName) * 12),
+				Withdrawal:     int64(len(u.FirstName) * 12 * 100),
 			})
 			if err != nil {
 				log.Fatalf("Couldn't create %s Insurance: %v", u.FirstName, err)

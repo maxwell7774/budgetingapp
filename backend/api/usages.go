@@ -136,12 +136,12 @@ type PlanCategoryUsage struct {
 	PlanID           uuid.UUID       `json:"plan_id"`
 	PlanCategoryID   uuid.UUID       `json:"plan_category_id"`
 	PlanCategoryName string          `json:"plan_category_name"`
-	TargetWithdrawal int32           `json:"target_withdrawal"`
-	TargetDeposit    int32           `json:"target_deposit"`
+	TargetWithdrawal int64           `json:"target_withdrawal"`
+	TargetDeposit    int64           `json:"target_deposit"`
 	ActualWithdrawal int64           `json:"actual_withdrawal"`
 	ActualDeposit    int64           `json:"actual_deposit"`
-	NetWithdrawal    int32           `json:"net_withdrawal"`
-	NetDeposit       int32           `json:"net_deposit"`
+	NetWithdrawal    int64           `json:"net_withdrawal"`
+	NetDeposit       int64           `json:"net_deposit"`
 	Links            map[string]Link `json:"_links"`
 }
 

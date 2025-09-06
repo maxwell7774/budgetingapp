@@ -15,8 +15,8 @@ type LineItem struct {
 	UserID         uuid.UUID       `json:"user_id"`
 	PlanCategoryID uuid.UUID       `json:"plan_category_id"`
 	Description    string          `json:"description"`
-	Deposit        int32           `json:"deposit"`
-	Withdrawal     int32           `json:"withdrawal"`
+	Deposit        int64           `json:"deposit"`
+	Withdrawal     int64           `json:"withdrawal"`
 	CreatedAt      time.Time       `json:"created_at"`
 	UpdatedAt      time.Time       `json:"updated_at"`
 	Links          map[string]Link `json:"_links"`
@@ -169,7 +169,7 @@ func (cfg *APIConfig) HandlerLineItemGetByID(w http.ResponseWriter, r *http.Requ
 type CreateLineItemParams struct {
 	PlanCategoryID uuid.UUID `json:"plan_category_id"`
 	Description    string    `json:"description"`
-	Amount         int32     `json:"amount"`
+	Amount         int64     `json:"amount"`
 }
 
 func (cfg *APIConfig) HandlerLineItemCreate(w http.ResponseWriter, r *http.Request) {
@@ -199,8 +199,8 @@ func (cfg *APIConfig) HandlerLineItemCreate(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	deposit := int32(0)
-	withdrawal := int32(0)
+	var deposit int64 = 0
+	var withdrawal int64 = 0
 
 	if planCategory.Withdrawal > 0 {
 		withdrawal = params.Amount
