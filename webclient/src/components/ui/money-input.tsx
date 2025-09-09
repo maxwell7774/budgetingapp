@@ -15,7 +15,6 @@ export const MoneyInput: React.FC<MoneyInputProps> = function (
     const handleChange = function (e: React.ChangeEvent<HTMLInputElement>) {
         const stringValue = e.target.value;
         const newValue = Number(stringValue);
-        console.log('ON CHANGE: ', newValue);
 
         if (stringValue.length === 0) {
             onChange(stringValue);
@@ -23,7 +22,6 @@ export const MoneyInput: React.FC<MoneyInputProps> = function (
         }
         if (isNaN(newValue)) return;
         if (newValue < 0) return;
-        if (newValue > 9999999999999.99) return;
 
         if (stringValue.includes('.')) {
             const parts = stringValue.split('.');

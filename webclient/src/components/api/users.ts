@@ -12,7 +12,7 @@ function useUsers() {
     const createUser = async function (
         params: CreateUserParams,
     ): Promise<User> {
-        const url = '/api/v1/users';
+        const url = '/api/v1/auth/register';
 
         const res = await fetch(url, {
             method: 'POST',

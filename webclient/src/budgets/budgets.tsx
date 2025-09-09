@@ -16,14 +16,19 @@ import {
     Pagination,
     ProgressBar,
 } from '../components/ui/index.ts';
-import { useAPICollection } from '../components/api/api.ts';
+import { useAPICollection, useAPIMutation } from '../components/api/api.ts';
 import { PlanUsage } from '../components/api/usages.ts';
 import { formatCurrency } from '../utils/index.ts';
+import { PlanForm } from './components/plan-form.tsx';
 
 function Budgets() {
     const { collection, selectLink, refetch, fetching, errored } = usePlans();
-    const createPlan = useCreatePlan(collection?._links['create']);
-    const { collection: usages } = useAPICollection<PlanUsage>(
+    const { mutate: createPlan } = useAPIMutation<Plan>(
+        collection?._links['create'],
+    );
+    const { collection: usages, refetch: refetchUsages } = useAPICollection<
+        PlanUsage
+    >(
         collection?._links['usage'],
     );
 
@@ -39,22 +44,6 @@ function Budgets() {
     if (errored) {
         return <div className='text-red-500'>Failed to load plans.</div>;
     }
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const formData = new FormData(e.currentTarget);
-        const planName = formData.get('plan_name') as string;
-
-        try {
-            await createPlan.mutate({
-                updatedDat: { name: planName },
-                callback: refetch,
-            });
-            e.currentTarget.reset();
-        } catch {
-            // errors should be surfaced in createPlan.errored as well
-        }
-    };
 
     const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -90,20 +79,12 @@ function Budgets() {
                     <Button variant='outline'>Search</Button>
                 </form>
             </div>
-
             <div className='ms-auto my-8 w-max'>
-                {/* Could scroll into view of the form, or open a modal */}
-                <Button
-                    onClick={() =>
-                        document.getElementById('create-plan-form')
-                            ?.scrollIntoView({
-                                behavior: 'smooth',
-                            })}
-                >
-                    New Plan
-                </Button>
+                <PlanForm
+                    mutationFn={createPlan}
+                    callbacks={[refetch, refetchUsages]}
+                />
             </div>
-
             <div className='grid grid-cols-[repeat(auto-fit,minmax(24rem,1fr))] gap-8 mb-8'>
                 {collection?._embedded.items.map((plan) => (
                     <PlanCard
@@ -114,33 +95,7 @@ function Budgets() {
                     />
                 ))}
             </div>
-
             <Pagination collection={collection} selectLink={selectLink} />
-
-            <form
-                id='create-plan-form'
-                onSubmit={handleSubmit}
-                className='bg-white dark:bg-slate-800 shadow-md mx-auto max-w-xl p-10 rounded-3xl space-y-8 mt-32'
-            >
-                <h2 className='text-lg font-bold text-indigo-500'>
-                    Create Plan
-                </h2>
-                <label
-                    htmlFor='plan-name'
-                    className='block mb-1 font-bold text-slate-800 dark:text-slate-200'
-                >
-                    Plan Name
-                </label>
-                <Input
-                    id='plan-name'
-                    name='plan_name'
-                    type='text'
-                    className='dark:bg-slate-900'
-                    placeholder='type here...'
-                    required
-                />
-                <Button type='submit'>Add Plan</Button>
-            </form>
         </div>
     );
 }

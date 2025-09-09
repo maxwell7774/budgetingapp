@@ -8,16 +8,21 @@ import {
 import { Button, ProgressBar } from '../../components/ui/index.ts';
 import { ChevronDownIcon } from '../../components/ui/icons/chevron-down.tsx';
 import {
+    APIMutationCallbackFn,
     useAPICollection,
     useAPIMutation,
     useAPIResource,
 } from '../../components/api/api.ts';
 import { PlanCategoryUsage, PlanUsage } from '../../components/api/usages.ts';
 import { formatCurrency } from '../../utils/index.ts';
-import { LineItem } from '../../components/api/line-items.ts';
+import {
+    CreateLineItemParams,
+    LineItem,
+} from '../../components/api/line-items.ts';
 import { Link } from '../../components/api/links.ts';
 import { LoaderIcon } from '../../components/ui/icons/loader.tsx';
 import { CategoryForm } from './components/category-form.tsx';
+import { LineItemForm } from './components/line-item-form.tsx';
 
 function BudgetDetails() {
     const { id } = useParams();
@@ -94,6 +99,8 @@ function BudgetDetails() {
                         planCategory={c}
                         key={c.id}
                         usage={categoryUsages[c.id]}
+                        refetchUsages={refectUsages}
+                        refetchPlanUsage={refectPlanUsage}
                     />
                 ))}
             </ul>
@@ -104,17 +111,30 @@ function BudgetDetails() {
 interface PlanCategoryItemProps {
     planCategory: PlanCategory;
     usage?: PlanCategoryUsage;
+    refetchUsages: APIMutationCallbackFn;
+    refetchPlanUsage: APIMutationCallbackFn;
 }
 
-function PlanCategoryItem({ planCategory, usage }: PlanCategoryItemProps) {
+function PlanCategoryItem(
+    { planCategory, usage, refetchUsages, refetchPlanUsage }:
+        PlanCategoryItemProps,
+) {
     const [open, setOpen] = useState<boolean>(false);
     const [render, setRender] = useState<boolean>(false);
     const [lineItemsLink, setLineItemsLink] = useState<Link | undefined>(
         undefined,
     );
-    const { collection: lineItems, fetching, errored } = useAPICollection<
+    const {
+        collection: lineItems,
+        refetch: refetchLineItems,
+        fetching,
+        errored,
+    } = useAPICollection<
         LineItem
     >(lineItemsLink);
+    const { mutate: createLineItemFn } = useAPIMutation<CreateLineItemParams>(
+        lineItems?._links['create'],
+    );
 
     return (
         <li className='bg-white dark:bg-slate-800 rounded-3xl p-8'>
@@ -148,7 +168,16 @@ function PlanCategoryItem({ planCategory, usage }: PlanCategoryItemProps) {
                             : ''}
                     />
                 </div>
-                <div className='w-max ms-auto mt-4'>
+                <div className='flex justify-between items-center gap-3 mt-4'>
+                    <LineItemForm
+                        planCategoryID={planCategory.id}
+                        mutationFn={createLineItemFn}
+                        callbacks={[
+                            refetchLineItems,
+                            refetchUsages,
+                            refetchPlanUsage,
+                        ]}
+                    />
                     <Button
                         variant='ghost'
                         onClick={() => {
@@ -209,43 +238,21 @@ function PlanCategoryItem({ planCategory, usage }: PlanCategoryItemProps) {
                                                     <th className='p-4'>
                                                         DATE
                                                     </th>
+                                                    <th></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {lineItems._embedded.items?.map(
                                                     (l) => (
-                                                        <tr key={l.id}>
-                                                            <td className='w-full p-4'>
-                                                                {l.description}
-                                                            </td>
-                                                            <td
-                                                                className={`p-4 ${
-                                                                    l.deposit >
-                                                                        0 &&
-                                                                    'text-lime-600'
-                                                                }`}
-                                                            >
-                                                                {formatCurrency(
-                                                                    l.deposit,
-                                                                )}
-                                                            </td>
-                                                            <td
-                                                                className={`p-4 ${
-                                                                    l.withdrawal >
-                                                                        0 &&
-                                                                    'text-red-600'
-                                                                }`}
-                                                            >
-                                                                {formatCurrency(
-                                                                    l.withdrawal,
-                                                                )}
-                                                            </td>
-                                                            <td className='p-4 text-nowrap'>
-                                                                {(new Date(
-                                                                    l.created_at,
-                                                                )).toLocaleDateString()}
-                                                            </td>
-                                                        </tr>
+                                                        <LineItemRow
+                                                            key={l.id}
+                                                            lineItem={l}
+                                                            callbacks={[
+                                                                refetchLineItems,
+                                                                refetchUsages,
+                                                                refetchPlanUsage,
+                                                            ]}
+                                                        />
                                                     ),
                                                 )}
                                             </tbody>
@@ -256,6 +263,45 @@ function PlanCategoryItem({ planCategory, usage }: PlanCategoryItemProps) {
                     </div>
                 )}
         </li>
+    );
+}
+
+interface LineItemProps {
+    lineItem: LineItem;
+    callbacks: APIMutationCallbackFn[];
+}
+
+function LineItemRow({ lineItem, callbacks }: LineItemProps) {
+    const { mutate } = useAPIMutation<LineItem>(lineItem._links['revert']);
+
+    return (
+        <tr>
+            <td className='w-full p-4'>{lineItem.description}</td>
+            <td className={`p-4 ${lineItem.deposit > 0 && 'text-lime-600'}`}>
+                {formatCurrency(lineItem.deposit)}
+            </td>
+            <td className={`p-4 ${lineItem.withdrawal > 0 && 'text-red-600'}`}>
+                {formatCurrency(lineItem.withdrawal)}
+            </td>
+            <td className='p-4 text-nowrap'>
+                {(new Date(lineItem.created_at)).toLocaleDateString()}
+            </td>
+            <td>
+                <Button
+                    variant='outline'
+                    onClick={async () =>
+                        await mutate({
+                            updatedDat: {
+                                description: lineItem.description +
+                                    ' (reverted)',
+                            },
+                            callback: callbacks,
+                        })}
+                >
+                    Revert
+                </Button>
+            </td>
+        </tr>
     );
 }
 

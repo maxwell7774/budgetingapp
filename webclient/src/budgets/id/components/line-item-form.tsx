@@ -9,52 +9,45 @@ import {
     DialogTitle,
     DialogTrigger,
     Input,
-    Select,
 } from '../../../components/ui/index.ts';
 import {
     APIMutationCallbackFn,
     APIMutationFn,
 } from '../../../components/api/api.ts';
-import { PlanCategory } from '../../../components/api/plan-categories.ts';
 import { useForm } from '@tanstack/react-form';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { MoneyInput } from '../../../components/ui/money-input.tsx';
 import { formatCurrency } from '../../../utils/index.ts';
+import { CreateLineItemParams } from '../../../components/api/line-items.ts';
 
 interface Props {
-    planID: string;
-    mutationFn: APIMutationFn<PlanCategory>;
+    planCategoryID: string;
+    mutationFn: APIMutationFn<CreateLineItemParams>;
     callbacks: APIMutationCallbackFn[];
 }
 
-export function CategoryForm(
-    { planID, mutationFn, callbacks }: Props,
+export function LineItemForm(
+    { planCategoryID, mutationFn, callbacks }: Props,
 ) {
     const [open, setOpen] = useState<boolean>(false);
     const form = useForm({
         defaultValues: {
-            name: '',
+            description: '',
             amount: '',
-            type: '',
         },
         validators: {
             onChange: ({ value }) => {
-                if (value.name === '') {
-                    return 'Name is required';
+                if (value.description === '') {
+                    return 'Description is required';
                 }
             },
         },
         onSubmit: async ({ value }) => {
             await mutationFn({
                 updatedDat: {
-                    name: value.name,
-                    plan_id: planID,
-                    deposit: value.type === 'deposit'
-                        ? Number(value.amount) * 100
-                        : 0,
-                    withdrawal: value.type === 'withdrawal'
-                        ? Number(value.amount) * 100
-                        : 0,
+                    description: value.description,
+                    plan_category_id: planCategoryID,
+                    amount: Number(value.amount) * 100,
                 },
                 callback: callbacks,
             }).then(() => {
@@ -67,11 +60,11 @@ export function CategoryForm(
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button>Add New Category</Button>
+                <Button>Add Line Item</Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>New Plan Category</DialogTitle>
+                    <DialogTitle>New Line Item</DialogTitle>
                 </DialogHeader>
                 <DialogDescription></DialogDescription>
                 <form
@@ -83,23 +76,30 @@ export function CategoryForm(
                     }}
                 >
                     <form.Field
-                        name='name'
+                        name='description'
                         validators={{
                             onChange: ({ value }) => {
-                                if (value === '') return 'Name is required';
+                                if (value === '') {
+                                    return 'Description is required';
+                                }
                                 if (
                                     value.length > 500
-                                ) return 'Name must be under 500 characters';
+                                ) {
+                                    return 'Description must be under 500 characters';
+                                }
                             },
                         }}
                     >
                         {(field) => (
                             <div>
-                                <label htmlFor='name' className='mb-1 block'>
-                                    Category Name
+                                <label
+                                    htmlFor='description'
+                                    className='mb-1 block'
+                                >
+                                    Description
                                 </label>
                                 <Input
-                                    name='name'
+                                    name='description'
                                     type='text'
                                     placeholder='type text here...'
                                     value={field.state.value}
@@ -150,43 +150,8 @@ export function CategoryForm(
                             </div>
                         )}
                     </form.Field>
-                    <form.Field
-                        name='type'
-                        validators={{
-                            onChange: ({ value }) => {
-                                if (
-                                    value === '' ||
-                                    (value !== 'deposit' &&
-                                        value !== 'withdrawal')
-                                ) return 'Type is required';
-                            },
-                        }}
-                    >
-                        {(field) => (
-                            <div>
-                                <label className='mb-1 block'>Type</label>
-                                <Select
-                                    onChange={(newValue) =>
-                                        field.handleChange(newValue.toString())}
-                                    value={field.state.value}
-                                    options={[
-                                        { label: 'Deposit', value: 'deposit' },
-                                        {
-                                            label: 'Withdrawal',
-                                            value: 'withdrawal',
-                                        },
-                                    ]}
-                                />
-                                {field.state.meta.errors && (
-                                    <p className='text-red-500 mt-1'>
-                                        {field.state.meta.errors}
-                                    </p>
-                                )}
-                            </div>
-                        )}
-                    </form.Field>
                     <DialogFooter className='flex gap-2 ms-auto'>
-                        <Button type='submit'>Add Category</Button>
+                        <Button type='submit'>Add Line Item</Button>
                         <DialogClose asChild>
                             <Button variant='outline'>Close</Button>
                         </DialogClose>

@@ -13,6 +13,12 @@ export interface LineItem extends Resource {
     updated_at: string;
 }
 
+export interface CreateLineItemParams extends Resource {
+    plan_category_id: string;
+    description: string;
+    amount: number;
+}
+
 export function useLineItems(planID?: string, planCategoryID?: string) {
     return useAPICollection<LineItem>({
         href:
