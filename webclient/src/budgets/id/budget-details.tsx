@@ -171,6 +171,7 @@ function PlanCategoryItem(
                 <div className='flex justify-between items-center gap-3 mt-4'>
                     <LineItemForm
                         planCategoryID={planCategory.id}
+                        planCategoryName={planCategory.name}
                         mutationFn={createLineItemFn}
                         callbacks={[
                             refetchLineItems,

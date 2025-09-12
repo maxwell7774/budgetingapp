@@ -15,7 +15,7 @@ export interface User {
     updatedAt: Date;
 }
 
-interface Auth {
+export interface Auth {
     isAuthenticated: boolean;
     user: User;
     accessToken: string;

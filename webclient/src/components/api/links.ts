@@ -8,6 +8,8 @@ type Link struct {
 }
 */
 
+import { Auth } from '../auth-provider.tsx';
+
 type HTTPMethod = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
 export interface Link {
     href: string;
@@ -15,6 +17,26 @@ export interface Link {
     title?: string;
     templated?: boolean;
     name?: string;
+}
+
+function resource(url: string, auth: Auth) {
+    const fetchResource = async function () {
+        const res = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${auth.accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        });
+    };
+    return {};
+}
+
+function link(name: string) {
+    return {
+        name: name,
+        fetch: async function () {},
+    };
 }
 
 export interface Resource {

@@ -22,12 +22,13 @@ import { CreateLineItemParams } from '../../../components/api/line-items.ts';
 
 interface Props {
     planCategoryID: string;
+    planCategoryName: string;
     mutationFn: APIMutationFn<CreateLineItemParams>;
     callbacks: APIMutationCallbackFn[];
 }
 
 export function LineItemForm(
-    { planCategoryID, mutationFn, callbacks }: Props,
+    { planCategoryID, planCategoryName, mutationFn, callbacks }: Props,
 ) {
     const [open, setOpen] = useState<boolean>(false);
     const form = useForm({
@@ -64,7 +65,9 @@ export function LineItemForm(
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>New Line Item</DialogTitle>
+                    <DialogTitle>
+                        New Line Item for {planCategoryName}
+                    </DialogTitle>
                 </DialogHeader>
                 <DialogDescription></DialogDescription>
                 <form
