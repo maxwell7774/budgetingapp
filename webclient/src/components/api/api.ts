@@ -6,29 +6,6 @@ interface ErrorResponse {
     error: string;
 }
 
-/* Abort controller fetching maybe?
-useEffect(() => {
-  const controller = new AbortController();
-
-  setFetching(true);
-  setErrored(false);
-
-  fetch(link.href, {
-    signal: controller.signal,
-    headers: {
-      ...
-    },
-  })
-    .then(...)
-    .catch(e => {
-      if (e.name === "AbortError") return; // Ignore cancelled requests
-      ...
-    })
-    .finally(...);
-
-  return () => controller.abort();
-}, [link]);
-*/
 export function useAPIResource<T extends Resource>(
     initialLink?: Link,
 ) {

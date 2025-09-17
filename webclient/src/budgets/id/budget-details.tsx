@@ -1,17 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import { usePlan } from '../../components/api/plans.ts';
-import {
-    PlanCategory,
-    usePlanCategories,
-} from '../../components/api/plan-categories.ts';
+import { Plan } from '../../components/api/plans.ts';
+import { PlanCategory } from '../../components/api/plan-categories.ts';
 import { Button, ProgressBar } from '../../components/ui/index.ts';
 import { ChevronDownIcon } from '../../components/ui/icons/chevron-down.tsx';
 import {
     APIMutationCallbackFn,
     useAPICollection,
     useAPIMutation,
-    useAPIResource,
 } from '../../components/api/api.ts';
 import { PlanCategoryUsage, PlanUsage } from '../../components/api/usages.ts';
 import { formatCurrency } from '../../utils/index.ts';
@@ -19,7 +15,11 @@ import {
     CreateLineItemParams,
     LineItem,
 } from '../../components/api/line-items.ts';
-import { Link } from '../../components/api/links.ts';
+import {
+    HALCollection,
+    Link,
+    useHALClient,
+} from '../../components/api/links.ts';
 import { LoaderIcon } from '../../components/ui/icons/loader.tsx';
 import { CategoryForm } from './components/category-form.tsx';
 import { LineItemForm } from './components/line-item-form.tsx';
@@ -29,27 +29,52 @@ function BudgetDetails() {
     if (!id) {
         return null;
     }
-    const { resource: plan } = usePlan(id);
-    const { collection: planCategories, refetch: refetchCategories } =
-        usePlanCategories(id);
-    const { resource: planUsage, refetch: refectPlanUsage } = useAPIResource<
-        PlanUsage
-    >(
-        plan?._links['usage'],
-    );
-    const { collection: usages, refetch: refectUsages } = useAPICollection<
-        PlanCategoryUsage
-    >(
-        plan?._links['plan_categories_usage'],
-    );
-    const { mutate: createCategory } = useAPIMutation<PlanCategory>(
-        planCategories?._links['create'],
-    );
+    const [plan, setPlan] = useState<Plan>();
+    const [planUsage, setPlanUsage] = useState<PlanUsage>();
+    const [planCategoriesUsage, setPlanCategoriesUsage] = useState<
+        HALCollection<PlanCategoryUsage>
+    >();
+
+    const client = useHALClient();
+
+    // const { mutate: createCategory } = useAPIMutation<PlanCategory>(
+    //     planCategories?._links['create'],
+    // );
 
     const categoryUsages: Record<string, PlanCategoryUsage> = {};
-    usages?._embedded.items.forEach((i) => {
+    planCategoriesUsage?._embedded.items.forEach((i) => {
         categoryUsages[i.plan_category_id] = i;
     });
+
+    console.log(client.resources);
+
+    useEffect(() => {
+        client.go<Plan>({ key: 'plan', link: { href: '/api/v1/plans/' + id } })
+            .then((plan) => {
+                setPlan(plan);
+                client.go<HALCollection<PlanCategory>>(
+                    'plan_categories',
+                    plan._links['plan_categories'],
+                )
+                    .then((planCategories) => {
+                    });
+                client.go<PlanUsage>('plan_usage', plan._links['usage'])
+                    .then((planUsage) => {
+                        setPlanUsage(planUsage);
+                    });
+                client.go<HALCollection<PlanCategoryUsage>>(
+                    'plan_categories_usage',
+                    plan._links['plan_categories_usage'],
+                )
+                    .then((planCategoriesUsage) => {
+                        setPlanCategoriesUsage(planCategoriesUsage);
+                    });
+            });
+    }, []);
+
+    const planCategories = client.getResource<HALCollection<PlanCategory>>(
+        'plan_categories',
+    );
 
     return (
         <div>
@@ -82,25 +107,39 @@ function BudgetDetails() {
                         : ''}
                 />
             </div>
+            {/* <Button */}
+            {/*     onClick={async () => */}
+            {/*         await client.go( */}
+            {/*             'plan_categories', */}
+            {/*             client.getResource<Plan>('plan_categories') */}
+            {/*                 ._links['self'], */}
+            {/*             5, */}
+            {/*         )} */}
+            {/* > */}
+            {/*     Refresh */}
+            {/* </Button> */}
             <div className='mt-8 mb-4 ms-auto w-max'>
-                <CategoryForm
-                    planID={id}
-                    mutationFn={createCategory}
-                    callbacks={[
-                        refetchCategories,
-                        refectUsages,
-                        refectPlanUsage,
-                    ]}
-                />
+                {planCategories &&
+                    (
+                        <CategoryForm
+                            planID={id}
+                            client={client}
+                            create_link={planCategories._links['create']}
+                        />
+                    )}
             </div>
             <ul className='mb-8 space-y-8'>
-                {planCategories?._embedded.items.map((c) => (
+                {client.getResource<HALCollection<PlanCategory>>(
+                    'plan_categories',
+                )?._embedded.items.map((
+                    c,
+                ) => (
                     <PlanCategoryItem
                         planCategory={c}
                         key={c.id}
                         usage={categoryUsages[c.id]}
-                        refetchUsages={refectUsages}
-                        refetchPlanUsage={refectPlanUsage}
+                        // refetchUsages={refectUsages}
+                        // refetchPlanUsage={refectPlanUsage}
                     />
                 ))}
             </ul>
@@ -111,13 +150,12 @@ function BudgetDetails() {
 interface PlanCategoryItemProps {
     planCategory: PlanCategory;
     usage?: PlanCategoryUsage;
-    refetchUsages: APIMutationCallbackFn;
-    refetchPlanUsage: APIMutationCallbackFn;
+    // refetchUsages: APIMutationCallbackFn;
+    // refetchPlanUsage: APIMutationCallbackFn;
 }
 
 function PlanCategoryItem(
-    { planCategory, usage, refetchUsages, refetchPlanUsage }:
-        PlanCategoryItemProps,
+    { planCategory, usage }: PlanCategoryItemProps,
 ) {
     const [open, setOpen] = useState<boolean>(false);
     const [render, setRender] = useState<boolean>(false);
@@ -175,8 +213,8 @@ function PlanCategoryItem(
                         mutationFn={createLineItemFn}
                         callbacks={[
                             refetchLineItems,
-                            refetchUsages,
-                            refetchPlanUsage,
+                            // refetchUsages,
+                            // refetchPlanUsage,
                         ]}
                     />
                     <Button
@@ -250,8 +288,8 @@ function PlanCategoryItem(
                                                             lineItem={l}
                                                             callbacks={[
                                                                 refetchLineItems,
-                                                                refetchUsages,
-                                                                refetchPlanUsage,
+                                                                // refetchUsages,
+                                                                // refetchPlanUsage,
                                                             ]}
                                                         />
                                                     ),

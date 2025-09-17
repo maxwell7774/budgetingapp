@@ -11,24 +11,21 @@ import {
     Input,
     Select,
 } from '../../../components/ui/index.ts';
-import {
-    APIMutationCallbackFn,
-    APIMutationFn,
-} from '../../../components/api/api.ts';
 import { PlanCategory } from '../../../components/api/plan-categories.ts';
 import { useForm } from '@tanstack/react-form';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { MoneyInput } from '../../../components/ui/money-input.tsx';
 import { formatCurrency } from '../../../utils/index.ts';
+import { HALClient, Link } from '../../../components/api/links.ts';
 
 interface Props {
     planID: string;
-    mutationFn: APIMutationFn<PlanCategory>;
-    callbacks: APIMutationCallbackFn[];
+    client: HALClient;
+    create_link: Link;
 }
 
 export function CategoryForm(
-    { planID, mutationFn, callbacks }: Props,
+    { planID, client, create_link }: Props,
 ) {
     const [open, setOpen] = useState<boolean>(false);
     const form = useForm({
@@ -45,20 +42,28 @@ export function CategoryForm(
             },
         },
         onSubmit: async ({ value }) => {
-            await mutationFn({
-                updatedDat: {
-                    name: value.name,
-                    plan_id: planID,
-                    deposit: value.type === 'deposit'
-                        ? Number(value.amount) * 100
-                        : 0,
-                    withdrawal: value.type === 'withdrawal'
-                        ? Number(value.amount) * 100
-                        : 0,
+            await client.mutate<{
+                name: string;
+                plan_id: string;
+                deposit: number;
+                withdrawal: number;
+            }, PlanCategory>(
+                {
+                    link: create_link,
+                    dat: {
+                        name: value.name,
+                        plan_id: planID,
+                        deposit: value.type === 'deposit'
+                            ? Number(value.amount) * 100
+                            : 0,
+                        withdrawal: value.type === 'withdrawal'
+                            ? Number(value.amount) * 100
+                            : 0,
+                    },
                 },
-                callback: callbacks,
-            }).then(() => {
+            ).then(() => {
                 setOpen(false);
+                client.refresh(['plan_categories']);
                 form.reset();
             });
         },
