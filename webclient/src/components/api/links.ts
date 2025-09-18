@@ -53,8 +53,8 @@ export interface HALClientResource {
 interface HALGoParams {
     key: string;
     link: Link;
-    cache_secs: number;
-    ignore_cache: boolean;
+    cache_secs?: number;
+    ignore_cache?: boolean;
     template_options?: Record<string, string>;
 }
 

@@ -29,52 +29,39 @@ function BudgetDetails() {
     if (!id) {
         return null;
     }
-    const [plan, setPlan] = useState<Plan>();
-    const [planUsage, setPlanUsage] = useState<PlanUsage>();
-    const [planCategoriesUsage, setPlanCategoriesUsage] = useState<
-        HALCollection<PlanCategoryUsage>
-    >();
-
     const client = useHALClient();
 
-    // const { mutate: createCategory } = useAPIMutation<PlanCategory>(
-    //     planCategories?._links['create'],
-    // );
+    useEffect(() => {
+        client.go<Plan>({ key: 'plan', link: { href: '/api/v1/plans/' + id } })
+            .then((plan) => {
+                client.go<HALCollection<PlanCategory>>({
+                    key: 'plan_categories',
+                    link: plan._links['plan_categories'],
+                });
+                client.go<PlanUsage>({
+                    key: 'plan_usage',
+                    link: plan._links['usage'],
+                });
+                client.go<HALCollection<PlanCategoryUsage>>({
+                    key: 'plan_categories_usage',
+                    link: plan._links['plan_categories_usage'],
+                });
+            });
+    }, []);
+
+    const plan = client.getResource<Plan>('plan');
+    const planUsage = client.getResource<PlanUsage>('plan_usage');
+    const planCategories = client.getResource<HALCollection<PlanCategory>>(
+        'plan_categories',
+    );
+    const planCategoriesUsage = client.getResource<
+        HALCollection<PlanCategoryUsage>
+    >('plan_categories_usage');
 
     const categoryUsages: Record<string, PlanCategoryUsage> = {};
     planCategoriesUsage?._embedded.items.forEach((i) => {
         categoryUsages[i.plan_category_id] = i;
     });
-
-    console.log(client.resources);
-
-    useEffect(() => {
-        client.go<Plan>({ key: 'plan', link: { href: '/api/v1/plans/' + id } })
-            .then((plan) => {
-                setPlan(plan);
-                client.go<HALCollection<PlanCategory>>(
-                    'plan_categories',
-                    plan._links['plan_categories'],
-                )
-                    .then((planCategories) => {
-                    });
-                client.go<PlanUsage>('plan_usage', plan._links['usage'])
-                    .then((planUsage) => {
-                        setPlanUsage(planUsage);
-                    });
-                client.go<HALCollection<PlanCategoryUsage>>(
-                    'plan_categories_usage',
-                    plan._links['plan_categories_usage'],
-                )
-                    .then((planCategoriesUsage) => {
-                        setPlanCategoriesUsage(planCategoriesUsage);
-                    });
-            });
-    }, []);
-
-    const planCategories = client.getResource<HALCollection<PlanCategory>>(
-        'plan_categories',
-    );
 
     return (
         <div>
@@ -107,17 +94,6 @@ function BudgetDetails() {
                         : ''}
                 />
             </div>
-            {/* <Button */}
-            {/*     onClick={async () => */}
-            {/*         await client.go( */}
-            {/*             'plan_categories', */}
-            {/*             client.getResource<Plan>('plan_categories') */}
-            {/*                 ._links['self'], */}
-            {/*             5, */}
-            {/*         )} */}
-            {/* > */}
-            {/*     Refresh */}
-            {/* </Button> */}
             <div className='mt-8 mb-4 ms-auto w-max'>
                 {planCategories &&
                     (

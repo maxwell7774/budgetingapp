@@ -24,6 +24,7 @@ func (p *Plan) GenerateLinks() {
 	self := "/api/v1/plans/" + p.ID.String()
 	p.Links = DefaultLinks(self)
 	p.Links["usage"] = Link{Href: self + "/usage"}
+	p.Links["plan_categories"] = Link{Href: "/api/v1/plan-categories?plan_id=" + p.ID.String()}
 	p.Links["plan_categories_usage"] = Link{Href: "/api/v1/plan-categories/usage?plan_id=" + p.ID.String()}
 }
 
