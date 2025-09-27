@@ -1,4 +1,5 @@
 import { betterAuth } from 'better-auth';
+import { jwt } from 'better-auth/plugins';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import * as schema from '@/lib/db/index';
 
@@ -19,4 +20,5 @@ export const auth = betterAuth({
         provider: 'pg',
         usePlural: true,
     }),
+    plugins: [jwt()],
 });

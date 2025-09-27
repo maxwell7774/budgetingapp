@@ -20,6 +20,9 @@
 # production
 /build
 
+# drizzle meta
+/lib/db/drizzle/meta/
+
 # misc
 .DS_Store
 *.pem
