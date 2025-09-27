@@ -30,20 +30,14 @@ func (p *PlanUsage) GenerateLinks() {
 }
 
 func (cfg *APIConfig) HandlerGetAllPlanUsagesForOwner(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	user, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	userID, err := auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 
 	totalPlans, err := cfg.db.CountPlansForOwner(r.Context(), database.CountPlansForOwnerParams{
-		OwnerID: userID,
+		OwnerID: user.ID,
 		Keyword: sql.NullString{Valid: true, String: r.URL.Query().Get("search")},
 	})
 	if err != nil {
@@ -53,7 +47,7 @@ func (cfg *APIConfig) HandlerGetAllPlanUsagesForOwner(w http.ResponseWriter, r *
 	pagination := getPaginationFromQuery(r.URL.Query(), totalPlans)
 
 	plansUsageDB, err := cfg.db.GetAllPlanUsagesForOwnerID(r.Context(), database.GetAllPlanUsagesForOwnerIDParams{
-		OwnerID: userID,
+		OwnerID: user.ID,
 		Limit:   pagination.Limit(),
 		Offset:  pagination.Offset(),
 		Keyword: sql.NullString{Valid: true, String: r.URL.Query().Get("search")},
@@ -94,15 +88,9 @@ func (cfg *APIConfig) HandlerGetAllPlanUsagesForOwner(w http.ResponseWriter, r *
 }
 
 func (cfg *APIConfig) HandlerGetPlanUsage(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	_, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 
@@ -154,15 +142,9 @@ func (p *PlanCategoryUsage) GenerateLinks() {
 }
 
 func (cfg *APIConfig) HandlerGetPlanCategoriesUsageForPlan(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	_, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 

@@ -29,15 +29,9 @@ func (l *LineItem) GenerateLinks() {
 }
 
 func (cfg *APIConfig) HandlerLineItemsGet(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	_, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 
@@ -130,15 +124,9 @@ func (cfg *APIConfig) HandlerLineItemsGet(w http.ResponseWriter, r *http.Request
 }
 
 func (cfg *APIConfig) HandlerLineItemGetByID(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	_, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 
@@ -173,15 +161,9 @@ type CreateLineItemParams struct {
 }
 
 func (cfg *APIConfig) HandlerLineItemCreate(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	user, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	userID, err := auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 
@@ -209,7 +191,7 @@ func (cfg *APIConfig) HandlerLineItemCreate(w http.ResponseWriter, r *http.Reque
 	}
 
 	lineItem, err := cfg.db.CreateLineItem(r.Context(), database.CreateLineItemParams{
-		UserID:         userID,
+		UserID:         user.ID,
 		PlanCategoryID: params.PlanCategoryID,
 		Description:    params.Description,
 		Deposit:        deposit,
@@ -238,15 +220,9 @@ type UpdateLineItemParams struct {
 }
 
 func (cfg *APIConfig) HandlerLineItemUpdate(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	_, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 
@@ -290,15 +266,9 @@ type RevertLineItemParams struct {
 }
 
 func (cfg *APIConfig) HandlerLineItemRevert(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	user, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	userID, err := auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 
@@ -323,7 +293,7 @@ func (cfg *APIConfig) HandlerLineItemRevert(w http.ResponseWriter, r *http.Reque
 	}
 
 	args := database.CreateLineItemParams{
-		UserID:         userID,
+		UserID:         user.ID,
 		PlanCategoryID: lineItem.PlanCategoryID,
 		Description:    params.Description,
 	}
@@ -353,15 +323,9 @@ func (cfg *APIConfig) HandlerLineItemRevert(w http.ResponseWriter, r *http.Reque
 }
 
 func (cfg *APIConfig) HandlerLineItemDelete(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	_, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 

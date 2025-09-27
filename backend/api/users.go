@@ -21,15 +21,9 @@ type User struct {
 }
 
 func (cfg *APIConfig) HandlerUsersGet(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	_, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 
@@ -58,7 +52,6 @@ type CreateUserParams struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
-	Password  string `json:"password"`
 }
 
 func (cfg *APIConfig) HandlerUserCreate(w http.ResponseWriter, r *http.Request) {
@@ -70,17 +63,10 @@ func (cfg *APIConfig) HandlerUserCreate(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	hashedPassword, err := auth.HashPassword(params.Password)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't hash password", err)
-		return
-	}
-
 	user, err := cfg.db.CreateUser(r.Context(), database.CreateUserParams{
-		FirstName:      params.FirstName,
-		LastName:       params.LastName,
-		Email:          params.Email,
-		HashedPassword: hashedPassword,
+		FirstName: params.FirstName,
+		LastName:  params.LastName,
+		Email:     params.Email,
 	})
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create user", err)

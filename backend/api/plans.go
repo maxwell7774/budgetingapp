@@ -29,20 +29,14 @@ func (p *Plan) GenerateLinks() {
 }
 
 func (cfg *APIConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	user, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	userID, err := auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 
 	totalPlans, err := cfg.db.CountPlansForOwner(r.Context(), database.CountPlansForOwnerParams{
-		OwnerID: userID,
+		OwnerID: user.ID,
 		Keyword: sql.NullString{Valid: true, String: r.URL.Query().Get("search")},
 	})
 	if err != nil {
@@ -52,7 +46,7 @@ func (cfg *APIConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Req
 	pagination := getPaginationFromQuery(r.URL.Query(), totalPlans)
 
 	plansDB, err := cfg.db.GetPlansForOwner(r.Context(), database.GetPlansForOwnerParams{
-		OwnerID: userID,
+		OwnerID: user.ID,
 		Limit:   pagination.Limit(),
 		Offset:  pagination.Offset(),
 		Keyword: sql.NullString{Valid: true, String: r.URL.Query().Get("search")},
@@ -96,15 +90,9 @@ func (cfg *APIConfig) HandlerPlansGetForOwner(w http.ResponseWriter, r *http.Req
 }
 
 func (cfg *APIConfig) HandlerPlanGetByID(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	user, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	userID, err := auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 
@@ -120,7 +108,7 @@ func (cfg *APIConfig) HandlerPlanGetByID(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if userID != plan.OwnerID {
+	if user.ID != plan.OwnerID {
 		respondWithError(w, http.StatusUnauthorized, "User is not the owner of this plan", nil)
 		return
 	}
@@ -139,15 +127,9 @@ type CreatePlanParams struct {
 }
 
 func (cfg *APIConfig) HandlerPlanCreate(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	user, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	userID, err := auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 
@@ -165,7 +147,7 @@ func (cfg *APIConfig) HandlerPlanCreate(w http.ResponseWriter, r *http.Request) 
 	}
 
 	plan, err := cfg.db.CreatePlan(r.Context(), database.CreatePlanParams{
-		OwnerID: userID,
+		OwnerID: user.ID,
 		Name:    params.Name,
 	})
 	if err != nil {
@@ -187,15 +169,9 @@ type UpdatePlanParams struct {
 }
 
 func (cfg *APIConfig) HandlerPlanUpdateName(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	_, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 
@@ -237,15 +213,9 @@ func (cfg *APIConfig) HandlerPlanUpdateName(w http.ResponseWriter, r *http.Reque
 }
 
 func (cfg *APIConfig) HandlerPlanDelete(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	_, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 

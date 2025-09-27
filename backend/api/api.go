@@ -7,9 +7,8 @@ type APIConfig struct {
 	jwtSecret string
 }
 
-func NewAPIConfig(db *database.Queries, jwtSecret string) APIConfig {
+func NewAPIConfig(db *database.Queries) APIConfig {
 	return APIConfig{
-		db:        db,
-		jwtSecret: jwtSecret,
+		db: db,
 	}
 }

@@ -28,15 +28,9 @@ func (p *PlanCategory) GenerateLinks() {
 }
 
 func (cfg *APIConfig) HandlerPlanCategoriesGet(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	_, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 
@@ -91,15 +85,9 @@ func (cfg *APIConfig) HandlerPlanCategoriesGet(w http.ResponseWriter, r *http.Re
 }
 
 func (cfg *APIConfig) HandlerPlanCategoryGetByID(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	_, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 
@@ -134,15 +122,9 @@ type CreatePlanCategoryParams struct {
 }
 
 func (cfg *APIConfig) HandlerPlanCategoryCreate(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	_, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 
@@ -181,15 +163,9 @@ type UpdatePlanCategoryParams struct {
 }
 
 func (cfg *APIConfig) HandlerPlanCategoryUpdate(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	_, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 
@@ -228,15 +204,9 @@ func (cfg *APIConfig) HandlerPlanCategoryUpdate(w http.ResponseWriter, r *http.R
 }
 
 func (cfg *APIConfig) HandlerPlanCategoryDelete(w http.ResponseWriter, r *http.Request) {
-	accessToken, err := auth.GetBearerToken(r.Header)
+	_, err := auth.UserFromRequest(r)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't find jwt", err)
-		return
-	}
-
-	_, err = auth.ValidateJWT(accessToken, cfg.jwtSecret)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Couldn't validate jwt", err)
+		respondWithError(w, http.StatusUnauthorized, "Couldn't retrieve user from request", err)
 		return
 	}
 

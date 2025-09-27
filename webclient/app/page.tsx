@@ -1,10 +1,10 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { authClient } from '@/lib/auth/client';
-// import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-    // const router = useRouter();
+    const router = useRouter();
 
     const { data: session } = authClient.useSession();
     return (
@@ -36,10 +36,21 @@ export default function Home() {
             <Button
                 type="button"
                 onClick={async () => {
+                    const res = await fetch('/api/v1/health');
+                    console.log(res);
+                }}
+            >
+                Test JWT
+            </Button>
+            <Button
+                type="button"
+                onClick={async () => {
                     await authClient.signOut({
-                        // fetchOptions: {
-                        //     onSuccess: () => { router.push("/login") }
-                        // }
+                        fetchOptions: {
+                            onSuccess: () => {
+                                router.push('/login');
+                            },
+                        },
                     });
                 }}
             >

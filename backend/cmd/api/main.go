@@ -8,6 +8,7 @@ import (
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/maxwell7774/budgetingapp/backend/internal/auth"
 	"github.com/maxwell7774/budgetingapp/backend/internal/database"
 	"github.com/maxwell7774/budgetingapp/backend/internal/routes"
 )
@@ -28,9 +29,9 @@ func main() {
 		log.Fatal("DB_URL must be set")
 	}
 
-	jwtSecret := os.Getenv("JWT_SECRET")
-	if jwtSecret == "" {
-		log.Fatal("JWT_SECRET must be set")
+	jwksURL := os.Getenv("JWKS_URL")
+	if jwksURL == "" {
+		log.Fatal("JWKS_URL must be set")
 	}
 
 	db, err := sql.Open("postgres", dbURL)
@@ -38,11 +39,13 @@ func main() {
 		log.Fatalf("Error opening database connection: %v", err)
 	}
 
+	auth.CreateKeysetCache(jwksURL)
+	defer auth.CleanupKeysetCache()
+
 	dbQueries := database.New(db)
 
 	router := routes.NewRouter(
 		dbQueries,
-		jwtSecret,
 	)
 
 	log.Printf("Listening on: http://localhost%s", port)

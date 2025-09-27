@@ -7,17 +7,12 @@ import (
 	"github.com/maxwell7774/budgetingapp/backend/internal/database"
 )
 
-func NewRouter(db *database.Queries, jwtSecret string) *http.ServeMux {
+func NewRouter(db *database.Queries) *http.ServeMux {
 	mux := http.NewServeMux()
 
-	apiConfig := api.NewAPIConfig(db, jwtSecret)
+	apiConfig := api.NewAPIConfig(db)
 
 	mux.HandleFunc("GET /api/v1/users", apiConfig.HandlerUsersGet)
-
-	mux.HandleFunc("POST /api/v1/auth/login", apiConfig.HandlerLogin)
-	mux.HandleFunc("POST /api/v1/auth/register", apiConfig.HandlerUserCreate)
-	mux.HandleFunc("GET /api/v1/auth/refresh", apiConfig.HandlerRefreshAccessToken)
-	mux.HandleFunc("POST /api/v1/auth/revoke", apiConfig.HandlerRevokeRefreshToken)
 
 	mux.HandleFunc("GET /api/v1/plans", apiConfig.HandlerPlansGetForOwner)
 	mux.HandleFunc("GET /api/v1/plans/{id}", apiConfig.HandlerPlanGetByID)
@@ -40,6 +35,8 @@ func NewRouter(db *database.Queries, jwtSecret string) *http.ServeMux {
 	mux.HandleFunc("POST /api/v1/line-items/{id}/revert", apiConfig.HandlerLineItemRevert)
 	mux.HandleFunc("PUT /api/v1/line-items/{id}", apiConfig.HandlerLineItemUpdate)
 	mux.HandleFunc("DELETE /api/v1/line-items/{id}", apiConfig.HandlerLineItemDelete)
+
+	mux.HandleFunc("GET /api/v1/health", apiConfig.HandlerPing)
 
 	return mux
 }

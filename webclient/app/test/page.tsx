@@ -9,7 +9,7 @@ export default async function Test() {
 
     return (
         <main>
-            <Link href='/'>Home</Link>
+            <Link href="/">Home</Link>
             {session && <p>{session.user.name}</p>}
         </main>
     );
