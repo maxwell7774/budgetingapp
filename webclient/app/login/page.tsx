@@ -81,7 +81,7 @@ export default function LoginPage() {
                             });
                         }}
                     >
-                        <GithubIcon className="stroke-white fill-white size-5 me-2" />
+                        <GithubIcon className="fill-white size-5 me-2" />
                         Sign in with Github
                     </Button>
                     <Button
@@ -93,7 +93,7 @@ export default function LoginPage() {
                             });
                         }}
                     >
-                        <GoogleIcon className="stroke-white fill-white size-5 me-2" />
+                        <GoogleIcon className="fill-white size-5 me-2" />
                         Sign in with Google
                     </Button>
                     <div className="flex items-center justify-center gap-4">
