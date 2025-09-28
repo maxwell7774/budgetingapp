@@ -1,62 +1,17 @@
-'use client';
-import { Button } from '@/components/ui/button';
-import { authClient } from '@/lib/auth/client';
-import { useRouter } from 'next/navigation';
-
 export default function Home() {
-    const router = useRouter();
-
-    const { data: session } = authClient.useSession();
     return (
-        <main>
-            <Button
-                type="button"
-                onClick={async () => {
-                    await authClient.signUp.email({
-                        email: 'test2@example.com',
-                        name: 'Bobio2 Jones',
-                        password: 'password',
-                    });
-                }}
-            >
-                Sign up
-            </Button>
-            <Button
-                type="button"
-                onClick={async () => {
-                    await authClient.signIn.email({
-                        email: 'test2@example.com',
-                        password: 'password',
-                        callbackURL: '/test',
-                    });
-                }}
-            >
-                Sign in
-            </Button>
-            <Button
-                type="button"
-                onClick={async () => {
-                    const res = await fetch('/api/v1/health');
-                    console.log(res);
-                }}
-            >
-                Test JWT
-            </Button>
-            <Button
-                type="button"
-                onClick={async () => {
-                    await authClient.signOut({
-                        fetchOptions: {
-                            onSuccess: () => {
-                                router.push('/login');
-                            },
-                        },
-                    });
-                }}
-            >
-                Sign out
-            </Button>
-            {session && <p>{session.user.name}</p>}
-        </main>
+        <div className='grid md:grid-cols-2 gap-8'>
+            <div className='bg-indigo-500 dark:bg-indigo-950 absolute inset-0 bottom-56 -z-1'></div>
+            <div className='mt-8 md:mt-36 min-h-96 max-w-3x mx-auto'>
+                <h1 className='font-bold text-xl text-white dark:text-indigo-500'>Welcome to Guppy Goals!</h1>
+                <p className='text-3xl mt-8 max-w-[35em] leading-18'>This is your answer to
+                    <span className='text-white dark:text-indigo-500 text-4xl'> SIMPLE </span>
+                    budgeting. This app is meant to make you
+                    <span className='text-white dark:text-indigo-500 text-4xl'> DELIBRATE </span>
+                    about your money decisions. I hope you enjoy!
+                </p>
+            </div>
+            <img src="/money.png" />
+        </div>
     );
 }

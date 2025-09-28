@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 export default function LoginPage() {
     const router = useRouter();
 
-    const handleSubmit = async function (e: React.FormEvent<HTMLFormElement>) {
+    const handleSubmit = async function(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
 
