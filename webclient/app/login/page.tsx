@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { GithubIcon, GoogleIcon } from '@/components/ui/icons';
 import { Input } from '@/components/ui/input';
 import { authClient } from '@/lib/auth/client';
 import Link from 'next/link';
@@ -9,7 +10,7 @@ import { useRouter } from 'next/navigation';
 export default function LoginPage() {
     const router = useRouter();
 
-    const handleSubmit = async function(e: React.FormEvent<HTMLFormElement>) {
+    const handleSubmit = async function (e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
 
@@ -63,6 +64,37 @@ export default function LoginPage() {
                 <div className="space-y-4">
                     <Button className="w-full" type="submit">
                         Login
+                    </Button>
+                    <div className="flex items-center justify-center gap-4">
+                        <div className="border-b border-slate-300 dark:border-slate-600 flex-1"></div>
+                        <p className="text-xs text-slate-400 dark:text-slate-600">
+                            OR
+                        </p>
+                        <div className="border-b border-slate-300 dark:border-slate-600 flex-1"></div>
+                    </div>
+                    <Button
+                        className="w-full"
+                        type="button"
+                        onClick={async () => {
+                            await authClient.signIn.social({
+                                provider: 'github',
+                            });
+                        }}
+                    >
+                        <GithubIcon className="stroke-white fill-white size-5 me-2" />
+                        Sign in with Github
+                    </Button>
+                    <Button
+                        className="w-full"
+                        type="button"
+                        onClick={async () => {
+                            await authClient.signIn.social({
+                                provider: 'google',
+                            });
+                        }}
+                    >
+                        <GoogleIcon className="stroke-white fill-white size-5 me-2" />
+                        Sign in with Google
                     </Button>
                     <div className="flex items-center justify-center gap-4">
                         <div className="border-b border-slate-300 dark:border-slate-600 flex-1"></div>
