@@ -1,18 +1,21 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
+import { auth } from '@/lib/auth/server';
+import { headers } from 'next/headers';
 
-export default function BudgetsPage() {
+export default async function BudgetsPage() {
+    const { token } = await auth.api.getToken({ headers: await headers() });
+    const res = await fetch(process.env.GO_API_URL + '/api/v1/plans', {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    console.log(await res.json());
+
     return (
         <div>
             <p>budgets</p>
-            <Button
-                onClick={async () => {
-                    await fetch('/api/v1/health');
-                }}
-            >
-                Test API Health
-            </Button>
+            <Button>Test API Health</Button>
         </div>
     );
 }
