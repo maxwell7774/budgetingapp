@@ -1,2 +1,2 @@
-export * from './github.tsx';
-export * from './google.tsx';
+export * from './github';
+export * from './google';

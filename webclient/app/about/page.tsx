@@ -17,7 +17,7 @@ export default function AboutPage() {
                 </h1>
                 <p className="text-3xl mt-8 max-w-[35em] leading-18 tracking-wide">
                     I created Guppy Goals because I wanted a budgeting app that
-                    was simple. That's all.
+                    was simple. That&apos;s all.
                 </p>
             </div>
         </div>
