@@ -1,7 +1,8 @@
-import { betterAuth } from 'better-auth';
+import { APIError, betterAuth } from 'better-auth';
 import { jwt } from 'better-auth/plugins';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import * as schema from '@/lib/db/index';
+import { HTTPMethod } from '@/lib/types';
 
 export const auth = betterAuth({
     emailAndPassword: {
@@ -20,6 +21,31 @@ export const auth = betterAuth({
         provider: 'pg',
         usePlural: true,
     }),
+    databaseHooks: {
+        user: {
+            create: {
+                after: async (user) => {
+                    const res = await fetch(
+                        `${process.env.GO_API_URL}/api/v1/users`,
+                        {
+                            method: HTTPMethod.POST,
+                            headers: {
+                                'X-API-KEY': process.env.GO_API_KEY as string,
+                            },
+                            body: JSON.stringify(user),
+                        }
+                    );
+
+                    if (!res.ok) {
+                        throw new APIError('INTERNAL_SERVER_ERROR', {
+                            message: "Couldn't create user in the application.",
+                        });
+                    }
+                    console.log(await res.json());
+                },
+            },
+        },
+    },
     socialProviders: {
         github: {
             clientId: process.env.GITHUB_CLIENT_ID as string,

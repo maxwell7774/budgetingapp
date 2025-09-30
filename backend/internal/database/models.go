@@ -41,8 +41,7 @@ type PlanCategory struct {
 
 type User struct {
 	ID        uuid.UUID
-	FirstName string
-	LastName  string
+	Name      string
 	Email     string
 	CreatedAt time.Time
 	UpdatedAt time.Time

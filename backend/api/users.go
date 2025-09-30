@@ -2,6 +2,8 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -12,8 +14,7 @@ import (
 
 type User struct {
 	ID        uuid.UUID `json:"id"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
+	Name      string    `json:"name"`
 	Email     string    `json:"email"`
 	Password  string    `json:"-"`
 	CreatedAt time.Time `json:"created_at"`
@@ -37,8 +38,7 @@ func (cfg *APIConfig) HandlerUsersGet(w http.ResponseWriter, r *http.Request) {
 	for _, u := range usersFromDB {
 		users = append(users, User{
 			ID:        u.ID,
-			FirstName: u.FirstName,
-			LastName:  u.LastName,
+			Name:      u.Name,
 			Email:     u.Email,
 			CreatedAt: u.CreatedAt,
 			UpdatedAt: u.UpdatedAt,
@@ -49,12 +49,18 @@ func (cfg *APIConfig) HandlerUsersGet(w http.ResponseWriter, r *http.Request) {
 }
 
 type CreateUserParams struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
+	ID    uuid.UUID `json:"id"`
+	Name  string    `json:"name"`
+	Email string    `json:"email"`
 }
 
 func (cfg *APIConfig) HandlerUserCreate(w http.ResponseWriter, r *http.Request) {
+	log.Printf("REQUEST KEY: %s\nGO KEY: %s", r.Header.Get("X-API-KEY"), cfg.goAPIKey)
+	if r.Header.Get("X-API-KEY") != cfg.goAPIKey {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't authenticate api key from request", fmt.Errorf("API Key doesn't match"))
+		return
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	params := CreateUserParams{}
 	err := decoder.Decode(&params)
@@ -64,9 +70,9 @@ func (cfg *APIConfig) HandlerUserCreate(w http.ResponseWriter, r *http.Request) 
 	}
 
 	user, err := cfg.db.CreateUser(r.Context(), database.CreateUserParams{
-		FirstName: params.FirstName,
-		LastName:  params.LastName,
-		Email:     params.Email,
+		ID:    params.ID,
+		Name:  params.Name,
+		Email: params.Email,
 	})
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create user", err)
@@ -75,8 +81,7 @@ func (cfg *APIConfig) HandlerUserCreate(w http.ResponseWriter, r *http.Request) 
 
 	respondWithJSON(w, http.StatusCreated, User{
 		ID:        user.ID,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
+		Name:      user.Name,
 		Email:     user.Email,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,

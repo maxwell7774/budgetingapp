@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { createPlan } from '@/lib/api/plans';
 import { auth } from '@/lib/auth/server';
 import { Collection, Plan } from '@/lib/types';
@@ -19,9 +20,12 @@ export default async function BudgetsPage() {
         <div>
             <p>budgets</p>
             <form action={createPlan}>
-                <input name="name" placeholder="name" />
+                <Input name="name" placeholder="name" />
                 <Button type="submit">Submit</Button>
             </form>
+            {plans._embedded.items.map((p) => (
+                <div key={p.id}>{p.name}</div>
+            ))}
         </div>
     );
 }

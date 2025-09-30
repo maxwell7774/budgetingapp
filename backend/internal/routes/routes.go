@@ -7,12 +7,13 @@ import (
 	"github.com/maxwell7774/budgetingapp/backend/internal/database"
 )
 
-func NewRouter(db *database.Queries) *http.ServeMux {
+func NewRouter(db *database.Queries, goAPIKey string) *http.ServeMux {
 	mux := http.NewServeMux()
 
-	apiConfig := api.NewAPIConfig(db)
+	apiConfig := api.NewAPIConfig(db, goAPIKey)
 
 	mux.HandleFunc("GET /api/v1/users", apiConfig.HandlerUsersGet)
+	mux.HandleFunc("POST /api/v1/users", apiConfig.HandlerUserCreate)
 
 	mux.HandleFunc("GET /api/v1/plans", apiConfig.HandlerPlansGetForOwner)
 	mux.HandleFunc("GET /api/v1/plans/{id}", apiConfig.HandlerPlanGetByID)

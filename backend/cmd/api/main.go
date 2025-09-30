@@ -34,6 +34,11 @@ func main() {
 		log.Fatal("JWKS_URL must be set")
 	}
 
+	goAPIKey := os.Getenv("GO_API_KEY")
+	if goAPIKey == "" {
+		log.Fatal("GO_API_KEY must be set")
+	}
+
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatalf("Error opening database connection: %v", err)
@@ -46,6 +51,7 @@ func main() {
 
 	router := routes.NewRouter(
 		dbQueries,
+		goAPIKey,
 	)
 
 	log.Printf("Listening on: http://localhost%s", port)

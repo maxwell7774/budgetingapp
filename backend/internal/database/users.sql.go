@@ -14,8 +14,7 @@ import (
 const createUser = `-- name: CreateUser :one
 INSERT INTO users(
     id,
-    first_name,
-    last_name,
+    name,
     email,
     created_at,
     updated_at
@@ -24,32 +23,24 @@ VALUES (
     $1,
     $2,
     $3,
-    $4,
     NOW(),
     NOW()
 )
-RETURNING id, first_name, last_name, email, created_at, updated_at
+RETURNING id, name, email, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	ID        uuid.UUID
-	FirstName string
-	LastName  string
-	Email     string
+	ID    uuid.UUID
+	Name  string
+	Email string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser,
-		arg.ID,
-		arg.FirstName,
-		arg.LastName,
-		arg.Email,
-	)
+	row := q.db.QueryRowContext(ctx, createUser, arg.ID, arg.Name, arg.Email)
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.FirstName,
-		&i.LastName,
+		&i.Name,
 		&i.Email,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -58,7 +49,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, first_name, last_name, email, created_at, updated_at
+SELECT id, name, email, created_at, updated_at
 FROM users
 WHERE email = $1
 `
@@ -68,8 +59,7 @@ func (q *Queries) GetUser(ctx context.Context, email string) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.FirstName,
-		&i.LastName,
+		&i.Name,
 		&i.Email,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -80,8 +70,7 @@ func (q *Queries) GetUser(ctx context.Context, email string) (User, error) {
 const getUsers = `-- name: GetUsers :many
 SELECT
     id,
-    first_name,
-    last_name,
+    name,
     email,
     created_at,
     updated_at
@@ -99,8 +88,7 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 		var i User
 		if err := rows.Scan(
 			&i.ID,
-			&i.FirstName,
-			&i.LastName,
+			&i.Name,
 			&i.Email,
 			&i.CreatedAt,
 			&i.UpdatedAt,

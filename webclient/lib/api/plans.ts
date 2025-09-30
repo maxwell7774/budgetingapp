@@ -1,6 +1,7 @@
 import { headers } from 'next/headers';
 import { auth } from '../auth/server';
 import { HTTPMethod } from '../types';
+import { revalidatePath } from 'next/cache';
 
 export async function createPlan(formData: FormData) {
     'use server';
@@ -21,4 +22,5 @@ export async function createPlan(formData: FormData) {
         body: JSON.stringify(params),
     });
     console.log(await res.json());
+    revalidatePath('/budgets');
 }
