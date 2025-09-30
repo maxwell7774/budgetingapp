@@ -1,5 +1,7 @@
 import { Button } from '@/components/ui/button';
+import { createPlan } from '@/lib/api/plans';
 import { auth } from '@/lib/auth/server';
+import { Collection, Plan } from '@/lib/types';
 import { headers } from 'next/headers';
 
 export default async function BudgetsPage() {
@@ -10,12 +12,16 @@ export default async function BudgetsPage() {
         },
     });
 
-    console.log(await res.json());
+    const plans: Collection<Plan> = await res.json();
+    console.log(plans);
 
     return (
         <div>
             <p>budgets</p>
-            <Button>Test API Health</Button>
+            <form action={createPlan}>
+                <input name="name" placeholder="name" />
+                <Button type="submit">Submit</Button>
+            </form>
         </div>
     );
 }
