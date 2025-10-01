@@ -12,18 +12,22 @@ export default async function BudgetsPage() {
     return (
         <div>
             <p>budgets</p>
-            <form action={createPlan}>
-                <Input name="name" placeholder="name" />
-                <select name="nothing">
-                    <option>Test 1</option>
-                    <option>Test 2</option>
-                    <option>Test 3</option>
-                    <option>Test 4</option>
-                </select>
-                <input name="date" type="date" />
-                <Button type="submit">Submit</Button>
-            </form>
-            <CreatePlanForm createPlan={createPlan} />
+            <Card className="my-8">
+                {/* <form action={createPlan}> */}
+                {/*     <Input name="name" placeholder="name" /> */}
+                {/*     <select name="nothing"> */}
+                {/*         <option>Test 1</option> */}
+                {/*         <option>Test 2</option> */}
+                {/*         <option>Test 3</option> */}
+                {/*         <option>Test 4</option> */}
+                {/*     </select> */}
+                {/*     <Input name="date" type="date" /> */}
+                {/*     <Button type="submit">Submit</Button> */}
+                {/* </form> */}
+            </Card>
+            <Card className="mb-8">
+                <CreatePlanForm createPlan={createPlan} />
+            </Card>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,1fr))] gap-8">
                 {plans._embedded.items.map((p) => (
                     <Card key={p.id}>

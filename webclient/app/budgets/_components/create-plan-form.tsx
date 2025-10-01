@@ -1,5 +1,6 @@
 'use client';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
     Select,
     SelectTrigger,
@@ -7,28 +8,25 @@ import {
     SelectContent,
     SelectItem,
 } from '@/components/ui/select';
+import { FormState } from '@/lib/types';
+import { useActionState } from 'react';
 
 interface Props {
-    createPlan: (formData: FormData) => void;
+    createPlan: (
+        prevState: FormState,
+        formData: FormData
+    ) => Promise<FormState>;
 }
 
 export function CreatePlanForm({ createPlan }: Props) {
+    const [state, formAction, pending] = useActionState(createPlan, {
+        message: '',
+    });
     return (
-        <form action={createPlan}>
-            <input placeholder="name" />
+        <form action={formAction}>
+            <div>{JSON.stringify(state)}</div>
+            <Input name="name" placeholder="name" />
             <Button type="submit">Submit</Button>
-            <Select name="TestSelect">
-                <SelectTrigger>
-                    <SelectValue placeholder="select something..." />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="1">Test 1</SelectItem>
-                    <SelectItem value="2">Test 2</SelectItem>
-                    <SelectItem value="3">Test 3</SelectItem>
-                    <SelectItem value="4">Test 4</SelectItem>
-                    <SelectItem value="5">Test 5</SelectItem>
-                </SelectContent>
-            </Select>
         </form>
     );
 }
