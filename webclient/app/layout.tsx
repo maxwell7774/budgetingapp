@@ -1,48 +1,13 @@
 import type { Metadata } from 'next';
-import {
-    Geist,
-    Geist_Mono,
-    Press_Start_2P,
-    Roboto_Slab,
-    Saira,
-    Saira_Stencil_One,
-} from 'next/font/google';
+import { Saira } from 'next/font/google';
 import './globals.css';
 import Navbar from './_components/navbar';
 import { ThemeProvider } from './_components/theme-provider';
 
-const geistSans = Geist({
-    variable: '--font-geist-sans',
-    subsets: ['latin'],
-});
-
-// const geistMono = Geist_Mono({
-//     variable: '--font-geist-mono',
-//     subsets: ['latin'],
-// });
-
-// const robotoSlab = Roboto_Slab({
-//     variable: '--font-roboto-slab',
-//     subsets: ['latin'],
-// });
-
-// const pressStart = Press_Start_2P({
-//     subsets: ['latin'],
-//     weight: '400',
-//     display: 'swap', // Optional: Improves loading behavior
-//     variable: '--font-press-start', // Optional: For CSS variables if using Tailwind or custom CSS
-// });
-
 const saira = Saira({
-    variable: '--font-saira',
     subsets: ['latin'],
+    fallback: ['system-ui', 'arial'],
 });
-
-// const sairaStencil = Saira_Stencil_One({
-//     variable: '--font-saira-stencil',
-//     subsets: ['latin'],
-//     weight: '400',
-// });
 
 export const metadata: Metadata = {
     title: 'Guppy Goals',
@@ -55,12 +20,16 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" suppressHydrationWarning>
+        <html
+            lang="en"
+            className={`${saira.className} antialiased font-medium`}
+            suppressHydrationWarning
+        >
             <head>
                 <link rel="icon" href="/fish.svg" sizes="any" />
             </head>
             <body
-                className={`${saira.className} ${geistSans.className} antialiased font-medium relative grid grid-rows-[max-content_1fr_max-content] min-h-screen`}
+                className={`relative grid grid-rows-[max-content_1fr_max-content] min-h-screen`}
             >
                 <ThemeProvider
                     attribute="class"

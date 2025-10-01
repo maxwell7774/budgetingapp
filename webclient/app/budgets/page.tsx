@@ -1,31 +1,46 @@
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { createPlan } from '@/lib/api/plans';
-import { auth } from '@/lib/auth/server';
+import { api, createPlan } from '@/lib/api';
 import { Collection, Plan } from '@/lib/types';
-import { headers } from 'next/headers';
+import { CreatePlanForm } from './_components/create-plan-form';
 
 export default async function BudgetsPage() {
-    const { token } = await auth.api.getToken({ headers: await headers() });
-    const res = await fetch(process.env.GO_API_URL + '/api/v1/plans', {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
-
+    const res = await api.fetch('/api/v1/plans');
     const plans: Collection<Plan> = await res.json();
-    console.log(plans);
 
     return (
         <div>
             <p>budgets</p>
             <form action={createPlan}>
                 <Input name="name" placeholder="name" />
+                <select name="nothing">
+                    <option>Test 1</option>
+                    <option>Test 2</option>
+                    <option>Test 3</option>
+                    <option>Test 4</option>
+                </select>
+                <input name="date" type="date" />
                 <Button type="submit">Submit</Button>
             </form>
-            {plans._embedded.items.map((p) => (
-                <div key={p.id}>{p.name}</div>
-            ))}
+            <CreatePlanForm createPlan={createPlan} />
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,1fr))] gap-8">
+                {plans._embedded.items.map((p) => (
+                    <Card key={p.id}>
+                        <h2>{p.name}</h2>
+                        <p>{p.owner_id}</p>
+                        <p className="mb-8">{p.created_at}</p>
+                        {Object.keys(p._links).map((l, index) => (
+                            <p key={p._links[l].href + index} className="mb-8">
+                                <span className="text-indigo-500">
+                                    {l + ': '}
+                                </span>
+                                {`${JSON.stringify(p._links[l])}`}
+                            </p>
+                        ))}
+                    </Card>
+                ))}
+            </div>
         </div>
     );
 }

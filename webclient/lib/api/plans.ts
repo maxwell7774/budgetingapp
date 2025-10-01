@@ -1,7 +1,6 @@
-import { headers } from 'next/headers';
-import { auth } from '../auth/server';
 import { HTTPMethod } from '../types';
 import { revalidatePath } from 'next/cache';
+import { api } from './api';
 
 export async function createPlan(formData: FormData) {
     'use server';
@@ -10,15 +9,8 @@ export async function createPlan(formData: FormData) {
         name: formData.get('name') as string,
     };
 
-    console.log(params);
-
-    const { token } = await auth.api.getToken({ headers: await headers() });
-
-    const res = await fetch(process.env.GO_API_URL + '/api/v1/plans', {
+    const res = await api.fetch('/api/v1/plans', {
         method: HTTPMethod.POST,
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify(params),
     });
     console.log(await res.json());
