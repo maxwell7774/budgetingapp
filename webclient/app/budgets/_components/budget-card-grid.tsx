@@ -5,6 +5,7 @@ import { api } from '@/lib/api';
 import { Collection, Plan, PlanUsage } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
+import { BudgetUsageDonut } from './budget-usage-donut';
 
 async function fetchPlans(): Promise<Collection<Plan>> {
     const res = await api.fetch('/api/v1/plans');
@@ -63,35 +64,18 @@ function BudgetCard({ plan, usage }: BudgetCardProps) {
             >
                 {plan.name}
             </Link>
-            <div className="mt-4 mb-6 space-y-4">
-                <div>
-                    <p className="text-sm font-bold text-slate-600 dark:text-slate-400 mb-1">
-                        Withdrawn
-                    </p>
-                    <ProgressBar
-                        value={usage.net_withdrawal}
-                        target={usage.target_withdrawal}
-                        label={
-                            formatCurrency(usage.net_withdrawal) +
-                            ' / ' +
-                            formatCurrency(usage.target_withdrawal)
-                        }
-                    />
-                </div>
-                <div>
-                    <p className="text-sm font-bold text-slate-600 dark:text-slate-400 mb-1">
-                        Deposited
-                    </p>
-                    <ProgressBar
-                        value={usage.net_deposit}
-                        target={usage.target_deposit}
-                        label={
-                            formatCurrency(usage.net_deposit) +
-                            ' / ' +
-                            formatCurrency(usage.target_deposit)
-                        }
-                    />
-                </div>
+            <div className="mt-4 mb-6 space-y-4"></div>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+                <BudgetUsageDonut
+                    chartType="deposit"
+                    net={usage.net_deposit}
+                    target={usage.target_deposit}
+                />
+                <BudgetUsageDonut
+                    chartType="withdrawal"
+                    net={usage.net_withdrawal}
+                    target={usage.target_withdrawal}
+                />
             </div>
             <p className="ms-auto w-fit italic text-sm text-slate-400">
                 Updated at {new Date(plan.updated_at).toLocaleString()}
