@@ -1,21 +1,43 @@
+'use server';
 import {
     CreatePlanParams,
     createPlanSchema,
     HTTPMethod,
     CreatePlanFormState,
+    DeletePlanFormState,
 } from '../types';
 import { revalidatePath } from 'next/cache';
 import { api } from './api';
 import z from 'zod';
 
+export async function deletePlan(
+    prevState: DeletePlanFormState,
+    formData: FormData
+): Promise<DeletePlanFormState> {
+    const id = formData.get('id') as string;
+
+    const res = await api.fetch(`/api/v1/plans/${id}`, {
+        method: HTTPMethod.DELETE,
+    });
+
+    if (!res.ok) {
+        return {
+            success: true,
+            message: 'Failed to delete plan...',
+        };
+    }
+
+    revalidatePath('/budgets');
+    return {
+        success: true,
+        message: 'Successfully deleted plan!',
+    };
+}
+
 export async function createPlan(
     prevState: CreatePlanFormState,
     formData: FormData
 ): Promise<CreatePlanFormState> {
-    'use server';
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
     const dat: CreatePlanParams = {
         name: formData.get('name') as string,
     };
@@ -45,6 +67,6 @@ export async function createPlan(
     revalidatePath('/budgets');
     return {
         success: true,
-        message: 'Plan Created Successfully',
+        message: 'Plan Created Successfully!',
     };
 }

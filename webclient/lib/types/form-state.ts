@@ -1,6 +1,13 @@
-export type FormErrors = Record<string, string>;
-
-export interface FormState {
+export interface BaseFormState {
+    success: boolean;
     message: string;
-    errors?: FormErrors;
+}
+
+export interface FormState<T> extends BaseFormState {
+    errors?: {
+        [K in keyof T]?: string[];
+    };
+    inputs?: {
+        [K in keyof T]: T[K];
+    };
 }

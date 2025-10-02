@@ -1,32 +1,39 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-    Select,
-    SelectTrigger,
-    SelectValue,
-    SelectContent,
-    SelectItem,
-} from '@/components/ui/select';
-import { FormState } from '@/lib/types';
+import { CreatePlanAction, CreatePlanParams, FormState } from '@/lib/types';
 import { useActionState } from 'react';
 
 interface Props {
-    createPlan: (
-        prevState: FormState,
-        formData: FormData
-    ) => Promise<FormState>;
+    createPlan: CreatePlanAction;
 }
 
 export function CreatePlanForm({ createPlan }: Props) {
     const [state, formAction, pending] = useActionState(createPlan, {
+        success: false,
         message: '',
     });
     return (
         <form action={formAction}>
-            <div>{JSON.stringify(state)}</div>
-            <Input name="name" placeholder="name" />
-            <Button type="submit">Submit</Button>
+            <div className="mb-8">
+                <label htmlFor="name">Name</label>
+                <Input
+                    id="name"
+                    name="name"
+                    defaultValue={state.inputs?.name}
+                    aria-invalid={state.errors?.name ? true : false}
+                    className="mt-1"
+                    placeholder="name"
+                />
+                {state.errors?.name && (
+                    <p className="text-red-500">{state.errors.name}</p>
+                )}
+            </div>
+            <div className="ms-auto w-max">
+                <Button type="submit" disabled={pending}>
+                    {pending ? 'Submitting...' : 'Add Plan'}
+                </Button>
+            </div>
         </form>
     );
 }
