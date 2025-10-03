@@ -26,9 +26,7 @@ interface Props {
 
 export function CreateCategoryDialog({ planID, createPlanCategory }: Props) {
     const [open, setOpen] = useState<boolean>(false);
-    const [catType, setCatType] = useState<
-        'withdrawal' | 'deposit' | undefined
-    >();
+    const [catType, setCatType] = useState<'withdrawal' | 'deposit' | ''>('');
     const [state, formAction, pending] = useActionState(createPlanCategory, {
         success: false,
         message: '',
@@ -79,7 +77,7 @@ export function CreateCategoryDialog({ planID, createPlanCategory }: Props) {
                                     setCatType('withdrawal');
                                 else if (newValue === 'deposit')
                                     setCatType('deposit');
-                                else setCatType(undefined);
+                                else setCatType('');
                             }}
                         >
                             <SelectTrigger id="type" className="w-full mt-1">
