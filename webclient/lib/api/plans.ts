@@ -9,7 +9,7 @@ import { api } from './api';
 import z from 'zod';
 
 export async function createPlan(
-    prevState: CreatePlanFormState,
+    _prevState: CreatePlanFormState,
     formData: FormData
 ): Promise<CreatePlanFormState> {
     'use server';

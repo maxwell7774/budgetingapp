@@ -39,11 +39,11 @@ function SelectTrigger({
             className={cn(
                 `
                 data-[placeholder]:text-slate-500 [&_svg:not([class*='text-'])]:text-slate-500
-                focus-visible:ring-slate-950/50 aria-invalid:ring-red-500/20
-                dark:aria-invalid:ring-red-500/40 aria-invalid:border-red-500 dark:bg-slate-900 hover:opacity-80 active:opacity-60
-                flex w-fit items-center justify-between gap-2 rounded-full px-3 py-2 text-sm
+                focus-visible:ring-slate-950/50 aria-invalid:ring-red-500
+                dark:aria-invalid:ring-red-500 aria-invalid:border-red-500 aria-invalid:border aria-invalid:ring dark:bg-slate-900 hover:opacity-80 active:opacity-60
+                flex w-fit items-center justify-between gap-2 rounded-full px-3 py-2
                 whitespace-nowrap transition-[color,box-shadow,opacity] outline-none focus-visible:ring-[3px]
-                disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8
+                disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-11 data-[size=sm]:h-8
                 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center
                 *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4
                 dark:border-slate-800 dark:data-[placeholder]:text-slate-400 dark:[&_svg:not([class*='text-'])]:text-slate-400
@@ -122,7 +122,7 @@ function SelectItem({
         <SelectPrimitive.Item
             data-slot="select-item"
             className={cn(
-                "focus:bg-slate-100 focus:text-slate-900 [&_svg:not([class*='text-'])]:text-slate-500 relative flex w-full cursor-default items-center gap-2 rounded-full py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 dark:focus:bg-slate-800 dark:focus:text-slate-50 dark:[&_svg:not([class*='text-'])]:text-slate-400 hover:cursor-pointer",
+                "focus:bg-slate-100 focus:text-slate-900 [&_svg:not([class*='text-'])]:text-slate-500 relative flex w-full cursor-default items-center gap-2 rounded-full py-1.5 pr-8 pl-2 outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 dark:focus:bg-slate-800 dark:focus:text-slate-50 dark:[&_svg:not([class*='text-'])]:text-slate-400 hover:cursor-pointer",
                 className
             )}
             {...props}

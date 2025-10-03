@@ -1,5 +1,4 @@
 import { Card } from '@/components/ui/card';
-import { ProgressBar } from '@/components/ui/progress-bar-temp';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/lib/api';
 import { Collection, Plan, PlanUsage } from '@/lib/types';
