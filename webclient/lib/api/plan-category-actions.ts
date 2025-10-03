@@ -27,6 +27,8 @@ export async function createPlanCategory(
         withdrawal: withdrawal,
     };
 
+    console.log(formData);
+
     const validatedDat = createPlanCategorySchema.safeParse(dat);
 
     if (!validatedDat.success)

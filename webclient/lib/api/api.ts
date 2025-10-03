@@ -5,7 +5,7 @@ class APIFetcher {
     private baseURL: string = process.env.GO_API_URL || 'http://localhost:8080';
 
     async fetch(path: string, options: RequestInit = {}): Promise<Response> {
-        let finalOptions: RequestInit = { ...options };
+        const finalOptions: RequestInit = { ...options };
 
         try {
             const { token } = await auth.api.getToken({
