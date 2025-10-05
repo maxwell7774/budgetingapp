@@ -6,13 +6,13 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { CreatePlanAction } from '@/lib/types';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { useActionState, useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
+import { CreatePlanFn } from '@/lib/api/actions/plan-actions';
 
 interface Props {
-    createPlan: CreatePlanAction;
+    createPlan: CreatePlanFn;
 }
 
 export function CreateBudgetDialog({ createPlan }: Props) {

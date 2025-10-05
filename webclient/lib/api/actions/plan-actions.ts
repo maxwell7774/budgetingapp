@@ -1,43 +1,34 @@
 'use server';
-import {
-    CreatePlanParams,
-    createPlanSchema,
-    HTTPMethod,
-    CreatePlanFormState,
-    DeletePlanFormState,
-} from '../types';
 import { revalidatePath } from 'next/cache';
-import { api } from './api';
 import z from 'zod';
+import { createActionFn, createBaseActionFn } from './actions';
+import { CreatePlanParams, createPlanSchema, HTTPMethod } from '@/lib/types';
+import { api } from '../api';
 
-export async function deletePlan(
-    prevState: DeletePlanFormState,
-    formData: FormData
-): Promise<DeletePlanFormState> {
-    const id = formData.get('id') as string;
+type DeletePlanCTX = { id: string };
+export const deletePlan = createBaseActionFn<DeletePlanCTX>(
+    async function (_state, _formData, context) {
+        const res = await api.fetch(`/api/v1/plans/${context.id}`, {
+            method: HTTPMethod.DELETE,
+        });
 
-    const res = await api.fetch(`/api/v1/plans/${id}`, {
-        method: HTTPMethod.DELETE,
-    });
+        if (!res.ok) {
+            return {
+                success: true,
+                message: 'Failed to delete plan...',
+            };
+        }
 
-    if (!res.ok) {
+        revalidatePath('/budgets');
         return {
             success: true,
-            message: 'Failed to delete plan...',
+            message: 'Successfully deleted plan!',
         };
     }
+);
+export type DeletePlanFn = typeof deletePlan;
 
-    revalidatePath('/budgets');
-    return {
-        success: true,
-        message: 'Successfully deleted plan!',
-    };
-}
-
-export async function createPlan(
-    prevState: CreatePlanFormState,
-    formData: FormData
-): Promise<CreatePlanFormState> {
+export const createPlan = createActionFn(async function (_state, formData) {
     const dat: CreatePlanParams = {
         name: formData.get('name') as string,
     };
@@ -69,4 +60,5 @@ export async function createPlan(
         success: true,
         message: 'Plan Created Successfully!',
     };
-}
+});
+export type CreatePlanFn = typeof createPlan;

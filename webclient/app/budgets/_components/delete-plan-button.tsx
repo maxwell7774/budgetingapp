@@ -1,25 +1,22 @@
 'use client';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { DeletePlanFn } from '@/lib/api/actions/plan-actions';
 import { CreatePlanAction, CreatePlanParams, FormState } from '@/lib/types';
 import { useActionState } from 'react';
 
 interface Props {
-    createPlan: CreatePlanAction;
+    deletePlan: DeletePlanFn;
 }
 
-interface Props {
-    createPlan: (
-        prevState: FormState<CreatePlanParams>,
-        formData: FormData
-    ) => Promise<FormState<CreatePlanParams>>;
-}
-
-export function DeletePlanButton({ createPlan }: Props) {
-    const [state, formAction, pending] = useActionState(createPlan, {
-        success: false,
-        message: '',
-    });
+export function DeletePlanButton({ deletePlan }: Props) {
+    const [state, formAction, pending] = useActionState(
+        deletePlan,
+        {
+            success: false,
+            message: '',
+        },
+        { id: '' }
+    );
     return (
         <form action={formAction} className="w-max">
             <Button type="submit" disabled={pending}>

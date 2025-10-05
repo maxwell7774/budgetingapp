@@ -29,8 +29,6 @@ export async function BudgetInfo({ id }: Props) {
         fetchPlanUsage(id),
     ]);
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
     return (
         <div>
             <h1 className="text-lg font-bold text-slate-500 h-full">
