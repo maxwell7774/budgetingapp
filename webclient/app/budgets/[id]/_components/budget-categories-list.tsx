@@ -1,10 +1,9 @@
 import { ProgressBar } from '@/components/ui/progress-bar-temp';
-import { api } from '@/lib/api';
 import { Collection, PlanCategory, PlanCategoryUsage } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import { CreateCategoryDialog } from './create-category-dialog';
-import { createPlanCategory } from '@/lib/api/plan-category-actions';
-import { Fragment } from 'react';
+import { createPlanCategory } from '@/lib/api/actions';
+import { api } from '@/lib/api/server';
 
 interface Props {
     planID: string;
@@ -101,7 +100,7 @@ interface PlanCategoryItemProps {
 function PlanCategoryItem({ planCategory, usage }: PlanCategoryItemProps) {
     return (
         <li className="bg-white dark:bg-slate-800 rounded-3xl p-8">
-            <div>
+            <div className="mb-8">
                 <h2 className="font-bold text-indigo-500 text-lg mb-6">
                     {planCategory.name}
                 </h2>
@@ -137,90 +136,10 @@ function PlanCategoryItem({ planCategory, usage }: PlanCategoryItemProps) {
                         }
                     />
                 </div>
-                {/* <div className="flex justify-between items-center gap-3 mt-4"> */}
-                {/*     <LineItemForm */}
-                {/*         planCategoryID={planCategory.id} */}
-                {/*         planCategoryName={planCategory.name} */}
-                {/*         mutationFn={createLineItemFn} */}
-                {/*         callbacks={[ */}
-                {/*             refetchLineItems, */}
-                {/*             // refetchUsages, */}
-                {/*             // refetchPlanUsage, */}
-                {/*         ]} */}
-                {/*     /> */}
-                {/*     <Button */}
-                {/*         variant="ghost" */}
-                {/*         onClick={() => { */}
-                {/*             if (!open) { */}
-                {/*                 setRender(true); */}
-                {/*                 setLineItemsLink( */}
-                {/*                     planCategory._links['line_items'] */}
-                {/*                 ); */}
-                {/*                 requestAnimationFrame(() => setOpen(true)); */}
-                {/*             } else { */}
-                {/*                 setOpen(false); */}
-                {/*                 setTimeout(() => setRender(false), 150); */}
-                {/*             } */}
-                {/*         }} */}
-                {/*     > */}
-                {/*         Line Items */}
-                {/*         <ChevronDownIcon */}
-                {/*             data-open={open} */}
-                {/*             className="size-5 data-[open=true]:rotate-180 transition-transform ms-2" */}
-                {/*         /> */}
-                {/*     </Button> */}
-                {/* </div> */}
             </div>
-            {/* {render && ( */}
-            {/*     <div */}
-            {/*         data-open={open} */}
-            {/*         className="grid data-[open=false]:grid-rows-[0fr] data-[open=true]:grid-rows-[1fr] transition-[grid-template-rows] overflow-hidden" */}
-            {/*     > */}
-            {/*         <div className="overflow-hidden"> */}
-            {/*             <div> */}
-            {/*                 {errored && ( */}
-            {/*                     <p> */}
-            {/*                         Couldn't retrieve line items. Retry later. */}
-            {/*                     </p> */}
-            {/*                 )} */}
-            {/*                 {fetching && ( */}
-            {/*                     <p className="flex items-center gap-2 animate-pulse justify-center"> */}
-            {/*                         <LoaderIcon className="animate-spin size-5" /> */}
-            {/*                         Loading line items... */}
-            {/*                     </p> */}
-            {/*                 )} */}
-            {/*                 {lineItems && ( */}
-            {/*                     <table className="w-full"> */}
-            {/*                         <thead> */}
-            {/*                             <tr className="text-xs font-bold tracking-wide text-slate-600 dark:text-slate-400"> */}
-            {/*                                 <th className="w-full p-4"> */}
-            {/*                                     DESCRIPTION */}
-            {/*                                 </th> */}
-            {/*                                 <th className="p-4">DEPOSIT</th> */}
-            {/*                                 <th className="p-4">WITHDRAWAL</th> */}
-            {/*                                 <th className="p-4">DATE</th> */}
-            {/*                                 <th></th> */}
-            {/*                             </tr> */}
-            {/*                         </thead> */}
-            {/*                         <tbody> */}
-            {/*                             {lineItems._embedded.items?.map((l) => ( */}
-            {/*                                 <LineItemRow */}
-            {/*                                     key={l.id} */}
-            {/*                                     lineItem={l} */}
-            {/*                                     callbacks={[ */}
-            {/*                                         refetchLineItems, */}
-            {/*                                         // refetchUsages, */}
-            {/*                                         // refetchPlanUsage, */}
-            {/*                                     ]} */}
-            {/*                                 /> */}
-            {/*                             ))} */}
-            {/*                         </tbody> */}
-            {/*                     </table> */}
-            {/*                 )} */}
-            {/*             </div> */}
-            {/*         </div> */}
-            {/*     </div> */}
-            {/* )} */}
+            {/* <Suspense fallback={'Loading...'}> */}
+            {/*     <LineItemsAccordion /> */}
+            {/* </Suspense> */}
         </li>
     );
 }

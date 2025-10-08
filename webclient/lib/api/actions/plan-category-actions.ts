@@ -1,13 +1,13 @@
 import {
-    HTTPMethod,
-    CreatePlanFormState,
     CreatePlanCategoryFormState,
     CreatePlanCategoryParams,
     createPlanCategorySchema,
-} from '../types';
+    CreatePlanFormState,
+    HTTPMethod,
+} from '@/lib/types';
 import { revalidatePath } from 'next/cache';
-import { api } from './api';
 import z from 'zod';
+import { api } from '../server';
 
 export async function createPlanCategory(
     _prevState: CreatePlanFormState,

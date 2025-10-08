@@ -1,5 +1,5 @@
+import { auth } from '@/lib/auth/server';
 import { headers } from 'next/headers';
-import { auth } from '../auth/server';
 
 class APIFetcher {
     private baseURL: string = process.env.GO_API_URL || 'http://localhost:8080';

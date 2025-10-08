@@ -9,19 +9,16 @@ interface Props {
 }
 
 export function DeletePlanButton({ deletePlan }: Props) {
-    const [state, formAction, pending] = useActionState(
-        deletePlan,
-        {
-            success: false,
-            message: '',
-        },
-        { id: '' }
-    );
-    return (
-        <form action={formAction} className="w-max">
-            <Button type="submit" disabled={pending}>
-                {pending ? 'Submitting...' : 'Add Plan'}
-            </Button>
-        </form>
-    );
+    return null;
+    // const [state, formAction, pending] = useActionState(deletePlan, {
+    //     success: false,
+    //     message: '',
+    // });
+    // return (
+    //     <form action={formAction} className="w-max">
+    //         <Button type="submit" disabled={pending}>
+    //             {pending ? 'Submitting...' : 'Add Plan'}
+    //         </Button>
+    //     </form>
+    // );
 }

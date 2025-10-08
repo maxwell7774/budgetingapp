@@ -1,5 +1,4 @@
 import { Suspense } from 'react';
-import { createPlan } from '@/lib/api';
 import {
     BudgetCardGrid,
     BudgetCardGridSkeleton,
@@ -14,7 +13,7 @@ export default async function BudgetsPage() {
                 <h1 className="text-lg font-bold text-slate-500 h-full">
                     Budgets
                 </h1>
-                <CreateBudgetDialog createPlan={createPlan} />
+                <CreateBudgetDialog />
             </div>
             <Separator className="mb-8" />
             <Suspense fallback={<BudgetCardGridSkeleton />}>

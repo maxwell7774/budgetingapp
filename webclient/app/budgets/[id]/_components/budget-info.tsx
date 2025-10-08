@@ -1,4 +1,4 @@
-import { api } from '@/lib/api';
+import { api } from '@/lib/api/server';
 import { Plan, PlanUsage } from '@/lib/types';
 
 async function fetchPlan(id: string): Promise<Plan> {

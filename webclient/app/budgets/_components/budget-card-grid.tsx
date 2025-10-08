@@ -1,10 +1,10 @@
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { api } from '@/lib/api';
 import { Collection, Plan, PlanUsage } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
 import { BudgetUsageDonut } from './budget-usage-donut';
+import { api } from '@/lib/api/server';
 
 async function fetchPlans(): Promise<Collection<Plan>> {
     const res = await api.fetch('/api/v1/plans');

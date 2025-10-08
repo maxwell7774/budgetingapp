@@ -7,26 +7,46 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { DialogDescription } from '@radix-ui/react-dialog';
-import { useActionState, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { CreatePlanFn } from '@/lib/api/actions/plan-actions';
+import { revalidateLogic, useForm } from '@tanstack/react-form';
+import { CreatePlanParams, createPlanSchema } from '@/lib/types';
+import { createPlan } from '@/lib/api/client';
+import { useRouter } from 'next/navigation';
 
-interface Props {
-    createPlan: CreatePlanFn;
-}
+const defaultParams: CreatePlanParams = {
+    name: '',
+};
 
-export function CreateBudgetDialog({ createPlan }: Props) {
+export function CreateBudgetDialog() {
+    const router = useRouter();
     const [open, setOpen] = useState<boolean>(false);
-    const [state, formAction, pending] = useActionState(createPlan, {
-        success: false,
-        message: '',
+    const form = useForm({
+        defaultValues: defaultParams,
+        validationLogic: revalidateLogic({
+            mode: 'submit',
+            modeAfterSubmission: 'change',
+        }),
+        validators: {
+            onDynamic: createPlanSchema,
+            onSubmitAsync: async function ({ value }) {
+                return await createPlan(value, {
+                    onSuccess: function (dat) {
+                        console.log(dat);
+                        setOpen(false);
+                        form.reset();
+                        router.refresh();
+                    },
+                });
+            },
+        },
+        onSubmit: function (values) {
+            console.log('SUBMITTING');
+        },
+        onSubmitInvalid: function (values) {
+            console.log('INVALID', values);
+        },
     });
-
-    useEffect(() => {
-        if (state.success) {
-            setOpen(false);
-        }
-    }, [state.success]);
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -40,24 +60,53 @@ export function CreateBudgetDialog({ createPlan }: Props) {
                 <DialogDescription>
                     Please give your new budget a name...
                 </DialogDescription>
-                <form action={formAction}>
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        form.handleSubmit();
+                    }}
+                >
                     <div className="mb-8">
                         <label htmlFor="name">Name</label>
-                        <Input
-                            id="name"
-                            name="name"
-                            defaultValue={state.inputs?.name}
-                            aria-invalid={state.errors?.name ? true : false}
-                            className="mt-1"
-                            placeholder="type here..."
-                        />
-                        {state.errors?.name && (
-                            <p className="text-red-500">{state.errors.name}</p>
-                        )}
+                        <form.Field name="name">
+                            {(field) => (
+                                <>
+                                    <Input
+                                        id="name"
+                                        name="name"
+                                        value={field.state.value}
+                                        onBlur={field.handleBlur}
+                                        onChange={(e) =>
+                                            field.handleChange(e.target.value)
+                                        }
+                                        aria-invalid={!field.state.meta.isValid}
+                                        className="mt-1"
+                                        placeholder="type here..."
+                                    />
+                                    {!field.state.meta.isValid && (
+                                        <p className="text-red-500">
+                                            {field.state.meta.errors
+                                                .map((e) => e?.message)
+                                                .join(',')}
+                                        </p>
+                                    )}
+                                </>
+                            )}
+                        </form.Field>
                     </div>
+                    {!form.state.isValid && (
+                        <div>
+                            {form.state.errors.map((e) => e?.name).join(',')}
+                        </div>
+                    )}
                     <div className="ms-auto w-max">
-                        <Button type="submit" disabled={pending}>
-                            {pending ? 'Submitting...' : 'Add Plan'}
+                        <Button
+                            type="submit"
+                            disabled={form.state.isSubmitting}
+                        >
+                            {form.state.isSubmitting
+                                ? 'Submitting...'
+                                : 'Add Plan'}
                         </Button>
                     </div>
                 </form>
