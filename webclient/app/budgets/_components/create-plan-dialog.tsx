@@ -23,30 +23,29 @@ export function CreateBudgetDialog() {
     const [open, setOpen] = useState<boolean>(false);
     const form = useForm({
         defaultValues: defaultParams,
-        validationLogic: revalidateLogic({
-            mode: 'submit',
-            modeAfterSubmission: 'change',
-        }),
+        validationLogic: revalidateLogic(),
         validators: {
             onDynamic: createPlanSchema,
-            onSubmitAsync: async function ({ value }) {
-                return await createPlan(value, {
-                    onSuccess: function (dat) {
-                        console.log(dat);
-                        setOpen(false);
-                        form.reset();
-                        router.refresh();
-                    },
-                });
-            },
         },
-        onSubmit: function (values) {
-            console.log('SUBMITTING');
-        },
-        onSubmitInvalid: function (values) {
-            console.log('INVALID', values);
+        onSubmit: async function ({ value, formApi }) {
+            await createPlan(value, {
+                onSuccess: function () {
+                    setOpen(false);
+                    form.reset();
+                    router.refresh();
+                    formApi.reset();
+                },
+                onError: function (err) {
+                    formApi.setErrorMap({
+                        onSubmit: { form: err.error, fields: {} },
+                    });
+                    formApi.update();
+                },
+            });
         },
     });
+
+    console.log(form.state);
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -94,10 +93,11 @@ export function CreateBudgetDialog() {
                             )}
                         </form.Field>
                     </div>
-                    {!form.state.isValid && (
-                        <div>
-                            {form.state.errors.map((e) => e?.name).join(',')}
-                        </div>
+                    {form.state.errorMap.onSubmit && (
+                        <div>{form.state.errorMap.onSubmit}</div>
+                    )}
+                    {form.state.isSubmitSuccessful && (
+                        <p>Hello this was successful</p>
                     )}
                     <div className="ms-auto w-max">
                         <Button
