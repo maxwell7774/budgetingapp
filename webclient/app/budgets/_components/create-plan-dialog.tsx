@@ -9,7 +9,7 @@ import {
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { revalidateLogic, useForm } from '@tanstack/react-form';
+import { revalidateLogic, useForm, useStore } from '@tanstack/react-form';
 import { CreatePlanParams, createPlanSchema } from '@/lib/types';
 import { createPlan } from '@/lib/api/client';
 import { useRouter } from 'next/navigation';
@@ -37,15 +37,18 @@ export function CreateBudgetDialog() {
                 },
                 onError: function (err) {
                     formApi.setErrorMap({
-                        onSubmit: { form: err.error, fields: {} },
+                        onSubmit: {
+                            form: err.error,
+                            fields: { name: 'Test' },
+                        },
                     });
-                    formApi.update();
                 },
             });
         },
     });
 
-    console.log(form.state);
+    const formErrors = useStore(form.store, (state) => state.errorMap);
+    console.log(formErrors);
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -99,16 +102,20 @@ export function CreateBudgetDialog() {
                     {form.state.isSubmitSuccessful && (
                         <p>Hello this was successful</p>
                     )}
-                    <div className="ms-auto w-max">
-                        <Button
-                            type="submit"
-                            disabled={form.state.isSubmitting}
-                        >
-                            {form.state.isSubmitting
-                                ? 'Submitting...'
-                                : 'Add Plan'}
-                        </Button>
-                    </div>
+                    <form.Subscribe>
+                        {(state) => (
+                            <div className="ms-auto w-max">
+                                <Button
+                                    type="submit"
+                                    disabled={state.isSubmitting}
+                                >
+                                    {state.isSubmitting
+                                        ? 'Submitting...'
+                                        : 'Add Plan'}
+                                </Button>
+                            </div>
+                        )}
+                    </form.Subscribe>
                 </form>
             </DialogContent>
         </Dialog>

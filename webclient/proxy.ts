@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { auth } from './lib/auth/server';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const session = await auth.api.getSession({
         headers: await headers(),
     });
@@ -15,6 +15,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    runtime: 'nodejs',
-    matcher: ['/profile', '/budgets'], // Apply middleware to specific routes
+    // Apply middleware to specific routes
+    matcher: ['/profile', '/budgets'],
 };
